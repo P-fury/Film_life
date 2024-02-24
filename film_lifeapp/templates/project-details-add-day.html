@@ -1,0 +1,60 @@
+{% extends 'index.html' %}
+{% block content %}
+    <br>
+    LST OF PROJECTS
+    <a href="{% url 'project-add' %}">ADD PROJECT</a>
+
+    <br>
+    <br>
+    Name: {{ project.name }} Oc: {{ project.occupation }} Notes: {{ project.notes }} Rate: {{ project.daily_rate }}
+    Over: {{ project.type_of_overhours }} Date of create: {{ project.date_created.date }}
+    <form method="POST">
+        {% csrf_token %}
+        <input type='date' name="date" placeholder="date">
+        <input type='number' name="overhours" placeholder='amount_of_overhours' value="0">
+        <select name="type_of_day" id="type_of_day">
+            <option value="shoot_day">shoot day</option>
+            <option value="rehersal">rehersal</option>
+            <option value="transport">transport</option>
+            <option value="other">other</option>
+        </select>
+        <textarea rows="5" cols="25" name="notes" placeholder='notes'></textarea>
+        <input type="submit">
+        {% if daysofwork %}
+            {% for dayofwork in daysofwork %}
+                <li>
+                    {{ forloop.counter }} DATE: {{ dayofwork.date }}
+                    Earining: {{ dayofwork.earnings }} {{ dayofwork.amount_of_overhours }} {{ dayofwork.notes }} {{ dayofwork.type_of_workday }}
+                </li>
+            {% endfor %}
+            <!-- PAGINATOR DO WYSWIETLANIA ILOSC STRON Z DNIAMI PRACY --->
+            <div>
+                {% if daysofwork.has_previous %}
+                    <a href="?page={{ daysofwork.previous_page_number }}">< back</a>
+                {% endif %}
+                {% for num in daysofwork.paginator.page_range %}
+                    {% if num == daysofwork.number %}
+                        <span style="text-decoration: underline;">{{ num }}</span>
+                    {% else %}
+                        <a href="?page={{ num }}">| {{ num }} |</a>
+                    {% endif %}
+                {% endfor %}
+                {% if daysofwork.has_next %}
+                    <a href="?page={{ daysofwork.next_page_number }}"> next > </a>
+                {% endif %}
+            </div>
+            <div>
+                Work days at {{ project.name }}: {{ days_count }}  Total earn: {{ project_earned }} PLN
+            </div>
+        {% endif %}
+
+
+    </form>
+
+
+
+
+
+
+
+{% endblock %}
