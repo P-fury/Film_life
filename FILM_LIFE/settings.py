@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'film_lifeapp',
 ]
 
 MIDDLEWARE = [
@@ -75,9 +76,8 @@ WSGI_APPLICATION = 'FILM_LIFE.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "film_lifeapp/../film_lifeapp/static"),
 ]
-
 try:
     from FILM_LIFE.local_settings import DATABASES
 except ModuleNotFoundError:
@@ -126,3 +126,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
