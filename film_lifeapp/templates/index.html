@@ -1,7 +1,59 @@
 {% load static %}
-NAV BAR
-<a href="{% url 'project-list' %}">project</a>
 
 
+{########LADOWANIE SASS I SCSS#}
+{#{% load compress %}{% compress css %}#}
+{#    <link type="text/x-scss" href="{% static 'style/navbar/navbar.sass' %}" rel="stylesheet" media="screen">#}
+{#{% endcompress %}#}
+
+<link rel="stylesheet" href="{% static 'style/navbar/navbar.css' %}">
+<script src="{% static 'style/navbar/navbar.js' %}"></script>
+<script type="text/javascript" src="{% static 'jQuery 3.7.1.js' %}">
+</script>
+{#<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>  <----JQUERY Z NETA#}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Film life</title>
+
+</head>
+<body>
+<section class="navigation">
+  <div class="nav-container">
+    <div class="brand">
+      <a href="{%  url 'main' %}">Film life</a>
+    </div>
+    <nav>
+      <div class="nav-mobile"><a id="navbar-toggle" href="#!"><span></span></a></div>
+      <ul class="nav-list">
+
+        <li>
+          <a href='#!'>Projects</a>
+          <ul class="navbar-dropdown">
+            <li>
+              <a href="{% url 'project-list' %}">Projects List</a>
+            </li>
+            <li>
+              <a href="{% url 'project-add' %}">Project Add</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="#!">Contact</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</section>
+<div>
 {% block content %}
 {% endblock %}
+</div>
+</body>
+
+</html>
