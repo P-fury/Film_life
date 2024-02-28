@@ -1,0 +1,21 @@
+{% extends 'index.html' %}
+{% block content %}
+    {%  load static %}
+    <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+    <p class="generated-text">ADD PROJECT</p>
+    <form method="POST">
+        {% csrf_token %}
+        <p class="generated-text">NAME OF PROJECT<input type='text' name="name" placeholder="name  of project"></p>
+        <p class="generated-text">DAILY RATE<input type='number' name="daily_rate" placeholder='daily rate'>
+        <p class="generated-text">TYPE OF OVERHOURS<input type='text' name="type_of_overhours" placeholder='Type of overhours'>
+        <p class="generated-text">OCCUPATION<input type='text' name="occupation" placeholder='occupation'>
+        <p class="generated-text">NOTES<textarea  rows="5" cols="25" name="notes" placeholder='notes'></textarea></p>
+        <input type="submit">
+    </form>
+
+
+
+
+
+
+{% endblock %}

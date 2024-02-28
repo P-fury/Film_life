@@ -1,0 +1,85 @@
+/* line 1, film_lifeapp/static/style/navbar/navbar.sass */
+body {
+  background: #eee;
+  min-height: 3000px;
+  padding: 0;
+  margin: 0;
+  font-family: 'Open Sans', sans-serif; }
+
+/* line 8, film_lifeapp/static/style/navbar/navbar.sass */
+.container {
+  width: 80%;
+  margin: 0 auto;
+  clear: both; }
+
+/* line 13, film_lifeapp/static/style/navbar/navbar.sass */
+a {
+  display: inline-block;
+  color: #333;
+  text-decoration: none; }
+  /* line 18, film_lifeapp/static/style/navbar/navbar.sass */
+  a button#add_days {
+    display: block; }
+
+/* line 22, film_lifeapp/static/style/navbar/navbar.sass */
+nav {
+  background: #fff;
+  height: 80px;
+  line-height: 80px;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9998;
+  transition: all 0.5s; }
+  /* line 33, film_lifeapp/static/style/navbar/navbar.sass */
+  nav.scrollUp {
+    transform: translateY(-80px); }
+  /* line 36, film_lifeapp/static/style/navbar/navbar.sass */
+  nav ul.navbar-menu {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    float: right; }
+    /* line 42, film_lifeapp/static/style/navbar/navbar.sass */
+    nav ul.navbar-menu li {
+      display: inline-block;
+      margin: 0 10px; }
+      /* line 45, film_lifeapp/static/style/navbar/navbar.sass */
+      nav ul.navbar-menu li a {
+        color: #666;
+        font-size: 14px; }
+  /* line 49, film_lifeapp/static/style/navbar/navbar.sass */
+  nav a#brand {
+    text-transform: uppercase;
+    foat: left;
+    font-weight: 800;
+    font-size: 20px; }
+  /* line 55, film_lifeapp/static/style/navbar/navbar.sass */
+  nav button {
+    background: none;
+    width: 30px;
+    height: 40px;
+    margin-top: 20px;
+    border: none;
+    float: right;
+    display: inline-block;
+    cursor: pointer;
+    display: none; }
+    /* line 68, film_lifeapp/static/style/navbar/navbar.sass */
+    nav button span {
+      width: 30px;
+      height: 40px;
+      height: 2px;
+      background: #333;
+      display: block;
+      margin: 5px 0; }
+
+@media (max-width: 768px) {
+  /* line 79, film_lifeapp/static/style/navbar/navbar.sass */
+  nav ul.navbar-menu {
+    display: none; }
+  /* line 81, film_lifeapp/static/style/navbar/navbar.sass */
+  nav button {
+    display: block; } }
