@@ -1,16 +1,34 @@
 {% extends 'index.html' %}
 {% block content %}
-    {%  load static %}
+    {% load static %}
     <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+
     <p class="generated-text">ADD PROJECT</p>
     <form method="POST">
         {% csrf_token %}
-        <p class="generated-text">NAME OF PROJECT<input type='text' name="name" placeholder="name  of project"></p>
-        <p class="generated-text">DAILY RATE<input type='number' name="daily_rate" placeholder='daily rate'>
-        <p class="generated-text">TYPE OF OVERHOURS<input type='text' name="type_of_overhours" placeholder='Type of overhours'>
-        <p class="generated-text">OCCUPATION<input type='text' name="occupation" placeholder='occupation'>
-        <p class="generated-text">NOTES<textarea  rows="5" cols="25" name="notes" placeholder='notes'></textarea></p>
-        <input type="submit">
+        {% for message in messages %}
+            <h2 class="center">{{ message }}</h2>
+        {% endfor %}
+        <p class="generated-text">NAME OF PROJECT<input class='center' type='text' name="name"
+                                                        placeholder="name  of project"></p>
+        <p class="generated-text">DAILY RATE<input class='center' type='number' name="daily_rate"
+                                                   placeholder='daily rate'>
+        <p class="generated-text">TYPE OF OVERHOURS<input class='center' type='text' name="type_of_overhours"
+                                                          placeholder='Type of overhours'>
+        <p class="generated-text">OCCUPATION<input class='center' type='text' name="occupation"
+                                                   placeholder='occupation'>
+        <p class="generated-text">NOTES<textarea class='center' rows="5" cols="25" name="notes"
+                                                 placeholder='notes'></textarea></p>
+        <p class="generated-text">PRODUCTION HOUSE
+        <select class="center" name="production">
+            <option value=""></option>
+            {% for production in productions %}
+                <option value="{{ production.id }}">{{ production.name }}</option>
+            {% endfor %}
+        </select>
+</p>
+        <input class="center" type="submit">
+
     </form>
 
 

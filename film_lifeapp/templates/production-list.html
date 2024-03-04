@@ -1,0 +1,41 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+
+
+    <p class="generated-text">LIST OF PRODUCTION HOUSES:</p>
+    <div>
+    <ul class="lst">
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% for prod in prod_houses %}
+
+
+
+            <li class="lst">
+
+                <strong>Name:</strong> {{ prod.name }}
+                <strong>Nip:</strong> {{ prod.nip }}
+                <strong>Address:</strong> {{ prod.address }}
+                <strong>Email :</strong> {{ prod.email }}
+                <strong>Rate:</strong> {{ prod.get_rating_display }}
+                <strong>Notes:</strong> {{ prod.notes }}
+{#                <a href="{% url 'project-details' id=project.id %}">#}
+{#                    <button id="add_days">edit///!!!</button>#}
+{#                </a>#}
+            </li>
+
+        {% endfor %}
+
+    </ul>
+    </div>
+{% endblock %}
+
+

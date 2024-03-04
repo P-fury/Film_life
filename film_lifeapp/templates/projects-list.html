@@ -8,13 +8,13 @@
     <p class="generated-text">LIST OF PROJECT:</p>
     <div>
         <ul class="lst">
-             {% if messages %}
-                    <ul>
-                        {% for message in messages %}
-                            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                        {% endfor %}
-                    </ul>
-             {% endif %}
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
             {% for project in projects %}
 
 
@@ -29,6 +29,9 @@
                     <strong>Date of create:</strong> {{ project.date_created.date }}
                     <a href="{% url 'project-details' id=project.id %}">
                         <button id="add_days">Add days</button>
+                    </a>
+                    <a href="{% url 'project-days' id=project.id %}">
+                        <button id="add_days">See days</button>
                     </a>
                 </li>
 
