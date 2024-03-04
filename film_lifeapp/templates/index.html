@@ -31,7 +31,6 @@
     <nav>
       <div class="nav-mobile"><a id="navbar-toggle" href="#!"><span></span></a></div>
       <ul class="nav-list">
-
         <li>
           <a href='#!'>Projects</a>
           <ul class="navbar-dropdown">
@@ -44,7 +43,15 @@
           </ul>
         </li>
         <li>
-          <a href="#!">Contact</a>
+          <a href="#!">Production Houses</a>
+          <ul class="navbar-dropdown">
+            <li>
+                <a href="{% url 'productions-list' %}"> Production Houses List </a>
+            </li>
+            <li>
+                 <a href="{% url 'productions-add' %}"> Add Production House </a>
+            </li>
+          </ul>
         </li>
       </ul>
     </nav>

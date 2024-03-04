@@ -10,6 +10,7 @@
         <li>Overhours: {{ project.type_of_overhours }} %</li>
         <li>Date of create: {{ project.date_created.date }}</li>
         <li>Notes: {{ project.notes }}</li>
+        <li>Production House: {{ project.production.name }}</li>
     </ul>
 
     <form method="POST">
@@ -26,16 +27,19 @@
         <input class="center" id="percent_of_daily" style='display: none' type="number" name="percent_of_daily"
                placeholder="percent amount of daily rate" min=1 max=99>
         <textarea class="center" rows="5" cols="25" name="notes" placeholder='notes'></textarea>
-        <input class="center" type="submit">
+        <button class="center" type="submit" name="add_day" value="add_day">ADD DAY</button>
+    </form>
 
 
-
-
+    <form method="POST">
+    {%  csrf_token %}
         {% if daysofwork %}
             {% for dayofwork in daysofwork %}
+
                 <li>
                     {{ forloop.counter }} DATE: {{ dayofwork.date }}
                     Earining: {{ dayofwork.earnings }} {{ dayofwork.amount_of_overhours }} {{ dayofwork.notes }} {{ dayofwork.type_of_workday }}
+                    <button type="submit" name="edit_day" value="{{ dayofwork.id }}">edit</button>
                 </li>
             {% endfor %}
 

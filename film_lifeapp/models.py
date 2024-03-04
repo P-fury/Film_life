@@ -1,7 +1,6 @@
 from django.db import models
 import re
 
-
 # Create your models here.
 class Worker(models.Model):
     first_Name = models.CharField(max_length=128)
@@ -14,19 +13,19 @@ class Worker(models.Model):
 
 class ProductionHouse(models.Model):
     RATING_CHOICES = [
-        (1, 'Słaby'),
-        (2, 'Przeciętny'),
-        (3, 'Dobry'),
-        (4, 'Bardzo dobry'),
-        (5, 'Doskonały'),
+        (1, 'Weak'),
+        (2, 'Average'),
+        (3, 'Good'),
+        (4, 'Very good'),
+        (5, 'Excellent'),
     ]
     name = models.CharField(max_length=128)
-    nip = models.IntegerField()
-    address = models.CharField(max_length=256)
-    email = models.EmailField()
+    nip = models.BigIntegerField(blank=True, null=True)
+    address = models.CharField(max_length=256, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
     workers = models.ManyToManyField(Worker)
-    rating = models.IntegerField(choices=RATING_CHOICES)
-    notes = models.TextField(null=True)
+    rating = models.IntegerField(choices=RATING_CHOICES, blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
 
 
 class Project(models.Model):
@@ -37,6 +36,7 @@ class Project(models.Model):
     production = models.ForeignKey(ProductionHouse, on_delete=models.CASCADE, null=True)
     notes = models.TextField(null=True)
     occupation = models.CharField(max_length=56)
+
 
 # USUWANIE TEKSTU Z TYPE OF SHOOTING DAY
 def just_numb(value):

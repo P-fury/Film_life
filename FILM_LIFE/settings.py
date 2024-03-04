@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     'film_lifeapp',
     'compressor', # KOMPRESOR DO SASS I SCSS
     'jquery', # POTRZEBNY PLIK JQUERY
+    'bootstrap_datepicker_plus',  # KALENDARZ
+    'bootstrap4',
+    'widget_tweaks',
 
 ]
 

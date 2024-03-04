@@ -17,11 +17,15 @@ Including another URLconf
 from django.urls import path
 from film_lifeapp.views import *
 
-
-
 urlpatterns = [
     path('', Main.as_view(), name='main'),
     path('project-list/', ProjectList.as_view(), name='project-list'),
     path('project-add/', ProjectAdd.as_view(), name='project-add'),
-    path('project-details/<id>', ProjectDetails.as_view(), name='project-details')
+    path('project-edit/<id>/', ProjectEdit.as_view(), name='project-edit'),
+    path('project/days/<id>/', ProjectDays.as_view(), name='project-days'),
+    path('project-details/<id>/', ProjectDetails.as_view(), name='project-details'),
+    path('project/dayofwork/<id>/', DayOfWorkDetailView.as_view(), name='day-of-work-details'),
+
+    path('productions/list/', ProductionList.as_view(), name='productions-list'),
+    path('productions/add/', AddProduction.as_view(), name='productions-add'),
 ]
