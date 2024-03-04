@@ -20,20 +20,40 @@
         <p class="generated-text">NOTES<textarea class='center' rows="5" cols="25" name="notes"
                                                  placeholder='notes'></textarea></p>
         <p class="generated-text">PRODUCTION HOUSE
-        <select class="center" name="production">
-            <option value=""></option>
-            {% for production in productions %}
-                <option value="{{ production.id }}">{{ production.name }}</option>
-            {% endfor %}
-        </select>
-</p>
+            <select class="center" name="production">
+                <option value=""></option>
+                {% for production in productions %}
+                    <option value="{{ production.id }}">{{ production.name }}</option>
+                {% endfor %}
+            </select>
+        </p>
         <input class="center" type="submit">
 
     </form>
 
+    {% for project in projects %}
 
 
 
+        <li class="lst">
 
+            <strong>Name:</strong> {{ project.name }}
+            <strong>Oc:</strong> {{ project.occupation }}
+            <strong>Notes:</strong> {{ project.notes }}
+            <strong>Rate:</strong> {{ project.daily_rate }}
+            <strong>Over:</strong> {{ project.type_of_overhours }}
+            <strong>Date of create:</strong> {{ project.date_created.date }}
+            <a href="{% url 'project-details' id=project.id %}">
+                <button id="add_days">Add days</button>
+            </a>
+            <a href="{% url 'project-days' id=project.id %}">
+                <button id="add_days">See days</button>
+            </a>
+            <a href="{% url 'project-edit' id=project.id %}">
+                <button id="edit_project">edit</button>
+            </a>
+        </li>
+
+    {% endfor %}
 
 {% endblock %}

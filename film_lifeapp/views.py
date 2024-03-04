@@ -1,26 +1,20 @@
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
-from django.views.generic import DetailView
-
 from film_lifeapp.models import *
-from django.core.paginator import Paginator
 from django.db.models import Sum
 from django.contrib import messages
-
-from django import forms
-import widget_tweaks
-from django.shortcuts import render
 
 
 # Create your views here.
 
-
+# ------------------------------------- HOME PAGE -----------------------------------
 class Main(View):
     def get(self, request):
         return render(request, 'index.html')
 
 
+# ------------------------------------- LIST OF PROJECTS -----------------------------------
 class ProjectList(View):
     def get(self, request):
         projects = Project.objects.all()
@@ -29,6 +23,7 @@ class ProjectList(View):
         return render(request, 'projects-list.html', {"projects": projects})
 
 
+# ------------------------------------- ADDING PROJECTS -----------------------------------
 class ProjectAdd(View):
     def get(self, request):
         projects = Project.objects.all()
@@ -51,16 +46,46 @@ class ProjectAdd(View):
             return redirect('project-add')
 
 
+# ------------------------------------- EDIT PROJECTS -----------------------------------
+class ProjectEdit(View):
+    def get(self, request, id):
+        project = Project.objects.get(id=id)
+        productions = ProductionHouse.objects.all()
+        return render(request, 'project-edit.html', {"project": project, "productions": productions})
+
+    def post(self, request, id):
+        project_to_edit = Project.objects.get(id=id)
+        edited_name = request.POST.get('name')
+        edited_daily_rate = request.POST.get('daily_rate')
+        edited_type_of_overhours = request.POST.get('type_of_overhours')
+        edited_occupation = request.POST.get('occupation')
+        edited_notes = request.POST.get('notes')
+        edited_production = request.POST.get('production')
+        print(edited_production)
+        if all([edited_name, edited_daily_rate, edited_type_of_overhours]):
+            project_to_edit.name = edited_name
+            project_to_edit.daily_rate = edited_daily_rate
+            project_to_edit.type_of_overhours = edited_type_of_overhours
+            project_to_edit.occupation = edited_occupation
+            project_to_edit.notes = edited_notes
+            if edited_production != '':
+                project_to_edit.production_id = edited_production
+            project_to_edit.save()
+            return redirect('project-list')
+        else:
+            messages.error(request, 'Need to fill all necessary fields')
+            return redirect('project-add')
+
+
+# ----------------------- PROJECT DETAILS AND ADDING DAY QUICK DAY VIEW -------------------------
 class ProjectDetails(View):
     def get(self, request, id):
         daysofwork = DayOfWork.objects.filter(project_id=id).order_by('date')
-
         ### INFORMACJE PODSUMOWANIE PROJEKTU ###
         days_count = daysofwork.count()
         project_earned = DayOfWork.objects.filter(project_id=id).aggregate(sum=Sum('earnings'))
         project_earned = project_earned['sum']
         project = Project.objects.get(id=id)
-
         return render(request, 'project-details-add-day.html',
                       {"project": project, "daysofwork": daysofwork, "days_count": days_count,
                        "project_earned": project_earned})
@@ -74,7 +99,6 @@ class ProjectDetails(View):
             if request.POST.get('percent_of_daily') != '':
                 percent_of_daily = request.POST.get('percent_of_daily')
                 type_of_day = percent_of_daily + '% of daily rate'
-
             if all([date, overhours, type_of_day]):
                 added_day = DayOfWork.objects.create(date=date, amount_of_overhours=overhours,
                                                      type_of_workday=type_of_day,
@@ -84,19 +108,18 @@ class ProjectDetails(View):
             else:
                 messages.add_message(request, messages.INFO, "Need to fill date")
                 return redirect('project-details', id=id)
-
         elif 'edit_day' in request.POST:
             day_id = request.POST.get('edit_day')
             return redirect('day-of-work-details', id=day_id)
 
 
+# ------------------------------------- EDITING OF ADDED DAY -----------------------------------
 class DayOfWorkDetailView(View):
     def get(self, request, id):
         day_of_work = DayOfWork.objects.get(id=id)
         # DLA DOMYSLNEJ DATY
         date_of_work = str(day_of_work.date)
         percent_amout_of_daily = just_numb(day_of_work.type_of_workday)
-
         return render(request, 'days-edit.html', {'day_of_work': day_of_work, "date_of_work": date_of_work,
                                                   "percent_amout_of_daily": percent_amout_of_daily})
 
@@ -126,7 +149,7 @@ class DayOfWorkDetailView(View):
             return redirect('project-details', id=day_of_work.project.id)
 
 
-# ----------------------------- OBSLUGA DNI ----------------------------
+# ----------------------------- BASE WORKING DAYS VIEW AND TABLE ----------------------------
 class ProjectDays(View):
     def get(self, request, id):
         daysofwork = DayOfWork.objects.filter(project_id=id).order_by('date')
@@ -153,6 +176,7 @@ class ProductionList(View):
         return render(request, 'production-list.html', {"prod_houses": prod_houses})
 
 
+# ---------------------- ADDING PRODUCTION HOUSE AND NIP VALIDATE -------------------------
 class AddProduction(View):
     def get(self, request):
         return render(request, 'production-add.html')
@@ -179,7 +203,7 @@ class AddProduction(View):
                     result = [waga * cyfra for waga, cyfra in zip(wagi, lst)]
                     if sum(result) % 11 == int(clean_nip[-1]):
                         validate_nip = clean_nip
-        #             ALGORYTM POPRAWNOSCI NIP
+        # -----  ALGORYTM POPRAWNOSCI NIP --------------------
 
         prod_address = request.POST.get('address')
         prod_email = request.POST.get('email')

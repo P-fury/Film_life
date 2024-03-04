@@ -16,45 +16,45 @@
     <form method="POST">
         {% csrf_token %}
 
- <div style="display: inline-block;">
-    <table class="table_component ">
-        <tbody>
-            <tr>
-                <td>NO:</td>
-                <td>DATE:</td>
-                <td>Earining:</td>
-                <td>AMOUNT OF OVERHOURS:</td>
-                <td>NOTES:</td>
-                <td>TYPE OF WORK DAY:</td>
-                <td></td>
-            </tr>
-            {% if daysofwork %}
-            {% for dayofwork in daysofwork %}
-            <tr>
-                <td>{{ forloop.counter }}</td>
-                <td>{{ dayofwork.date }}</td>
-                <td>{{ dayofwork.earnings }}</td>
-                <td>{{ dayofwork.amount_of_overhours }}</td>
-                <td>{{ dayofwork.notes }}</td>
-                <td>{{ dayofwork.type_of_workday }}</td>
-                <td>
-                    <a href="{% url 'day-of-work-details' dayofwork.id %}">
-                        <button name="edit_day" value="{{ dayofwork.id }}">edit</button>
-                    </a>
-                </td>
-            </tr>
-                {% endfor %}
-        </tbody>
-    </table>
-</div>
+        <div style="display: inline-block;">
+            <table class="table_component ">
+                <tbody>
+                <tr>
+                    <td>NO:</td>
+                    <td>DATE:</td>
+                    <td>Earining:</td>
+                    <td>AMOUNT OF OVERHOURS:</td>
+                    <td>NOTES:</td>
+                    <td>TYPE OF WORK DAY:</td>
+                    <td></td>
+                </tr>
+                {% if daysofwork %}
+                    {% for dayofwork in daysofwork %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ dayofwork.date }}</td>
+                            <td>{{ dayofwork.earnings }}</td>
+                            <td>{{ dayofwork.amount_of_overhours }}</td>
+                            <td>{{ dayofwork.notes }}</td>
+                            <td>{{ dayofwork.type_of_workday }}</td>
+                            <td>
+                                <a href="{% url 'day-of-work-details' dayofwork.id %}">
+                                    <button name="edit_day" value="{{ dayofwork.id }}">edit</button>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                    </table>
+                    </div>
 
 
 
 
-            <div>
-                Work days at {{ project.name }}: {{ days_count }} Total earn: {{ project_earned }} PLN
-            </div>
-        {% endif %}
+                    <div>
+                        Work days at {{ project.name }}: {{ days_count }} Total earn: {{ project_earned }} PLN
+                    </div>
+                {% endif %}
 
 
     </form>
