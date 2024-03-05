@@ -4,6 +4,7 @@ from django.views import View
 from film_lifeapp.models import *
 from django.db.models import Sum
 from django.contrib import messages
+from film_lifeapp.functions import nip_checker
 
 
 # Create your views here.
@@ -11,7 +12,9 @@ from django.contrib import messages
 # ------------------------------------- HOME PAGE -----------------------------------
 class Main(View):
     def get(self, request):
-        return render(request, 'index.html')
+        last_project = DayOfWork.objects.latest('last_updated')
+
+        return render(request, 'index.html', {'last_project': last_project})
 
 
 # ------------------------------------- LIST OF PROJECTS -----------------------------------
@@ -198,10 +201,7 @@ class AddProduction(View):
                     messages.add_message(request, messages.INFO, "LENGTH OF NIP NUMBER IS NOT CORRECT")
                     return render(request, 'production-add.html')
                 else:
-                    wagi = [6, 5, 7, 2, 3, 4, 5, 6, 7]
-                    lst = [int(number) for number in clean_nip[:-1]]
-                    result = [waga * cyfra for waga, cyfra in zip(wagi, lst)]
-                    if sum(result) % 11 == int(clean_nip[-1]):
+                    if nip_checker(clean_nip) is True:
                         validate_nip = clean_nip
         # -----  ALGORYTM POPRAWNOSCI NIP --------------------
 

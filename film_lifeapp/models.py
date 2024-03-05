@@ -50,6 +50,7 @@ class DayOfWork(models.Model):
     type_of_workday = models.CharField(max_length=36)
     notes = models.TextField()
     project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
+    last_updated = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def calculate_earnings(self):
         if self.amount_of_overhours != '0':
@@ -75,7 +76,7 @@ class DayOfWork(models.Model):
                 self.earnings = self.project.daily_rate
             elif self.type_of_workday == 'rehersal':
                 self.earnings = self.project.daily_rate / 2
-            elif self.type_of_workday == 'rehersal':
+            elif self.type_of_workday == 'transport':
                 self.earnings = self.project.daily_rate / 2
             else:
 
