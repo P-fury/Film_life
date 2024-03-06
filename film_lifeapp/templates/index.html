@@ -62,10 +62,8 @@
 
     <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
 
-
+{%  if last_project %}
     <p class="generated-text">LASTED UPDATED PROJECT: {{ last_project.project.name }}</p>
-
-
     <ul class="lst" style="font-size: 16px">
         <li>Occupation: {{ last_project.project.occupation }}</li>
         <li>Rate: {{ last_project.project.daily_rate }}</li>
@@ -74,7 +72,7 @@
         <li>Notes: {{ last_project.project.notes }}</li>
         <li>Production House:{{ last_project.project.production.name }}</li>
     </ul>
-
+{% endif %}
 {% endblock %}
 </div>
 </body>

@@ -12,8 +12,10 @@ from film_lifeapp.functions import nip_checker
 # ------------------------------------- HOME PAGE -----------------------------------
 class Main(View):
     def get(self, request):
-        last_project = DayOfWork.objects.latest('last_updated')
-
+        try:
+            last_project = DayOfWork.objects.latest('last_updated')
+        except DayOfWork.DoesNotExist:
+            return render(request, 'index.html')
         return render(request, 'index.html', {'last_project': last_project})
 
 
@@ -52,7 +54,12 @@ class ProjectAdd(View):
 # ------------------------------------- EDIT PROJECTS -----------------------------------
 class ProjectEdit(View):
     def get(self, request, id):
-        project = Project.objects.get(id=id)
+        if id is None:
+            return redirect('main')
+        try:
+            project = Project.objects.get(id=id)
+        except Project.DoesNotExist:
+            return redirect('main')
         productions = ProductionHouse.objects.all()
         return render(request, 'project-edit.html', {"project": project, "productions": productions})
 
