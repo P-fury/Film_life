@@ -1,0 +1,16 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'user-form/register_user.css' %}">
+    <br>
+    {% if user.is_authenticated %}
+    Witaj {{ user.username }}
+{% endif %}
+    <form method="POST">
+        {% csrf_token %}
+    <input type="submit" value="logout">
+    </form>
+{% endblock %}
+
+

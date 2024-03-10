@@ -1,0 +1,52 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'user-form/register_user.css' %}">
+    <br>
+    <form method="POST">
+
+        {% csrf_token %}
+        <p class="center">
+        </p>
+        <div class="login-page">
+            <div class="form">
+                <form class="register-form">
+                    {% if not user.is_authenticated %}
+                        {{ form.username }}
+                        {{ form.password1 }}
+                        {% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                    <li class="cnt-msg">{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        {{ form.password }}
+                        {{ form.password2 }}
+                        {{ form.email }}
+                        {{ form.first_name }}
+                        {{ form.last_name }}
+                    {% else %}
+                        <input type="text" name="username" placeholder="Enter your username"
+                               value="{{ form.username.value }}">
+                        <input type="email" name="email" placeholder="Enter your email" value="{{ form.email.value }}">
+                        <input type="text" name="first_name" placeholder="Enter your first name"
+                               value="{{ form.first_name.value }}">
+                        <input type="text" name="last_name" placeholder="Enter your last name"
+                               value="{{ form.last_name.value }}">
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        <button name="create" value="create">edit</button>
+                    {% else %}
+                        <button name="create" value="create">create</button>
+                    {% endif %}
+                    <p class="message">Already registered? <a href="{% url 'login-user' %}">Sign In</a></p>
+                </form>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}
+
+
