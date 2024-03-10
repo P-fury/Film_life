@@ -1,5 +1,11 @@
+from django.conf import settings
 from django.db import models
 import re
+
+from django.db.models import Sum
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 # Create your models here.
 class Worker(models.Model):
@@ -36,9 +42,17 @@ class Project(models.Model):
     production = models.ForeignKey(ProductionHouse, on_delete=models.CASCADE, null=True)
     notes = models.TextField(null=True)
     occupation = models.CharField(max_length=56)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    total_earnings_for_project = models.IntegerField(default=0)
+
+    def update_total_earnings(self):
+        total_earnings = self.dayofwork_set.aggregate(total_earnings=Sum('earnings'))['total_earnings'] or 0
+        self.total_earnings_for_project = total_earnings
+        self.save()
 
 
-# USUWANIE TEKSTU Z TYPE OF SHOOTING DAY
+# ================== DODAWANIE PODSUMOWANIA ZAROBKOW DO PROJEKTU ==============
+
 def just_numb(value):
     return re.sub(r'[^0-9]', '', value)
 
@@ -48,7 +62,7 @@ class DayOfWork(models.Model):
     amount_of_overhours = models.IntegerField()
     earnings = models.IntegerField(blank=True, null=True)
     type_of_workday = models.CharField(max_length=36)
-    notes = models.TextField()
+    notes = models.TextField(null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, blank=True, null=True)
     last_updated = models.DateTimeField(auto_now=True, null=True, blank=True)
 
@@ -74,12 +88,21 @@ class DayOfWork(models.Model):
         else:
             if self.type_of_workday == 'shoot_day':
                 self.earnings = self.project.daily_rate
-            elif self.type_of_workday == 'rehersal':
+            elif self.type_of_workday == 'rehersal' or self.type_of_workday == 'transport':
                 self.earnings = self.project.daily_rate / 2
-            elif self.type_of_workday == 'transport':
-                self.earnings = self.project.daily_rate / 2
+            # elif self.type_of_workday == 'transport':
+            #     self.earnings = self.project.daily_rate / 2
             else:
 
                 self.earnings = self.project.daily_rate * (int(just_numb(self.type_of_workday)) / 100)
 
         self.save()
+
+
+@receiver(post_save, sender=DayOfWork)
+def update_project_total_earnings(sender, instance, **kwargs):
+    if instance.project:
+        instance.project.update_total_earnings()
+
+
+

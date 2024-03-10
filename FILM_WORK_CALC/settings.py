@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'film_lifeapp',
-    'compressor', # KOMPRESOR DO SASS I SCSS
-    'jquery', # POTRZEBNY PLIK JQUERY
+    'compressor',  # KOMPRESOR DO SASS I SCSS
+    'jquery',  # POTRZEBNY PLIK JQUERY
     'bootstrap_datepicker_plus',  # KALENDARZ
     'bootstrap4',
     'widget_tweaks',
@@ -129,8 +129,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
-
-#POTRZEBNE DO SCSS I SASS STATYCZNE PILKI I KOMPILER
+# POTRZEBNE DO SCSS I SASS STATYCZNE PILKI I KOMPILER
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -140,3 +139,5 @@ STATICFILES_FINDERS = (
 COMPRESS_PRECOMPILERS = (
     ('text/x-scss', 'django_libsass.SassCompiler'),
 )
+
+LOGIN_URL = 'register_user/'

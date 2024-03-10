@@ -2,39 +2,57 @@
 
 {% block content %}
     {% load static %}
-    <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+    <link rel="stylesheet" href="{% static 'production-list/production-list.css' %}">
 
 
     <p class="generated-text">LIST OF PRODUCTION HOUSES:</p>
     <div>
-    <ul class="lst">
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-        {% for prod in prod_houses %}
+        <ul class="lst">
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <div style="display: inline-block;">
+                <table class="table_component ">
+                    <tbody>
+                    <tr>
+                        <td>NO:</td>
+                        <td>NAME:</td>
+                        <td>Nip:</td>
+                        <td>Address:</td>
+                        <td>Email:</td>
+                        <td>Rate:</td>
+                        <td>Notes:</td>
+                        <td>EDIT</td>
+                    </tr>
+
+                    {% for prod in prod_houses %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ prod.name }}</td>
+                            <td>{{ prod.nip }}</td>
+                            <td>{{ prod.address }}</td>
+                            <td>{{ prod.email }}</td>
+                            <td>{{ prod.get_rating_display }}</td>
+                            <td>{{ prod.notes }}</td>
+                            <td>
+                                <a href="{% url 'productions-edit' pk=prod.pk %}" id="edit">
+                                    <button>edit</button>
+                                </a>
+                            </td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
 
-
-            <li class="lst">
-
-                <strong>Name:</strong> {{ prod.name }}
-                <strong>Nip:</strong> {{ prod.nip }}
-                <strong>Address:</strong> {{ prod.address }}
-                <strong>Email :</strong> {{ prod.email }}
-                <strong>Rate:</strong> {{ prod.get_rating_display }}
-                <strong>Notes:</strong> {{ prod.notes }}
-{#                <a href="{% url 'project-details' id=project.id %}">#}
-{#                    <button id="add_days">edit///!!!</button>#}
-{#                </a>#}
-            </li>
-
-        {% endfor %}
-
-    </ul>
+        </ul>
     </div>
 {% endblock %}
 

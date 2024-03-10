@@ -23,57 +23,82 @@
 
 </head>
 <body>
+{% if user.is_authenticated %}
+    Witaj {{ user.username }}
+{% endif %}
 <section class="navigation">
-  <div class="nav-container">
-    <div class="brand">
-      <a href="{%  url 'main' %}">Film life</a>
+    <div class="nav-container">
+        <div class="brand">
+            <a href="{% url 'main' %}">Film life</a>
+        </div>
+        <nav>
+            <div class="nav-mobile"><a id="navbar-toggle" href="#!"><span></span></a></div>
+            <ul class="nav-list">
+
+                <li>
+                <li>
+                    <a href='#!'>Projects</a>
+                    <ul class="navbar-dropdown">
+                        <li>
+                            <a href="{% url 'project-list' %}">Projects List</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'project-add' %}">Project Add</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#!">Production Houses</a>
+                    <ul class="navbar-dropdown">
+                        <li>
+                            <a href="{% url 'productions-list' %}"> Production Houses List </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'productions-add' %}"> Add Production House </a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href='#!'>User</a>
+                    <ul class="navbar-dropdown">
+                        <li>
+                            <a href="{% url 'login-user' %}">Login</a>
+                        </li>
+                        <li>
+                            <a href="{% url 'logout-user' %}">Logout</a>
+                        </li>
+                        <li>
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'edit-user' pk=request.user.pk %}">Edit</a>
+                                {% else %}
+                                <a href="{% url 'register-user' %}">Register</a>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
     </div>
-    <nav>
-      <div class="nav-mobile"><a id="navbar-toggle" href="#!"><span></span></a></div>
-      <ul class="nav-list">
-        <li>
-          <a href='#!'>Projects</a>
-          <ul class="navbar-dropdown">
-            <li>
-              <a href="{% url 'project-list' %}">Projects List</a>
-            </li>
-            <li>
-              <a href="{% url 'project-add' %}">Project Add</a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="#!">Production Houses</a>
-          <ul class="navbar-dropdown">
-            <li>
-                <a href="{% url 'productions-list' %}"> Production Houses List </a>
-            </li>
-            <li>
-                 <a href="{% url 'productions-add' %}"> Add Production House </a>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </nav>
-  </div>
 </section>
 <div>
-{% block content %}
+    {% block content %}
 
-    <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
-
-{%  if last_project %}
-    <p class="generated-text">LASTED UPDATED PROJECT: {{ last_project.project.name }}</p>
-    <ul class="lst" style="font-size: 16px">
-        <li>Occupation: {{ last_project.project.occupation }}</li>
-        <li>Rate: {{ last_project.project.daily_rate }}</li>
-        <li>Overhours: {{ last_project.project.type_of_overhours }} %</li>
-        <li>Date of create: {{ last_project.project.date_created }}</li>
-        <li>Notes: {{ last_project.project.notes }}</li>
-        <li>Production House:{{ last_project.project.production.name }}</li>
-    </ul>
-{% endif %}
-{% endblock %}
+        <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+       <h2 class="center">Welcome to Film life calc, you time on set calculator</h2>
+           <br>
+       <p class="center">You need to create account at USER tab to get full expperience of out app</p>
+        {% if last_project %}
+            <p class="generated-text">LASTED UPDATED PROJECT: Example project name</p>
+            <ul class="lst" style="font-size: 16px">
+                <li>Occupation: Example occupation</li>
+                <li>Rate: Example daily rate</li>
+                <li>Overhours: Example overhours} %</li>
+                <li>Date of create: Example date</li>
+                <li>Notes: Example Notes</li>
+                <li>Production House: Example production name</li>
+            </ul>
+        {% endif %}
+    {% endblock %}
 </div>
 </body>
 

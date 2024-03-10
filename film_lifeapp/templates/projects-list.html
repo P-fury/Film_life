@@ -26,7 +26,8 @@
                         <td>Oc:</td>
                         <td>Notes:</td>
                         <td>Rate:</td>
-                        <td>Over:</td>
+                        <td>Earned:</td>
+                        <td>Overtime type:</td>
                         <td>Date of create:</td>
                         <td>Production:</td>
                         <td>ADD</td>
@@ -41,19 +42,20 @@
                             <td>{{ project.occupation }}</td>
                             <td>{{ project.notes }}</td>
                             <td>{{ project.daily_rate }}</td>
+                            <td>{{ project.total_earnings_for_project }}</td>
                             <td>{{ project.type_of_overhours }}</td>
                             <td>{{ project.date_created.date }}</td>
                             <td>{{ project.production.name }}</td>
                             <td>
-                                <a href="{% url 'project-details' id=project.id %}">
+                                <a href="{% url 'project-details' pk=project.pk %}">
                                     <button id="project_details">Add days</button>
                                 </a>
                                 </a>
                             </td>
-                            <td><a href="{% url 'project-days' id=project.id %}">
+                            <td><a href="{% url 'project-days' pk=project.pk %}">
                                 <button id="add_days">See days</button>
                             </a></td>
-                            <td><a href="{% url 'project-edit' id=project.id %}">
+                            <td><a href="{% url 'project-edit' pk=project.pk %}">
                                 <button id="edit_project">edit</button>
                             </a></td>
 

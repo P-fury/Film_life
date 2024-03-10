@@ -15,14 +15,14 @@
     {% endfor %}
     <form method="POST">
         {% csrf_token %}
-        <p class="generated-text">DAY TO EDIT:</p>
+        <p class="generated-text">PRODUCTION HOUSE TO ADD:</p>
         <input class="center" type='text' name="name" placeholder=" Name of Prod House">
         <input class="center" type='text' name="nip" placeholder='NIP'
                value="">
         <input class="center" type="text" name="address" placeholder="address" value="">
         <input class="center" type="email" name="email" placeholder="email" value="">
         <textarea class="center" rows="5" cols="25" name="notes" placeholder='notes'></textarea>
-        <select class="center" name="rating" id="rating" >
+        <select class="center" name="rating" id="rating">
             <option value="0">...</option>
             <option value="1">Weak</option>
             <option value="2">Average</option>

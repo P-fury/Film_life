@@ -30,7 +30,7 @@
         <input class="center" type="submit">
 
     </form>
-
+    {% if projects %}
     {% for project in projects %}
 
 
@@ -43,17 +43,17 @@
             <strong>Rate:</strong> {{ project.daily_rate }}
             <strong>Over:</strong> {{ project.type_of_overhours }}
             <strong>Date of create:</strong> {{ project.date_created.date }}
-            <a href="{% url 'project-details' id=project.id %}">
+            <a href="{% url 'project-details' pk=project.pk %}">
                 <button id="add_days">Add days</button>
             </a>
-            <a href="{% url 'project-days' id=project.id %}">
+            <a href="{% url 'project-days' pk=project.pk %}">
                 <button id="add_days">See days</button>
             </a>
-            <a href="{% url 'project-edit' id=project.id %}">
+            <a href="{% url 'project-edit' pk=project.pk %}">
                 <button id="edit_project">edit</button>
             </a>
         </li>
 
     {% endfor %}
-
+    {% endif %}
 {% endblock %}

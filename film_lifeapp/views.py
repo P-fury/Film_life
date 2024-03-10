@@ -1,6 +1,13 @@
-from django.http import HttpResponseRedirect, HttpResponse
+from django.contrib.auth import logout
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
+from django.contrib.auth.views import LoginView
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.views import View
+from django.views.generic import CreateView, TemplateView, UpdateView
+from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm
 from film_lifeapp.models import *
 from django.db.models import Sum
 from django.contrib import messages
@@ -8,9 +15,8 @@ from film_lifeapp.functions import nip_checker
 
 
 # Create your views here.
-
 # ------------------------------------- HOME PAGE -----------------------------------
-class Main(View):
+class MainView(View):
     def get(self, request):
         try:
             last_project = DayOfWork.objects.latest('last_updated')
@@ -19,19 +25,70 @@ class Main(View):
         return render(request, 'index.html', {'last_project': last_project})
 
 
-# ------------------------------------- LIST OF PROJECTS -----------------------------------
-class ProjectList(View):
+# ===================================== user journey =====================================
+
+# -------------------- REGISTER --------------------
+class RegisterUserView(CreateView):
+    model = User
+    form_class = RegisterUserForm
+    template_name = 'register-user.html'
+    success_url = reverse_lazy('main')
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        messages.info(self.request, 'Passwords are different')
+        return response
+
+
+class LoginUserView(LoginView):
+    form_class = LoginForm
+    template_name = 'login.html'
+    next_page = reverse_lazy('main')
+
+
+class LogoutUserView(View):
     def get(self, request):
-        projects = Project.objects.all()
+        logout(request)
+        return redirect('main')
+
+
+# ---------------------- LOGIN ------------------------
+
+class EditUserView(UpdateView):
+    model = User
+    fields = ['username', 'email', 'first_name', 'last_name']
+    template_name = 'register-user.html'
+    success_url = reverse_lazy('main')
+
+
+# ===============================================================================================================
+
+# =========================================== projects journey =================================================
+# ------------------------- LIST OF PROJECTS -------------------------
+class ProjectListView(LoginRequiredMixin, View):
+    redirect_unauthenticated_users_to = 'register'
+
+    def handle_no_permission(self):
+        return HttpResponseRedirect(self.redirect_unauthenticated_users_to)
+
+    def get(self, request):
+        projects = Project.objects.filter(user=request.user)
         if projects.count() == 0:
             messages.add_message(request, messages.INFO, 'No projects')
         return render(request, 'projects-list.html', {"projects": projects})
 
 
 # ------------------------------------- ADDING PROJECTS -----------------------------------
-class ProjectAdd(View):
+class ProjectAddView(LoginRequiredMixin, View):
+    redirect_unauthenticated_users_to = 'register'
+
+    def handle_no_permission(self):
+        return HttpResponseRedirect(self.redirect_unauthenticated_users_to)
+
     def get(self, request):
-        projects = Project.objects.all()
+        projects = Project.objects.filter(user_id=request.user.pk)
+        if projects.count() == 0:
+            messages.add_message(request, messages.INFO, 'No projects')
         productions = ProductionHouse.objects.all()
         return render(request, 'projects-add.html', {'projects': projects, "productions": productions})
 
@@ -52,19 +109,19 @@ class ProjectAdd(View):
 
 
 # ------------------------------------- EDIT PROJECTS -----------------------------------
-class ProjectEdit(View):
-    def get(self, request, id):
+class ProjectEditView(View):
+    def get(self, request, pk):
         if id is None:
             return redirect('main')
         try:
-            project = Project.objects.get(id=id)
+            project = Project.objects.get(pk=pk)
         except Project.DoesNotExist:
             return redirect('main')
         productions = ProductionHouse.objects.all()
         return render(request, 'project-edit.html', {"project": project, "productions": productions})
 
-    def post(self, request, id):
-        project_to_edit = Project.objects.get(id=id)
+    def post(self, request, pk):
+        project_to_edit = Project.objects.get(pk=pk)
         edited_name = request.POST.get('name')
         edited_daily_rate = request.POST.get('daily_rate')
         edited_type_of_overhours = request.POST.get('type_of_overhours')
@@ -88,19 +145,23 @@ class ProjectEdit(View):
 
 
 # ----------------------- PROJECT DETAILS AND ADDING DAY QUICK DAY VIEW -------------------------
-class ProjectDetails(View):
-    def get(self, request, id):
-        daysofwork = DayOfWork.objects.filter(project_id=id).order_by('date')
+class ProjectDetailsView(UserPassesTestMixin, View):
+    def test_func(self):
+        user = self.request.user
+        project = Project.objects.get(pk=self.kwargs['pk'])
+        return project.user == user
+    def get(self, request, pk):
+        daysofwork = DayOfWork.objects.filter(project_id=pk).order_by('date')
         ### INFORMACJE PODSUMOWANIE PROJEKTU ###
         days_count = daysofwork.count()
-        project_earned = DayOfWork.objects.filter(project_id=id).aggregate(sum=Sum('earnings'))
+        project_earned = DayOfWork.objects.filter(project_id=pk).aggregate(sum=Sum('earnings'))
         project_earned = project_earned['sum']
-        project = Project.objects.get(id=id)
+        project = Project.objects.get(pk=pk)
         return render(request, 'project-details-add-day.html',
                       {"project": project, "daysofwork": daysofwork, "days_count": days_count,
                        "project_earned": project_earned})
 
-    def post(self, request, id):
+    def post(self, request, pk):
         if 'add_day' in request.POST:
             date = request.POST.get('date')
             overhours = request.POST.get('overhours')
@@ -112,29 +173,35 @@ class ProjectDetails(View):
             if all([date, overhours, type_of_day]):
                 added_day = DayOfWork.objects.create(date=date, amount_of_overhours=overhours,
                                                      type_of_workday=type_of_day,
-                                                     notes=notes, project_id=id)
+                                                     notes=notes, project_id=pk)
                 added_day.calculate_earnings()
-                return redirect('project-details', id=id)
+                return redirect('project-details', pk=pk)
             else:
                 messages.add_message(request, messages.INFO, "Need to fill date")
-                return redirect('project-details', id=id)
+                return redirect('project-details', pk=pk)
         elif 'edit_day' in request.POST:
-            day_id = request.POST.get('edit_day')
-            return redirect('day-of-work-details', id=day_id)
+            day_pk = request.POST.get('edit_day')
+            return redirect('day-of-work-details', pk=day_pk)
 
 
 # ------------------------------------- EDITING OF ADDED DAY -----------------------------------
-class DayOfWorkDetailView(View):
-    def get(self, request, id):
-        day_of_work = DayOfWork.objects.get(id=id)
+class DayOfWorkDetailView(UserPassesTestMixin, View):
+    def test_func(self):
+        user = self.request.user
+        day = DayOfWork.objects.get(pk=self.kwargs['pk'])
+        return day.project.user == user
+
+    def get(self, request, pk):
+        print(DayOfWork.objects.last())
+        day_of_work = DayOfWork.objects.get(pk=pk)
         # DLA DOMYSLNEJ DATY
         date_of_work = str(day_of_work.date)
         percent_amout_of_daily = just_numb(day_of_work.type_of_workday)
         return render(request, 'days-edit.html', {'day_of_work': day_of_work, "date_of_work": date_of_work,
                                                   "percent_amout_of_daily": percent_amout_of_daily})
 
-    def post(self, request, id):
-        day_of_work = DayOfWork.objects.get(id=id)
+    def post(self, request, pk):
+        day_of_work = DayOfWork.objects.get(id=pk)
         date = request.POST.get('date')
         overhours = request.POST.get('overhours')
         type_of_day = request.POST.get('type_of_day')
@@ -160,34 +227,34 @@ class DayOfWorkDetailView(View):
 
 
 # ----------------------------- BASE WORKING DAYS VIEW AND TABLE ----------------------------
-class ProjectDays(View):
-    def get(self, request, id):
-        daysofwork = DayOfWork.objects.filter(project_id=id).order_by('date')
+class ProjectDaysView(View):
+    def get(self, request, pk):
+        daysofwork = DayOfWork.objects.filter(project_id=pk).order_by('date')
         ### INFORMACJE PODSUMOWANIE PROJEKTU ###
         days_count = daysofwork.count()
-        project_earned = DayOfWork.objects.filter(project_id=id).aggregate(sum=Sum('earnings'))
+        project_earned = DayOfWork.objects.filter(project_id=pk).aggregate(sum=Sum('earnings'))
         project_earned = project_earned['sum']
-        project = Project.objects.get(id=id)
+        project = Project.objects.get(pk=pk)
 
         return render(request, 'project-days.html',
                       {"project": project, "daysofwork": daysofwork, "days_count": days_count,
                        "project_earned": project_earned})
 
-    def post(self, request, id):
+    def post(self, request, pk):
         if 'edit_day' in request.POST:
-            day_id = request.POST.get('edit_day')
-            return redirect('day-of-work-details', id=day_id)
+            day_pk = request.POST.get('edit_day')
+            return redirect('day-of-work-details', pk=day_pk)
 
 
 # ------------ PRODUCTION HOUSES AND CONTACTS -------------------
-class ProductionList(View):
+class ProductionListView(View):
     def get(self, request):
         prod_houses = ProductionHouse.objects.all()
         return render(request, 'production-list.html', {"prod_houses": prod_houses})
 
 
 # ---------------------- ADDING PRODUCTION HOUSE AND NIP VALIDATE -------------------------
-class AddProduction(View):
+class AddProductionView(View):
     def get(self, request):
         return render(request, 'production-add.html')
 
@@ -210,6 +277,9 @@ class AddProduction(View):
                 else:
                     if nip_checker(clean_nip) is True:
                         validate_nip = clean_nip
+                    else:
+                        messages.add_message(request, messages.INFO, "NIP NUBER IS NOT CORRECT")
+                        return render(request, 'production-add.html')
         # -----  ALGORYTM POPRAWNOSCI NIP --------------------
 
         prod_address = request.POST.get('address')
@@ -224,3 +294,45 @@ class AddProduction(View):
                                            email=prod_email, notes=prod_notes, rating=prod_rate)
             messages.add_message(request, messages.INFO, "PRODUCTION ADDED")
             return render(request, 'production-add.html')
+
+
+class EditProductionView(View):
+    form_class = EditProductionForm
+    template_name = 'production-edit.html'
+
+    def get(self, request, *args, **kwargs):
+        production_id = kwargs.get('pk')
+        production = ProductionHouse.objects.get(pk=production_id)
+        form = self.form_class(instance=production)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        global validate_nip
+        production_id = kwargs.get('pk')
+        production = ProductionHouse.objects.get(pk=production_id)
+        form = self.form_class(request.POST, instance=production)
+        production.name = form['name'].value()
+        prod_nip = form['nip'].value()
+        if prod_nip:
+            if not all(char.isdigit() or char == '-' for char in prod_nip):
+                messages.add_message(request, messages.INFO, "NIP NUMBER CAN USE ONLY DIGIT AND '-' ")
+                return render(request, self.template_name, {'form': form})
+            else:
+                clean_nip = prod_nip.replace('-', '')
+                if len(clean_nip) != 10:
+                    messages.add_message(request, messages.INFO, "LENGTH OF NIP NUMBER IS NOT CORRECT")
+                    return render(request, self.template_name, {'form': form})
+                else:
+                    if nip_checker(clean_nip) is True:
+                        validate_nip = clean_nip
+                    else:
+                        messages.add_message(request, messages.INFO, "NIP NUBER IS NOT CORRECT")
+                        return render(request, self.template_name, {'form': form})
+        production.nip = validate_nip
+        production.address = form['address'].value()
+        production.email = form['email'].value()
+        production.rating = form['rating'].value()
+        production.notes = form['notes'].value()
+        production.save()
+
+        return redirect('productions-list')

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 from film_lifeapp.functions import nip_checker
 import pytest
@@ -35,7 +36,62 @@ def test_nip_checker_nip_is_correct():
     assert nip_checker(nip) is True
 
 
-# --------------------------------------------------------------------
+# ================== REGISTER USER =============================
+def test_register_user_get():
+    client = Client()
+    url = reverse('register-user')
+    response = client.get(url)
+    assert response.status_code == 200
+
+@pytest.mark.django_db
+def test_register_user_post_different_passwords():
+    client = Client()
+    url = reverse('register-user')
+    data = {'username': 'test', 'password1': '<PASSWORD>', 'password2': '<PASSWORD2>'}
+    response = client.post(url, data)
+    messages = list(response.context['messages'])
+    assert response.status_code == 200
+    assert str(messages[0]) == 'Passwords are different'
+
+
+@pytest.mark.django_db
+def test_register_user_post_correct_password():
+    client = Client()
+    url = reverse('register-user')
+    data = {'username': 'testuser', 'password1': 'passwordtest', 'password2': 'passwordtest'}
+    response = client.post(url, data)
+    assert response.status_code == 302
+    usercheck = User.objects.get(username='testuser')
+
+# ======================== LOGIN ===========================
+
+
+def test_login_get():
+    client = Client()
+    url = reverse('login-user')
+    response = client.get(url)
+    assert response.status_code == 200
+
+@pytest.mark.django_db
+def test_login_wrong_login():
+    client = Client()
+    url = reverse('login')
+    data = {'username': 'u', 'password': 'wrong'}
+    response = client.post(url, data)
+    assert response.status_code == 302
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # ================== MAIN VIEW =============================
