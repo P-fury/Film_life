@@ -70,7 +70,7 @@
                         <li>
                             {% if user.is_authenticated %}
                                 <a href="{% url 'edit-user' pk=request.user.pk %}">Edit</a>
-                                {% else %}
+                            {% else %}
                                 <a href="{% url 'register-user' %}">Register</a>
                             {% endif %}
                         </li>
@@ -82,24 +82,60 @@
 </section>
 <div>
     {% block content %}
-
         <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
-       <h2 class="center">Welcome to Film life calc, you time on set calculator</h2>
-           <br>
-       <p class="center">You need to create account at USER tab to get full expperience of out app</p>
-        {% if last_project %}
+        {% if not user.is_authenticated %}
+            <h2 class="center">Welcome to Film life calc, you time on set calculator</h2>
+            <br>
+            <p class="center">You need to create account at USER tab to get full expperience of out app</p>
             <p class="generated-text">LASTED UPDATED PROJECT: Example project name</p>
             <ul class="lst" style="font-size: 16px">
                 <li>Occupation: Example occupation</li>
                 <li>Rate: Example daily rate</li>
-                <li>Overhours: Example overhours} %</li>
+                <li>Overhours: Example overhours %</li>
                 <li>Date of create: Example date</li>
                 <li>Notes: Example Notes</li>
                 <li>Production House: Example production name</li>
             </ul>
+        {% else %}
+
+
+
+
+            {% if last_project %}
+                <p class="generated-text">LASTED UPDATED PROJECT: {{ last_project.project.name }}</p>
+                <ul class="lst" style="font-size: 16px">
+                    <li>Occupation: {{ last_project.project.occupation }}</li>
+                    <li>Rate: {{ last_project.project.daily_rate }}</li>
+                    <li>Overhours: {{ last_project.project.type_of_overhours }} %</li>
+                    <li>Date of create: {{ last_project.project.date_created }}</li>
+                    <li>Notes: {{ last_project.project.notes }}</li>
+                    <li>Production House: {{ last_project.project.production_house.name }}</li>
+                    <li>Worked days in project: {{ workdays }}</li>
+                </ul>
+            {% endif %}
+
+
+
+
+            {% if last_project != None %}
+                <h3 class="center">IF theres a project choosen above start couting your work time !</h3>
+                <form class="center" method="post">
+                    {% csrf_token %}
+                    {% if button_select == True %}
+                        <button type="submit" name="start-bt" value="start">Start</button>
+                    {% elif button_select == False %}
+                        <button type="submit" name="stop-bt" value="{{ stop_timer}}" >Stop</button>
+                    {% endif %}
+                </form>
+            {% else %}
+                <h3 class="center"> YOU NEED TO ADD PROJECT AND ADD AT LEAST ONE DAY TO USE THIS FUNCTION</h3>
+
+            {% endif %}
+
+            </div>
+            </body>
+
+
+            </html>
         {% endif %}
     {% endblock %}
-</div>
-</body>
-
-</html>

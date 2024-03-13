@@ -1,8 +1,15 @@
 {% extends 'index.html' %}
 {% block content %}
 
-    <p class="generated-text">DETAIL OF PROJECT: {{ project.name }}</p>
-
+    <p class="generated-text">WORKDAYS : {{ project.name }}</p>
+        <ul class="lst">
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <h2><li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li></h2>
+                    {% endfor %}
+                </ul>
+            {% endif %}
 
     <ul class="lst" style="font-size: 16px">
         <li>Occupation: {{ project.occupation }}</li>
@@ -12,52 +19,54 @@
         <li>Notes: {{ project.notes }}</li>
         <li>Production House: {{ project.production.name }}</li>
     </ul>
-
-    <form method="POST">
-        {% csrf_token %}
-
-        <div style="display: inline-block;">
-            <table class="table_component ">
-                <tbody>
-                <tr>
-                    <td>NO:</td>
-                    <td>DATE:</td>
-                    <td>Earining:</td>
-                    <td>AMOUNT OF OVERHOURS:</td>
-                    <td>NOTES:</td>
-                    <td>TYPE OF WORK DAY:</td>
-                    <td></td>
-                </tr>
-                {% if daysofwork %}
-                    {% for dayofwork in daysofwork %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ dayofwork.date }}</td>
-                            <td>{{ dayofwork.earnings }}</td>
-                            <td>{{ dayofwork.amount_of_overhours }}</td>
-                            <td>{{ dayofwork.notes }}</td>
-                            <td>{{ dayofwork.type_of_workday }}</td>
+    <div style="display: inline-block;">
+        <table class="table_component ">
+            <tbody>
+            <tr>
+                <td>NO:</td>
+                <td>DATE:</td>
+                <td>Earining:</td>
+                <td>AMOUNT OF OVERHOURS:</td>
+                <td>NOTES:</td>
+                <td>TYPE OF WORK DAY:</td>
+                <td>EDIT:</td>
+                <td>DELETE:</td>
+            </tr>
+            {% if daysofwork %}
+                {% for dayofwork in daysofwork %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ dayofwork.date }}</td>
+                        <td>{{ dayofwork.earnings }}</td>
+                        <td>{{ dayofwork.amount_of_overhours }}</td>
+                        <td>{{ dayofwork.notes }}</td>
+                        <td>{{ dayofwork.type_of_workday }}</td>
                             <td>
-                                <a href="{% url 'day-of-work-details' dayofwork.id %}">
-                                    <button name="edit_day" value="{{ dayofwork.id }}">edit</button>
+                                <a href="{% url 'day-of-work-details' dayofwork.pk %}">
+                                    <button>edit</button>
                                 </a>
                             </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                    </table>
-                    </div>
+                            <td>
+                                <a href="{% url 'day-of-work-delete' dayofwork.pk %}">
+                                    <button>delete</button>
+                                </a>
+                            </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+                </table>
+                </div>
 
 
 
 
-                    <div>
-                        Work days at {{ project.name }}: {{ days_count }} Total earn: {{ project_earned }} PLN
-                    </div>
-                {% endif %}
+                <div>
+                    Work days at {{ project.name }}: {{ days_count }} Total earn: {{ project_earned }} PLN
+                </div>
+            {% endif %}
 
 
-    </form>
+
 
 
 

@@ -33,6 +33,7 @@
                         <td>ADD</td>
                         <td>SEE</td>
                         <td>EDIT</td>
+                        <td>DELETE</td>
                     </tr>
 
                     {% for project in projects %}
@@ -45,7 +46,7 @@
                             <td>{{ project.total_earnings_for_project }}</td>
                             <td>{{ project.type_of_overhours }}</td>
                             <td>{{ project.date_created.date }}</td>
-                            <td>{{ project.production.name }}</td>
+                            <td>{{ project.production_house.name }}</td>
                             <td>
                                 <a href="{% url 'project-details' pk=project.pk %}">
                                     <button id="project_details">Add days</button>
@@ -57,6 +58,9 @@
                             </a></td>
                             <td><a href="{% url 'project-edit' pk=project.pk %}">
                                 <button id="edit_project">edit</button>
+                            </a></td>
+                          <td><a href="{% url 'project-delete' pk=project.pk %}">
+                                <button id="delete_project">delete</button>
                             </a></td>
 
                         </tr>

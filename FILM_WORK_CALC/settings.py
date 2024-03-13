@@ -141,3 +141,6 @@ COMPRESS_PRECOMPILERS = (
 )
 
 LOGIN_URL = 'register_user/'
+
+#
+SELENIUM_LOGIN_START_PAGE = ''

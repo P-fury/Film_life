@@ -28,6 +28,7 @@
                         <td>Rate:</td>
                         <td>Notes:</td>
                         <td>EDIT</td>
+                        <td>DELETE</td>
                     </tr>
 
                     {% for prod in prod_houses %}
@@ -42,6 +43,11 @@
                             <td>
                                 <a href="{% url 'productions-edit' pk=prod.pk %}" id="edit">
                                     <button>edit</button>
+                                </a>
+                            </td>
+                          <td>
+                                <a href="{% url 'productions-delete' pk=prod.pk %}" id="delete">
+                                    <button>delete</button>
                                 </a>
                             </td>
 
