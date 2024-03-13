@@ -31,25 +31,22 @@
     </form>
 
 
-    <form method="POST">
-    {%  csrf_token %}
-        {% if daysofwork %}
-            {% for dayofwork in daysofwork %}
+    {% if daysofwork %}
+        {% for dayofwork in daysofwork %}
 
-                <li>
-                    {{ forloop.counter }} DATE: {{ dayofwork.date }}
-                    Earining: {{ dayofwork.earnings }} {{ dayofwork.amount_of_overhours }} {{ dayofwork.notes }} {{ dayofwork.type_of_workday }}
-                    <button type="submit" name="edit_day" value="{{ dayofwork.pk }}">edit</button>
-                </li>
-            {% endfor %}
-
-            <div>
-                Work days at {{ project.name }}: {{ days_count }} Total earn: {{ project_earned }} PLN
-            </div>
-        {% endif %}
-
-
-    </form>
+            <li class="center">
+                {{ forloop.counter }} DATE: {{ dayofwork.date }}
+                Earining: {{ dayofwork.earnings }} {{ dayofwork.amount_of_overhours }} {{ dayofwork.notes }} {{ dayofwork.type_of_workday }}
+                <a href="{% url 'day-of-work-details' pk=dayofwork.pk %}">
+                    <button type="submit" name="edit_day" value="{{ dayofwork.pk }}">edit</button>   </a>
+                <a href="{% url 'day-of-work-delete' dayofwork.pk %}">
+                    <button>delete</button>      </a>
+            </li>
+        {% endfor %}
+        <div class="center">
+            <h2>Work days at {{ project.name }}: {{ days_count }} Total earn: {{ project_earned }} PLN</h2>
+        </div>
+    {% endif %}
 
 
     {% load static %}

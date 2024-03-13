@@ -1,0 +1,29 @@
+{% extends 'index.html' %}
+{% block content %}
+
+    <p class="generated-text">DETAIL OF PRODUCTION HOUSE: {{ productionhouse.name }}</p>
+
+
+    <ul class="lst" style="font-size: 16px">
+        <li>NIP: {{ productionhouse.nip }}</li>
+    <li>ADDRES: {{ productionhouse.address }}</li>
+    <li>EMAIL: {{ productionhouse.email }}</li>
+    <li>RATE: {{ productionhouse.get_rating_display }}</li>
+    <li>NOTES: {{ productionhouse.notes }}</li>
+
+    </ul>
+    <h2 class="center">FOR SURE DELETE THIS PRODUCTION HOUSE?</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="submit" class="btn btn-danger center" name="action" value="YES">
+        <input type="submit" class="btn btn-danger center" name="action" value="NO">
+    </form>
+
+
+
+
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'project-days/style.css' %}">
+    <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
+{% endblock %}

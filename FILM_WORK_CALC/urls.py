@@ -31,14 +31,19 @@ urlpatterns = [
     path('', views.MainView.as_view(), name='main'),
 
     path('project-list/', views.ProjectListView.as_view(), name='project-list'),
+    path('project-details/<int:pk>/', views.ProjectDetailsView.as_view(), name='project-details'),
     path('project-add/', views.ProjectAddView.as_view(), name='project-add'),
     path('project-edit/<int:pk>/', views.ProjectEditView.as_view(), name='project-edit'),
-    path('project/days/<int:pk>/', views.ProjectDaysView.as_view(), name='project-days'),
-    path('project-details/<int:pk>/', views.ProjectDetailsView.as_view(), name='project-details'),
+    path('project-delete/<int:pk>/', views.ProjectDeleteView.as_view(), name='project-delete'),
 
+    path('project/days/<int:pk>/', views.ProjectDaysView.as_view(), name='project-days'),
+    path('project/days-delete/<int:pk>/', views.DaysDeleteView.as_view(), name='day-of-work-delete'),
     path('project/dayofwork/<int:pk>/', views.DayOfWorkDetailView.as_view(), name='day-of-work-details'),
 
-    path('productions-list/', views.ProductionListView.as_view(), name='productions-list'),
-    path('productions-add/', views.AddProductionView.as_view(), name='productions-add'),
-    path('productions-edit/<int:pk>/', views.EditProductionView.as_view(), name='productions-edit'),
+    path('productions-list/', views.ProductionHousesListView.as_view(), name='productions-list'),
+    path('productions-add/', views.ProductionAddView.as_view(), name='productions-add'),
+    path('productions-edit/<int:pk>/', views.ProductionEditView.as_view(), name='productions-edit'),
+    path('productions-delete/<int:pk>/', views.ProductionHouseDeleteView.as_view(), name='productions-delete'),
+
+
 ]

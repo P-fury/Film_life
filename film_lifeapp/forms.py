@@ -67,3 +67,20 @@ class EditProductionForm(forms.ModelForm):
         model = ProductionHouse
         fields = '__all__'
 
+
+# =============== DELETE FORMS AND VALIDATORS ===================
+def check_button(value):
+    if value != 'YES':
+        raise ValidationError('')
+
+
+class ProjectDeleteForm(forms.Form):
+    action = forms.CharField(validators=[check_button])
+
+
+class DaysDeleteForm(forms.Form):
+    action = forms.CharField(validators=[check_button])
+
+
+class ProductionHouseDeleteForm(forms.Form):
+    action = forms.CharField(validators=[check_button])
