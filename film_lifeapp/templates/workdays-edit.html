@@ -1,0 +1,53 @@
+{% extends 'index.html' %}
+{% block content %}
+
+    <ul class="lst">
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <h2>
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    </h2>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <p class="generated-text">WORK DAY DATE: {{ workday.date }}</p>
+
+        <ul class="lst" style="font-size: 16px">
+            <li>Project : {{ workday.project.name }}</li>
+            <li>Occupation: {{ workday.project.occupation }}</li>
+            <li>Rate: {{ workday.project.daily_rate }}</li>
+            <li>Overhours: {{ workday.project.type_of_overhours }} %</li>
+
+            <li>Date of create: {{ workday.project.date_created.date }}</li>
+            <li>Notes: {{ workday.project.notes }}</li>
+        </ul>
+        <form method="POST">
+            {% csrf_token %}
+            <p class="generated-text">DAY TO EDIT:</p>
+            <input class="center" type='date' name="date" value="{{ workday_date }}">
+            <input class="center" type='number' min="0" min="99" name="overhours" placeholder='amount_of_overhours'
+                   value="{{ workday.amount_of_overhours }}">
+            <select class="center" name="type_of_day" id="type_of_day">
+                <option value="shoot_day"{% if workday.type_of_workday == 'shoot_day' %} selected {% endif %} >shoot
+                    day
+                </option>
+                <option value="rehersal" {% if workday.type_of_workday == 'rehersal' %} selected {% endif %}>rehersal
+                </option>
+                <option value="transport" {% if workday.type_of_workday == 'transport' %} selected {% endif %} >
+                    transport
+                </option>
+                <option value="other"{% if workday.type_of_workday == 'other' %} selected {% endif %} >other</option>
+            </select>
+            <input class="center" id="percent_of_daily" style='display: none' type="number" name="percent_of_daily"
+                   placeholder="percent amount of daily rate" min=1 value="{{ percent_amout_of_daily }}">
+            <textarea class="center" rows="5" cols="25" name="notes" placeholder='notes'>{{ workday.notes }}</textarea>
+            <button class="center" type="submit" name="add_day" value="add_day">edit</button>
+        </form>
+
+
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+        <script src="{% static 'days-edit/days-edit.js' %}"></script>
+{% endblock %}

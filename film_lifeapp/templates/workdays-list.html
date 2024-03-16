@@ -17,10 +17,10 @@
         <li>Overhours: {{ project.type_of_overhours }} %</li>
         <li>Date of create: {{ project.date_created.date }}</li>
         <li>Notes: {{ project.notes }}</li>
-        <li>Production House: {{ project.production.name }}</li>
+        <li>Production House: <a href={% url 'productions-list' %}>{{ project.production_house.name }}</a></li>
     </ul>
     <div style="display: inline-block;">
-        <table class="table_component ">
+        <table class="table_component center">
             <tbody>
             <tr>
                 <td>NO:</td>
@@ -42,12 +42,12 @@
                         <td>{{ dayofwork.notes }}</td>
                         <td>{{ dayofwork.type_of_workday }}</td>
                             <td>
-                                <a href="{% url 'day-of-work-details' dayofwork.pk %}">
+                                <a href="{% url 'workdays-edit' dayofwork.pk %}">
                                     <button>edit</button>
                                 </a>
                             </td>
                             <td>
-                                <a href="{% url 'day-of-work-delete' dayofwork.pk %}">
+                                <a href="{% url 'workdays-delete' dayofwork.pk %}">
                                     <button>delete</button>
                                 </a>
                             </td>

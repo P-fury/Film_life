@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'bootstrap_datepicker_plus',  # KALENDARZ
     'bootstrap4',
     'widget_tweaks',
+    'phonenumber_field',
 
 ]
 

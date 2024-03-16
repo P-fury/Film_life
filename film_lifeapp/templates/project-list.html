@@ -18,7 +18,7 @@
 
 
             <div style="display: inline-block;">
-                <table class="table_component ">
+                <table class="table_component center">
                     <tbody>
                     <tr>
                         <td>NO:</td>
@@ -46,14 +46,14 @@
                             <td>{{ project.total_earnings_for_project }}</td>
                             <td>{{ project.type_of_overhours }}</td>
                             <td>{{ project.date_created.date }}</td>
-                            <td>{{ project.production_house.name }}</td>
+                            <td><a href="/productions-list/" >{{ project.production_house.name }}</a></td>
                             <td>
-                                <a href="{% url 'project-details' pk=project.pk %}">
+                                <a href="{% url 'workdays-add' pk=project.pk %}">
                                     <button id="project_details">Add days</button>
                                 </a>
                                 </a>
                             </td>
-                            <td><a href="{% url 'project-days' pk=project.pk %}">
+                            <td><a href="{% url 'workdays-list' pk=project.pk %}">
                                 <button id="add_days">See days</button>
                             </a></td>
                             <td><a href="{% url 'project-edit' pk=project.pk %}">

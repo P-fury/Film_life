@@ -1,15 +1,15 @@
 {% extends 'index.html' %}
 {% block content %}
 
-    <p class="generated-text">DETAIL OF PROJECT: {{ day_of_work.project.name}}</p>
+    <p class="generated-text">DETAIL OF WORKDAY date:{{ workday.date}} </p>
 
 
     <ul class="lst" style="font-size: 16px">
-        <li>Occupation: {{ day_of_work.project.occupation }}</li>
-        <li>Rate: {{ day_of_work.project.daily_rate }}</li>
-        <li>Overhours: {{ day_of_work.project.type_of_overhours }} %</li>
-        <li>Date of create: {{ day_of_work.project.date_created.date }}</li>
-        <li>Notes: {{ day_of_work.project.notes }}</li>
+        <li>PROJECT NAME:: {{ workday.project.name }}</li>
+        <li>EARNINGS:  {{ workday.earnings }}</li>
+        <li>AMOUNT OF OVERHOURS: {{ workday.amount_of_overhours }} %</li>
+        <li>TYPE OF WORK DAY: {{ workday.type_of_workday }}</li>
+        <li>NOTES: {{ workday.notes }}</li>
     </ul>
     <h2 class="center">FOR SURE DELETE THIS WORK DAY?</h2>
     <form method="POST">
