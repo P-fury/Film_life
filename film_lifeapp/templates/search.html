@@ -1,0 +1,87 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'search/style.css' %}">
+
+    <div>
+        <ul class="lst">
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            <form method="GET">
+                <input type="date" id="date_start" name="date_start">
+                <input type="date" id="date_end" name="date_end">
+                <input class="bnt" type="submit" value="search">
+                <br>
+                <label>------------PROJECT:---------</label>
+                <br>
+                {% for project in all_projects %}
+                    <input type="checkbox" name="project" value="{{ project.name }}">
+                    <label for="{{ project.name }}">{{ project.name }}</label><br>
+                {% endfor %}
+                <label>---------PRODUCTION HOUSES :------------</label>
+                <br>
+                {% for production in all_production_houses %}
+                    <input type="checkbox" name="production" value="{{ production.name }}">
+                    <label for="{{ production.name }}">{{ production.name }}</label><br>
+                {% endfor %}
+                <label>--------- CONTACTS :------------</label>
+                <br>
+                {% for contact in all_contacts %}
+                    <input type="checkbox" name="contacts" value="{{ contact.first_name }}">{{ contact.last_name }}
+                    <label for="{{ contact.first_name }}">{{ contact.first_name }}</label><br>
+                {% endfor %}
+
+            </form>
+
+<h2>FOUND :</h2>
+            {% if all_work_days %}
+                {% for day in all_work_days %}
+                    <li>
+                        {{ forloop.counter }} DATE:<a href="{% url 'workdays-edit' pk=day.pk %}">{{ day.date }}</a>
+                        NAME: <a href="{% url 'workdays-list' pk=day.project_id %}">{{ day.project.name }}</a>
+                        PROD: <a
+                            href="{% url 'production-edit' pk=day.project.production_house.id %}">{{ day.project.production_house.name }}</a>
+                        CONTACT: {% for contact in day.project.production_house.contact_set.all %}
+                        <a href="{% url 'contacts-edit' pk=contact.id %}"> {{ contact.first_name }} {{ contact.last_name }}</a>
+                        ,
+                    {% endfor %}
+                    </li>
+                {% endfor %}
+            {% else %}
+                <li>NOTHING TO SHOW WITH THESE FILTERS</li>
+            {% endif %}
+
+            {#            {% if filtred_projects != None %}#}
+            {#                {% for project in filtred_projects %}#}
+            {#                    {% for day in project.workday_set.all %}#}
+            {#                        <li>#}
+            {#                            <a href="{% url 'workdays-edit' pk=day.pk %}">{{ day.date }}</a>#}
+            {#                            <a href="{% url 'workdays-list' pk=day.project_id %}">{{ day.project.name }}</a>#}
+            {#                            OVERHOURS : {{ day.amount_of_overhours }}#}
+            {#                        </li>#}
+            {#                    {% endfor %}#}
+            {#                {% endfor %}#}
+            {#            {% endif %}#}
+
+
+            {#            {% if all_work_days_filtered %}#}
+            {#                {% for day in all_work_days_filtered %}#}
+            {#                    <li>#}
+            {#                        <a href="{% url 'workdays-edit' pk=day.pk %}">{{ day.date }}</a>#}
+            {#                        <a href="{% url 'workdays-list' pk=day.project_id %}">{{ day.project.name }}</a>#}
+            {#                        OVERHOURS : {{ day.amount_of_overhours }}#}
+            {#                    </li>#}
+            {#                {% endfor %}#}
+            {#            {% endif %}#}
+    </div>
+    <script src="{% static 'search/search.js' %}"></script>
+{% endblock %}
+
+
+

@@ -1,5 +1,5 @@
 """
-WSGI config for FILM_LIFE project.
+WSGI config for FILM_WORK_CALC project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'FILM_LIFE.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'FILM_WORK_CALC.settings')
 
 application = get_wsgi_application()

@@ -1,0 +1,41 @@
+{% extends 'index.html' %}
+{% block content %}
+
+    {#    <p class="generated-text">DETAIL OF PROJECT: {{ day_of_work.project.name }}</p>#}
+    {##}
+    {#    <ul class="lst" style="font-size: 16px">#}
+    {#        <li>Occupation: {{ day_of_work.project.occupation }}</li>#}
+    {#        <li>Rate: {{ day_of_work.project.daily_rate }}</li>#}
+    {#        <li>Overhours: {{ day_of_work.project.type_of_overhours }} %</li>#}
+    {#        <li>Date of create: {{ day_of_work.project.date_created.date }}</li>#}
+    {#        <li>Notes: {{ day_of_work.project.notes }}</li>#}
+    {#    </ul>#}
+    {% for message in messages %}
+        <h2 class="center">{{ message }}</h2>
+    {% endfor %}
+    <form method="POST">
+        {% csrf_token %}
+        <p class="generated-text">PRODUCTION HOUSE ADD:</p>
+        <input class="center" type='text' name="name" placeholder=" Name of Prod House">
+        <input class="center" type='text' name="nip" placeholder='NIP'
+               value="">
+        <input class="center" type="text" name="address" placeholder="address" value="">
+        <input class="center" type="email" name="email" placeholder="email" value="">
+        <textarea class="center" rows="5" cols="25" name="notes" placeholder='notes'></textarea>
+        <select class="center" name="rating" id="rating">
+            <option value="0">...</option>
+            <option value="1">Weak</option>
+            <option value="2">Average</option>
+            <option value="3">Good</option>
+            <option value="4">Very Good</option>
+            <option value="5">Excelent</option>
+        </select>
+        <input class="center" type="submit" value="ADD">
+    </form>
+
+
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+    {#    <script src="{% static 'days-edit/days-edit.js' %}"></script>#}
+{% endblock %}

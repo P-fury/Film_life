@@ -1,0 +1,28 @@
+{% extends 'index.html' %}
+{% block content %}
+
+    <p class="generated-text">DETAIL OF WORKDAY date:{{ workday.date}} </p>
+
+
+    <ul class="lst" style="font-size: 16px">
+        <li>PROJECT NAME:: {{ workday.project.name }}</li>
+        <li>EARNINGS:  {{ workday.earnings }}</li>
+        <li>AMOUNT OF OVERHOURS: {{ workday.amount_of_overhours }} %</li>
+        <li>TYPE OF WORK DAY: {{ workday.type_of_workday }}</li>
+        <li>NOTES: {{ workday.notes }}</li>
+    </ul>
+    <h2 class="center">FOR SURE DELETE THIS WORK DAY?</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="submit" class="btn btn-danger center" name="action" value="YES">
+        <input type="submit" class="btn btn-danger center" name="action" value="NO">
+    </form>
+
+
+
+
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'project-days/style.css' %}">
+    <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
+{% endblock %}
