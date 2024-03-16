@@ -1,0 +1,31 @@
+{% extends 'index.html' %}
+{% block content %}
+
+    <p class="generated-text">DETAIL OF CONTACT: {{ contact.first_name }} {% if contact.last_name %}{{ contact.last_name }}{%  endif %}</p>
+
+
+    <ul class="lst" style="font-size: 16px">
+        <li>OCCUPATION: {{ contact.occupation }}</li>
+        {% for production_house in contact.production_house.all %}
+            <li>- {{ production_house.name }}</li>
+        {% endfor %}
+        <li>EMAIL: {{ contact.email }}</li>
+        <li>PHONE: {{ contact.phone }}</li>
+        <li>NOTES: {{ contact.notes }}</li>
+
+    </ul>
+    <h2 class="center">FOR SURE DELETE THIS CONTACT?</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <input type="submit" class="btn btn-danger center" name="action" value="YES">
+        <input type="submit" class="btn btn-danger center" name="action" value="NO">
+    </form>
+
+
+
+
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'project-days/style.css' %}">
+    <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
+{% endblock %}

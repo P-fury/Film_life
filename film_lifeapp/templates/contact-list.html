@@ -1,0 +1,75 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'contact-list/contact-list.css' %}">
+
+
+    <p class="generated-text">LIST OF CONTACTS:</p>
+    <div>
+        <ul class="lst">
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <div style="display: inline-block;">
+                <table class="table_component center">
+                    <tbody>
+                    <tr>
+                        <td>NO:</td>
+                        <td>FIRST NAME:</td>
+                        <td>LAST NAME:</td>
+                        <td>OCCUPATION:</td>
+                        <td>PRODUCTION HOUSE:</td>
+                        <td>EMAIL:</td>
+                        <td>PHONE:</td>
+                        <td>NOTES:</td>
+                        <td>PROJECTS:</td>
+                        <td>EDIT</td>
+                        <td>DELETE</td>
+                    </tr>
+
+                    {% for contact in contacts %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ contact.first_name }}</td>
+                            <td>{{ contact.last_name }}</td>
+                            <td>{{ contact.occupation }}</td>
+                            <td>
+                                {% for production_house in contact.production_house.all %}
+                                    <a href={% url 'productions-list' %}><li>- {{ production_house.name }}</li></a>
+                                {% endfor %}
+                            </td>
+                            <td>{{ contact.email }}</td>
+                            <td>{{ contact.phone }}</td>
+                            <td>{{ contact.notes }}</td>
+                            <td>
+                                {{ contact.production_house.name }}
+                            </td>
+                            <td>
+                                <a href="{% url 'contacts-edit' pk=contact.pk %}" id="edit">
+                                    <button>edit</button>
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'contacts-delete' pk=contact.pk %}" id="delete">
+                                    <button>delete</button>
+                                </a>
+                            </td>
+
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+        </ul>
+    </div>
+{% endblock %}
+
+

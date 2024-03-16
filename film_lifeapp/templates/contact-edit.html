@@ -1,0 +1,26 @@
+{% extends 'index.html' %}
+{% block content %}
+<p class="generated-text">CONTACT EDIT:</p>
+    {% for message in messages %}
+        <h2 class="center">{{ message }}</h2>
+    {% endfor %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class ='center'>
+            {{ form.first_name }}
+            {{ form.last_name }}
+            {{ form.occupation }}
+            {{ form.production_house }}
+            {{ form.email }}
+            {{ form.phone }}
+            {{ form.notes }}
+            </div>
+        <input class="center"  type="submit" value="EDIT">
+    </form>
+
+
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'contact-add/contact-add.css' %}">
+    {#    <script src="{% static 'days-edit/days-edit.js' %}"></script>#}
+{% endblock %}

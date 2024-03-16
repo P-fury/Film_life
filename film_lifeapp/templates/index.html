@@ -54,9 +54,23 @@
                             <a href="{% url 'productions-list' %}"> Production Houses List </a>
                         </li>
                         <li>
-                            <a href="{% url 'productions-add' %}"> Add Production House </a>
+                            <a href="{% url 'production-add' %}"> Add Production House </a>
                         </li>
                     </ul>
+                </li>
+                 <li>
+                    <a href="#!">Contacts</a>
+                    <ul class="navbar-dropdown">
+                        <li>
+                            <a href="{% url 'contacts-list' %}"> Contacts List </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'contacts-add' %}"> Add Contacts </a>
+                        </li>
+                    </ul>
+                </li>
+                    <li>
+                    <a href='{% url 'search' %}'>Search</a>
                 </li>
                 <li>
                     <a href='#!'>User</a>

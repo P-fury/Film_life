@@ -1,8 +1,7 @@
 from django.conf import settings
 from django.db import models
 import re
-
-from django.db.models import Sum, DurationField
+from django.db.models import Sum
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -29,13 +28,13 @@ class ProductionHouse(models.Model):
 
 class Contact(models.Model):
     first_name = models.CharField(max_length=128)
-    last_name = models.CharField(max_length=128)
-    occupation = models.CharField(max_length=56)
-    production_house = models.ManyToManyField(ProductionHouse)
-    email = models.EmailField()
-    phone = models.IntegerField()
-    notes = models.TextField(null=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    last_name = models.CharField(max_length=128, blank=True, null=True, default=None)
+    occupation = models.CharField(max_length=56, blank=True, null=True, default=None)
+    production_house = models.ManyToManyField(ProductionHouse, blank=True, null=True, default=None)
+    email = models.EmailField(blank=True, null=True, default=None)
+    phone = models.BigIntegerField(blank=True, null=True, default=None)
+    notes = models.TextField(blank=True, null=True, default=None)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 
 class Project(models.Model):

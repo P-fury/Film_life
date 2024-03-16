@@ -1,0 +1,70 @@
+{% extends 'index.html' %}
+{% block content %}
+    <ul class="lst">
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+
+
+    <p class="generated-text">DETAIL OF PROJECT: {{ project.name }}</p>
+
+
+
+
+
+        <ul class="lst" style="font-size: 16px">
+            <li>Occupation: {{ project.occupation }}</li>
+            <li>Rate: {{ project.daily_rate }}</li>
+            <li>Overhours: {{ project.type_of_overhours }} %</li>
+            <li>Date of create: {{ project.date_created.date }}</li>
+            <li>Notes: {{ project.notes }}</li>
+            <li>Production House: {{ project.production.name }}</li>
+        </ul>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <input class="center" type='date' name="date" placeholder="date">
+            <input class="center" type='number' name="overhours" placeholder='amount_of_overhours' value="0">
+            <select class="center" name="type_of_day" id="type_of_day">
+                <option value="shoot_day">shoot day</option>
+                <option value="rehersal">rehersal</option>
+                <option value="transport">transport</option>
+                <option value="other">other</option>
+            </select>
+            <input class="center" id="percent_of_daily" style='display: none' type="number" name="percent_of_daily"
+                   placeholder="percent amount of daily rate" min=1 max=99>
+            <textarea class="center" rows="5" cols="25" name="notes" placeholder='notes'></textarea>
+            <button class="center" type="submit" name="add_day" value="add_day">ADD DAY</button>
+        </form>
+
+
+        {% if daysofwork %}
+            {% for dayofwork in daysofwork %}
+
+                <li class="center">
+                    {{ forloop.counter }} DATE: {{ dayofwork.date }}
+                    Earining: {{ dayofwork.earnings }} {{ dayofwork.amount_of_overhours }} {{ dayofwork.notes }} {{ dayofwork.type_of_workday }}
+                    <a href="{% url 'workdays-edit' pk=dayofwork.pk %}">
+                        <button type="submit" name="edit_day" value="{{ dayofwork.pk }}">edit</button>
+                    </a>
+                    <a href="{% url 'workdays-delete' dayofwork.pk %}">
+                        <button>delete</button>
+                    </a>
+                </li>
+            {% endfor %}
+            <div class="center">
+                <h2>Work days at {{ project.name }}: {{ days_count }} Total earn: {{ project_earned }} PLN</h2>
+            </div>
+        {% endif %}
+
+
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+        <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
+{% endblock %}

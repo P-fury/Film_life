@@ -31,19 +31,31 @@ urlpatterns = [
     path('', views.MainView.as_view(), name='main'),
 
     path('project-list/', views.ProjectListView.as_view(), name='project-list'),
-    path('project-details/<int:pk>/', views.ProjectDetailsView.as_view(), name='project-details'),
     path('project-add/', views.ProjectAddView.as_view(), name='project-add'),
     path('project-edit/<int:pk>/', views.ProjectEditView.as_view(), name='project-edit'),
     path('project-delete/<int:pk>/', views.ProjectDeleteView.as_view(), name='project-delete'),
 
-    path('project/days/<int:pk>/', views.ProjectDaysView.as_view(), name='project-days'),
-    path('project/days-delete/<int:pk>/', views.DaysDeleteView.as_view(), name='day-of-work-delete'),
-    path('project/dayofwork/<int:pk>/', views.DayOfWorkDetailView.as_view(), name='day-of-work-details'),
+
+    path('project/days/<int:pk>/', views.WorkDaysListView.as_view(), name='workdays-list'),
+    path('project/<int:pk>/days-add/', views.WorkDaysAddView.as_view(), name='workdays-add'),
+    path('project/workday/<int:pk>/', views.WorkDaysEditView.as_view(), name='workdays-edit'),
+    path('project/days-delete/<int:pk>/', views.WorkDaysDeleteView.as_view(), name='workdays-delete'),
 
     path('productions-list/', views.ProductionHousesListView.as_view(), name='productions-list'),
-    path('productions-add/', views.ProductionAddView.as_view(), name='productions-add'),
-    path('productions-edit/<int:pk>/', views.ProductionEditView.as_view(), name='productions-edit'),
-    path('productions-delete/<int:pk>/', views.ProductionHouseDeleteView.as_view(), name='productions-delete'),
+    path('production-add/', views.ProductionAddView.as_view(), name='production-add'),
+    path('production-edit/<int:pk>/', views.ProductionEditView.as_view(), name='production-edit'),
+    path('production-delete/<int:pk>/', views.ProductionHouseDeleteView.as_view(), name='production-delete'),
+
+    path('contacts-list/', views.ContactListView.as_view(), name='contacts-list'),
+    path('contacts-add/', views.ContactCreateView.as_view(), name='contacts-add'),
+    path('contacts-edit/<int:pk>/', views.ContactEditView.as_view(), name='contacts-edit'),
+    path('contacts-delete/<int:pk>/', views.ContactDeleteView.as_view(), name='contacts-delete'),
+
+
+
+    path('search_index', views.Search.as_view(), name='search'),
+    # path('searchbydate', views.SearchByDateView.as_view(), name='search-by-date'),
+    # path('searchbyproject', views.SearchByProjectView.as_view(), name='search-by-project'),
 
 
 ]

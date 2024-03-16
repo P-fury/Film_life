@@ -8,7 +8,7 @@
     <p class="generated-text">PRODUCTION HOUSE TO EDIT:</p>
     <form method="POST">
     {%  csrf_token %}
-    {% render_field form.name class="center" placeholder="Enter name"%}
+    {% render_field form.name class="center" value="{{ form.name }}" placeholder="Enter name"%}
     {% render_field form.nip class="center" placeholder="Enter NIP"%}
     {% render_field form.address class="center" placeholder="Enter adress" %}
     {% render_field form.email class="center" placeholder="Enter email"%}

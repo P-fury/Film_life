@@ -17,16 +17,18 @@
             {% endif %}
 
             <div style="display: inline-block;">
-                <table class="table_component ">
+                <table class="table_component center">
                     <tbody>
                     <tr>
                         <td>NO:</td>
                         <td>NAME:</td>
                         <td>Nip:</td>
                         <td>Address:</td>
+                        <td>Contacts:</td>
                         <td>Email:</td>
                         <td>Rate:</td>
                         <td>Notes:</td>
+                        <td>Projects:</td>
                         <td>EDIT</td>
                         <td>DELETE</td>
                     </tr>
@@ -37,16 +39,22 @@
                             <td>{{ prod.name }}</td>
                             <td>{{ prod.nip }}</td>
                             <td>{{ prod.address }}</td>
+                            <td>{% for contact in prod.contact_set.all %}
+                                <br><a href="/contacts-list/">{{ contact.first_name }} {{ contact.last_name }}</a>
+                            {% endfor %}</td>
                             <td>{{ prod.email }}</td>
                             <td>{{ prod.get_rating_display }}</td>
                             <td>{{ prod.notes }}</td>
+                            <td>{% for project in prod.project_set.all %}
+                                <br><a href={% url 'workdays-list' pk=project.pk %}>- {{ project.name }}</a>
+                            {% endfor %}</td>
                             <td>
-                                <a href="{% url 'productions-edit' pk=prod.pk %}" id="edit">
+                                <a href="{% url 'production-edit' pk=prod.pk %}" id="edit">
                                     <button>edit</button>
                                 </a>
                             </td>
-                          <td>
-                                <a href="{% url 'productions-delete' pk=prod.pk %}" id="delete">
+                            <td>
+                                <a href="{% url 'production-delete' pk=prod.pk %}" id="delete">
                                     <button>delete</button>
                                 </a>
                             </td>

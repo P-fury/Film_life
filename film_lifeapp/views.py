@@ -9,9 +9,11 @@ from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, TemplateView, UpdateView, DeleteView
+from django.views.generic import CreateView, TemplateView, UpdateView, DeleteView, FormView
+
+from django import forms
 from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm, ProjectDeleteForm, DaysDeleteForm, \
-    ProductionHouseDeleteForm
+    ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm, SearchByDateForm
 from film_lifeapp.models import *
 from django.db.models import Sum
 from django.contrib import messages
@@ -96,7 +98,7 @@ class MainView(View):
 class RegisterUserView(CreateView):
     model = User
     form_class = RegisterUserForm
-    template_name = 'register-user.html'
+    template_name = 'user-register.html'
     success_url = reverse_lazy('login-user')
 
     def form_invalid(self, form):
@@ -108,7 +110,7 @@ class RegisterUserView(CreateView):
 # ------------------------------------------ LOGIN ----------------------------------------
 class LoginUserView(LoginView):
     form_class = LoginForm
-    template_name = 'login.html'
+    template_name = 'user-login.html'
     next_page = reverse_lazy('main')
 
 
@@ -123,7 +125,7 @@ class LogoutUserView(View):
 class EditUserView(UpdateView):
     model = User
     fields = ['username', 'email', 'first_name', 'last_name']
-    template_name = 'register-user.html'
+    template_name = 'user-register.html'
     success_url = reverse_lazy('main')
 
 
@@ -131,16 +133,13 @@ class EditUserView(UpdateView):
 # ==================================== projects journey ======================================
 # ------------------------------------ LIST OF PROJECTS --------------------------------------
 class ProjectListView(LoginRequiredMixin, View):
-    redirect_unauthenticated_users_to = 'register'
-
-    def handle_no_permission(self):
-        return HttpResponseRedirect(self.redirect_unauthenticated_users_to)
+    login_url = reverse_lazy('login-user')
 
     def get(self, request):
         projects = Project.objects.filter(user=request.user)
         if projects.count() == 0:
             messages.add_message(request, messages.INFO, 'No projects')
-        return render(request, 'projects-list.html', {"projects": projects})
+        return render(request, 'project-list.html', {"projects": projects})
 
 
 # ---------------------------------- ADDING PROJECTS -----------------------------------
@@ -154,8 +153,8 @@ class ProjectAddView(LoginRequiredMixin, View):
         projects = Project.objects.filter(user_id=request.user.pk)
         if projects.count() == 0:
             messages.add_message(request, messages.INFO, 'No projects')
-        productions = ProductionHouse.objects.all()
-        return render(request, 'projects-add.html', {'projects': projects, "productions": productions})
+        productions = ProductionHouse.objects.filter(user=request.user)
+        return render(request, 'project-add.html', {'projects': projects, "productions": productions})
 
     def post(self, request):
         name = request.POST.get('name')
@@ -188,7 +187,7 @@ class ProjectEditView(UserPassesTestMixin, View):
             project = Project.objects.get(pk=pk)
         except Project.DoesNotExist:
             return redirect('main')
-        productions = ProductionHouse.objects.all()
+        productions = ProductionHouse.objects.filter(user=request.user)
         return render(request, 'project-edit.html', {"project": project, "productions": productions})
 
     def post(self, request, pk):
@@ -215,11 +214,13 @@ class ProjectEditView(UserPassesTestMixin, View):
             return redirect('project-list')
         else:
             messages.error(request, 'Need to fill all necessary fields')
-            return redirect('project-add')
+            return redirect('project-edit', pk=project_to_edit.pk)
 
 
 # ------------------------------------- DELETING PROJECTS -----------------------------------
 class ProjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    login_url = reverse_lazy('login-user')
+
     def test_func(self):
         user = self.request.user
         project = Project.objects.get(pk=self.kwargs['pk'])
@@ -241,8 +242,32 @@ class ProjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 # ===============================================================================================
 # ======================================= DAYS JOURNEY ==========================================
-# ----------------------- PROJECT DETAILS AND ADDING QUICK WORKING DAY VIEW ---------------------
-class ProjectDetailsView(UserPassesTestMixin, View):
+# ------------------------------------- WORK DAY LIST VIEW --------------------------------------
+class WorkDaysListView(LoginRequiredMixin, UserPassesTestMixin, View):
+    login_url = reverse_lazy('login-user')
+
+    def test_func(self):
+        user = self.request.user
+        project = Project.objects.get(pk=self.kwargs['pk'])
+        return project.user == user
+
+    def get(self, request, pk):
+        daysofwork = WorkDay.objects.filter(project_id=pk).order_by('date')
+        ### INFORMACJE PODSUMOWANIE PROJEKTU ###
+        days_count = daysofwork.count()
+        project_earned = WorkDay.objects.filter(project_id=pk).aggregate(sum=Sum('earnings'))
+        project_earned = project_earned['sum']
+        project = Project.objects.get(pk=pk)
+
+        return render(request, 'workdays-list.html',
+                      {"project": project, "daysofwork": daysofwork, "days_count": days_count,
+                       "project_earned": project_earned})
+
+
+# ------------------------------------- ADD WORK DAY VIEW ---------------------------------------
+class WorkDaysAddView(UserPassesTestMixin, View):
+    login_url = reverse_lazy('login-user')
+
     def test_func(self):
         user = self.request.user
         project = Project.objects.get(pk=self.kwargs['pk'])
@@ -255,52 +280,52 @@ class ProjectDetailsView(UserPassesTestMixin, View):
         project_earned = WorkDay.objects.filter(project_id=pk).aggregate(sum=Sum('earnings'))
         project_earned = project_earned['sum']
         project = Project.objects.get(pk=pk)
-        return render(request, 'project-details-add-day.html',
+        return render(request, 'workdays-add.html',
                       {"project": project, "daysofwork": workdays, "days_count": days_count,
                        "project_earned": project_earned})
 
     def post(self, request, pk):
-        if 'add_day' in request.POST:
-            date = request.POST.get('date')
-            overhours = request.POST.get('overhours')
-            type_of_day = request.POST.get('type_of_day')
-            notes = request.POST.get('notes')
-            if request.POST.get('percent_of_daily') != '':
-                percent_of_daily = request.POST.get('percent_of_daily')
-                type_of_day = percent_of_daily + '% of daily rate'
-            if all([date, overhours, type_of_day]):
-                added_day = WorkDay.objects.create(date=date, amount_of_overhours=overhours,
-                                                   type_of_workday=type_of_day,
-                                                   notes=notes, project_id=pk)
-                added_day.calculate_earnings()
-                return redirect('project-details', pk=pk)
-            else:
-                messages.add_message(request, messages.INFO, "Need to fill date")
-                return redirect('project-details', pk=pk)
+        date = request.POST.get('date')
+        overhours = request.POST.get('overhours')
+        type_of_day = request.POST.get('type_of_day')
+        notes = request.POST.get('notes')
+        if request.POST.get('percent_of_daily') != '':
+            percent_of_daily = request.POST.get('percent_of_daily')
+            type_of_day = percent_of_daily + '% of daily rate'
+        if all([date, overhours, type_of_day]):
+            added_day = WorkDay.objects.create(date=date, amount_of_overhours=overhours,
+                                               type_of_workday=type_of_day,
+                                               notes=notes, project_id=pk)
+            added_day.calculate_earnings()
+            return redirect('workdays-add', pk=pk)
+        else:
+            messages.add_message(request, messages.INFO, "Need to fill date")
+            return redirect('workdays-add', pk=pk)
 
 
-# ------------------------------------- EDITING OF ADDED WORKING DAY -----------------------------------
-class DayOfWorkDetailView(UserPassesTestMixin, View):
+# ------------------------------------- EDITING WORK DAY -----------------------------------
+class WorkDaysEditView(LoginRequiredMixin, UserPassesTestMixin, View):
+    login_url = reverse_lazy('login-user')
+
     def test_func(self):
         user = self.request.user
         day = WorkDay.objects.get(pk=self.kwargs['pk'])
         return day.project.user == user
 
     def get(self, request, pk):
-        print(WorkDay.objects.last())
-        day_of_work = WorkDay.objects.get(pk=pk)
+        workday = WorkDay.objects.get(pk=pk)
         # DLA DOMYSLNEJ DATY
-        date_of_work = str(day_of_work.date)
-        percent_amout_of_daily = just_numb(day_of_work.type_of_workday)
-        return render(request, 'days-edit.html', {'day_of_work': day_of_work, "date_of_work": date_of_work,
-                                                  "percent_amout_of_daily": percent_amout_of_daily})
+        workday_date = str(workday.date)
+        percent_amout_of_daily = just_numb(workday.type_of_workday)
+        print(percent_amout_of_daily)
+        return render(request, 'workdays-edit.html', {'workday': workday, "workday_date": workday_date,
+                                                      "percent_amout_of_daily": percent_amout_of_daily})
 
     def post(self, request, pk):
         day_of_work = WorkDay.objects.get(id=pk)
         date = request.POST.get('date')
         overhours = request.POST.get('overhours')
         type_of_day = request.POST.get('type_of_day')
-        print(type_of_day)
         notes = request.POST.get('notes')
         if type_of_day == 'other':
             if request.POST.get('percent_of_daily') != '':
@@ -315,21 +340,23 @@ class DayOfWorkDetailView(UserPassesTestMixin, View):
             day_of_work.save()
             day_of_work = WorkDay.objects.get(id=pk)
             day_of_work.calculate_earnings()
-            return redirect('project-details', pk=day_of_work.project.id)
+            return redirect('workdays-list', pk=day_of_work.project.id)
         else:
             messages.add_message(request, messages.INFO, "Need to fill date")
-            return redirect('project-details', pk=day_of_work.project.id)
+            return redirect('workdays-list', pk=day_of_work.project.pk)
 
 
 # ------------------------------------- DELETING OF WORKING DAYS -----------------------------------
-class DaysDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+class WorkDaysDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    login_url = reverse_lazy('login-user')
+
     def test_func(self):
         user = self.request.user
         day = WorkDay.objects.get(pk=self.kwargs['pk'])
         return day.project.user == user
 
     model = WorkDay
-    template_name = 'days-delete.html'
+    template_name = 'workdays-delete.html'
     form_class = DaysDeleteForm
 
     def form_valid(self, form):
@@ -338,37 +365,18 @@ class DaysDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return response
 
     def form_invalid(self, form):
-        return redirect('project-days', pk=self.object.project.pk)
+        return redirect('workdays-list', pk=self.object.project.pk)
 
     def get_success_url(self):
         project_pk = self.object.project.pk
-        return reverse_lazy('project-days', kwargs={'pk': project_pk})
-
-
-# ----------------------------- BASE WORKING DAYS VIEW AND TABLE ----------------------------
-class ProjectDaysView(UserPassesTestMixin, View):
-    def test_func(self):
-        user = self.request.user
-        project = Project.objects.get(pk=self.kwargs['pk'])
-        return project.user == user
-
-    def get(self, request, pk):
-        daysofwork = WorkDay.objects.filter(project_id=pk).order_by('date')
-        ### INFORMACJE PODSUMOWANIE PROJEKTU ###
-        days_count = daysofwork.count()
-        project_earned = WorkDay.objects.filter(project_id=pk).aggregate(sum=Sum('earnings'))
-        project_earned = project_earned['sum']
-        project = Project.objects.get(pk=pk)
-
-        return render(request, 'project-days.html',
-                      {"project": project, "daysofwork": daysofwork, "days_count": days_count,
-                       "project_earned": project_earned})
+        return reverse_lazy('workdays-list', kwargs={'pk': project_pk})
 
 
 # =======================================================================================
 # ============================ PRODUCTION HOUSES JOURNEY ================================
 # ----------------------------- PRODUCTION HOUSES LIST ----------------------------------
-class ProductionHousesListView(View):
+class ProductionHousesListView(LoginRequiredMixin, View):
+    login_url = reverse_lazy('login-user')
 
     def get(self, request):
         prod_houses = ProductionHouse.objects.filter(user=request.user)
@@ -376,7 +384,9 @@ class ProductionHousesListView(View):
 
 
 # ---------------------- ADDING PRODUCTION HOUSE AND NIP VALIDATE -------------------------
-class ProductionAddView(View):
+class ProductionAddView(LoginRequiredMixin, View):
+    login_url = reverse_lazy('login-user')
+
     def get(self, request):
         return render(request, 'production-add.html')
 
@@ -418,8 +428,15 @@ class ProductionAddView(View):
             return render(request, 'production-add.html')
 
 
-# -----------------------------EDIT PRODUCTION HOUSES ----------------------------------------
-class ProductionEditView(View):
+# -----------------------------EDIT PRODUCTION HOUSES --------------------------
+class ProductionEditView(LoginRequiredMixin, UserPassesTestMixin, View):
+    login_url = reverse_lazy('login-user')
+
+    def test_func(self):
+        user = self.request.user
+        productionhouse = ProductionHouse.objects.get(pk=self.kwargs['pk'])
+        return productionhouse.user == user
+
     form_class = EditProductionForm
     template_name = 'production-edit.html'
 
@@ -435,10 +452,13 @@ class ProductionEditView(View):
         production = ProductionHouse.objects.get(pk=production_id)
         form = self.form_class(request.POST, instance=production)
         production.name = form['name'].value()
+        if production.name == '':
+            messages.add_message(request, messages.INFO, "NAME CANNOT BE EMPTY")
+            return render(request, self.template_name, {'form': form})
         prod_nip = form['nip'].value()
         if prod_nip:
             if not all(char.isdigit() or char == '-' for char in prod_nip):
-                messages.add_message(request, messages.INFO, "NIP NUMBER CAN USE ONLY DIGIT AND '-' ")
+                messages.add_message(request, messages.INFO, "NIP NUMBER CAN USE ONLY DIGIT AND '-'")
                 return render(request, self.template_name, {'form': form})
             else:
                 clean_nip = prod_nip.replace('-', '')
@@ -465,9 +485,11 @@ class ProductionEditView(View):
         return redirect('productions-list')
 
 
-# ----------------------- DELETING PRODUCTION HOUSE -----------------------------------
+# ----------------------- DELETING PRODUCTION HOUSE ---------------------------------
 
-class ProductionHouseDeleteView(UserPassesTestMixin, DeleteView):
+class ProductionHouseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    login_url = reverse_lazy('login-user')
+
     def test_func(self):
         user = self.request.user
         productionhouse = ProductionHouse.objects.get(pk=self.kwargs['pk'])
@@ -486,6 +508,156 @@ class ProductionHouseDeleteView(UserPassesTestMixin, DeleteView):
     def form_invalid(self, form):
         return redirect('productions-list')
 
-# =======================================================================================
+
+# =============================================================================
 # ============================ CONTACT JOURNEY ================================
-# ----------------------------- CONTACT LIST  ----------------------------------
+# ----------------------------- CONTACT LIST  ---------------------------------
+class ContactListView(LoginRequiredMixin, View):
+    login_url = reverse_lazy('login-user')
+
+    def get(self, request):
+        contacts = Contact.objects.filter(user=self.request.user).distinct('id')
+        return render(request, 'contact-list.html', {'contacts': contacts})
+
+
+# ----------------------------- CONTACT ADD  ----------------------------------
+class ContactCreateView(LoginRequiredMixin, CreateView):
+    login_url = reverse_lazy('login-user')
+    model = Contact
+    form_class = ContactAddForm
+    success_url = reverse_lazy('contacts-list')
+    template_name = 'contact-add.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.info(self.request, "YOU DIDNT FILL FORM. CORRECTLY")
+        return redirect('contacts-add')
+
+
+# ----------------------------- CONTACT EDIT  ----------------------------------
+
+class ContactEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    login_url = reverse_lazy('login-user')
+
+    def test_func(self):
+        user = self.request.user
+        contact = Contact.objects.get(pk=self.kwargs['pk'])
+        return contact.user == user
+
+    model = Contact
+    form_class = ContactAddForm
+    success_url = reverse_lazy('contacts-list')
+    template_name = 'contact-edit.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_invalid(self, form):
+        messages.info(self.request, "YOU DIDNT FILL FORM. CORRECTLY")
+        return redirect('contacts-add')
+
+
+# ----------------------------- CONTACT DELETE  ----------------------------------
+
+
+class ContactDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    login_url = reverse_lazy('login-user')
+
+    def test_func(self):
+        user = self.request.user
+        contact = Contact.objects.get(pk=self.kwargs['pk'])
+        return contact.user == user
+
+    model = Contact
+    success_url = reverse_lazy('contacts-list')
+    template_name = 'contact-delete.html'
+    form_class = ContactDeleteForm
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.info(self.request, f'Contact : {self.object.first_name}  {self.object.last_name} DELETED SUCCESSFULLY')
+        return response
+
+    def form_invalid(self, form):
+        return redirect('contacts-list')
+
+
+# =======================================================================================
+# ===================================  SEARCH JURNEY =====================================
+
+class Search(View):
+    def get(self, request):
+        global filtred_projects
+        filtred_projects = None
+        all_projects = Project.objects.filter(user=self.request.user)
+        all_work_days = WorkDay.objects.filter(project__in=all_projects).order_by('date')
+        all_production_houses = ProductionHouse.objects.filter(user=self.request.user)
+        all_contacts = Contact.objects.filter(user=self.request.user)
+        print(all_work_days)
+        date_start = request.GET.get('date_start')
+        date_end = request.GET.get('date_end')
+
+        if request.GET.get('project') != None:
+            selected_project = request.GET.getlist('project')
+            all_work_days = WorkDay.objects.filter(project__name__in=selected_project).order_by('date')
+
+        if request.GET.get('production') != None:
+            selected_production = request.GET.getlist('production')
+            all_work_days = all_work_days.filter(
+                project__production_house__name__in=selected_production).order_by(
+                'date')
+        if request.GET.get('contacts') != None:
+            selected_contacts = request.GET.getlist('contacts')
+            all_work_days = all_work_days.filter(
+                project__production_house__contact__first_name__in=selected_contacts).order_by(
+                'date')
+
+        if date_start and date_end:
+            date_start = timezone.make_aware(datetime.strptime(date_start, '%Y-%m-%d'))
+            date_end = timezone.make_aware(datetime.strptime(date_end, '%Y-%m-%d'))
+            all_work_days = all_work_days.filter(date__range=[date_start, date_end])
+
+        elif date_start:
+            date_start = timezone.make_aware(datetime.strptime(date_start, '%Y-%m-%d'))
+            all_work_days = all_work_days.filter(date__gte=date_start)
+
+        elif date_end:
+            date_end = timezone.make_aware(datetime.strptime(date_end, '%Y-%m-%d'))
+            all_work_days = all_work_days.filter(date__lte=date_end)
+
+        return render(request, 'search.html', {'all_projects': all_projects, 'all_work_days': all_work_days,
+                                               'filtred_projects': filtred_projects,
+                                               'all_production_houses': all_production_houses,
+                                               'all_contacts' : all_contacts,})
+
+
+# class SearchByDateView(View):
+#     def get(self, request):
+#
+#         form = SearchByDateForm()
+#         return render(request, 'search-by-DATE.html', {'form': form})
+#
+#     def post(self, request):
+#         form = SearchByDateForm(request.POST)
+#         if request.method == 'POST':
+#             if form.is_valid():
+#                 start_date = form.cleaned_data.get('start_date')
+#                 end_date = form.cleaned_data.get('end_date')
+#                 all_projects = Project.objects.filter(user=request.user)
+#                 all_work_days_for_user = WorkDay.objects.filter(project__in=all_projects)
+#                 search_dates = all_work_days_for_user.filter(date__range=[start_date, end_date]).order_by('date')
+#                 return render(request, 'search-by-DATE.html', {'form': form, 'search_dates': search_dates})
+
+
+class SearchByProjectView(View):
+    pass
