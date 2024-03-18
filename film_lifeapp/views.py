@@ -292,6 +292,8 @@ class WorkDaysAddView(UserPassesTestMixin, View):
         if request.POST.get('percent_of_daily') != '':
             percent_of_daily = request.POST.get('percent_of_daily')
             type_of_day = percent_of_daily + '% of daily rate'
+        else:
+            type_of_day = '100 % of daily rate'
         if all([date, overhours, type_of_day]):
             added_day = WorkDay.objects.create(date=date, amount_of_overhours=overhours,
                                                type_of_workday=type_of_day,
@@ -331,6 +333,8 @@ class WorkDaysEditView(LoginRequiredMixin, UserPassesTestMixin, View):
             if request.POST.get('percent_of_daily') != '':
                 percent_of_daily = request.POST.get('percent_of_daily')
                 type_of_day = percent_of_daily + '% of daily rate'
+            else:
+                type_of_day = '100 % of daily rate'
         if all([date, overhours, type_of_day]):
             # NADPISYWANIE DANYCH
             day_of_work.date = date
@@ -595,10 +599,13 @@ class ContactDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 # =======================================================================================
 # ===================================  SEARCH JURNEY =====================================
 
-class Search(View):
+class Search(LoginRequiredMixin, View):
+    login_url = reverse_lazy('login-user')
+
     def get(self, request):
         global filtred_projects
         filtred_projects = None
+
         all_projects = Project.objects.filter(user=self.request.user)
         all_work_days = WorkDay.objects.filter(project__in=all_projects).order_by('date')
         all_production_houses = ProductionHouse.objects.filter(user=self.request.user)
@@ -638,7 +645,7 @@ class Search(View):
         return render(request, 'search.html', {'all_projects': all_projects, 'all_work_days': all_work_days,
                                                'filtred_projects': filtred_projects,
                                                'all_production_houses': all_production_houses,
-                                               'all_contacts' : all_contacts,})
+                                               'all_contacts': all_contacts, })
 
 
 # class SearchByDateView(View):
