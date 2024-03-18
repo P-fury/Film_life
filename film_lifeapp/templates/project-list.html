@@ -34,6 +34,7 @@
                         <td>SEE</td>
                         <td>EDIT</td>
                         <td>DELETE</td>
+                        <td>SUMMARY</td>
                     </tr>
 
                     {% for project in projects %}
@@ -62,7 +63,10 @@
                           <td><a href="{% url 'project-delete' pk=project.pk %}">
                                 <button id="delete_project">delete</button>
                             </a></td>
-
+                              </a></td>
+                          <td><a href="{% url 'create-pdf' pk=project.pk %}">
+                                <button id="print_project">download</button>
+                            </a></td>
                         </tr>
                     {% endfor %}
                     </tbody>

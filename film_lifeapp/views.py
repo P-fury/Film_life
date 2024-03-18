@@ -1,4 +1,5 @@
 import math
+import os
 from datetime import datetime, timezone, timedelta
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -12,12 +13,24 @@ from django.views import View
 from django.views.generic import CreateView, TemplateView, UpdateView, DeleteView, FormView
 
 from django import forms
+from reportlab.lib import colors
+
 from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm, ProjectDeleteForm, DaysDeleteForm, \
     ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm, SearchByDateForm
 from film_lifeapp.models import *
 from django.db.models import Sum
 from django.contrib import messages
-from film_lifeapp.functions import nip_checker
+from film_lifeapp.functions import nip_checker, create_pdf
+
+# ========= PDF DOCU ====================
+from django.http import FileResponse
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 
 
 # Create your views here.
@@ -73,14 +86,14 @@ class MainView(View):
                 # ===== 12 godzin dniowki =======
                 if diff.total_seconds() <= (60 * 60 * 12):
                     workday = WorkDay.objects.create(date=timezone.now().date(), amount_of_overhours=0,
-                                                     type_of_workday='shoot_day',
+                                                     type_of_workday='shooting day',
                                                      notes='', project_id=last_project.project.id)
                     workday.calculate_earnings()
                 elif diff.total_seconds() > (60 * 60 * 12):
                     # ===== powyzej 12 godzin dniowki =======
                     overhours = math.ceil((diff.total_seconds() - (60 * 60 * 12)) / 3600)
                     workday = WorkDay.objects.create(date=timezone.now().date(), amount_of_overhours=overhours,
-                                                     type_of_workday='shoot_day',
+                                                     type_of_workday='shooting day',
                                                      notes='', project_id=last_project.project.id)
                     workday.calculate_earnings()
 
@@ -292,8 +305,8 @@ class WorkDaysAddView(UserPassesTestMixin, View):
         if request.POST.get('percent_of_daily') != '':
             percent_of_daily = request.POST.get('percent_of_daily')
             type_of_day = percent_of_daily + '% of daily rate'
-        else:
-            type_of_day = '100 % of daily rate'
+        if request.POST.get('percent_of_daily') == '':
+            type_of_day = 'shooting day'
         if all([date, overhours, type_of_day]):
             added_day = WorkDay.objects.create(date=date, amount_of_overhours=overhours,
                                                type_of_workday=type_of_day,
@@ -599,7 +612,7 @@ class ContactDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 # =======================================================================================
 # ===================================  SEARCH JURNEY =====================================
 
-class Search(LoginRequiredMixin, View):
+class SearchView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
     def get(self, request):
@@ -648,23 +661,16 @@ class Search(LoginRequiredMixin, View):
                                                'all_contacts': all_contacts, })
 
 
-# class SearchByDateView(View):
-#     def get(self, request):
-#
-#         form = SearchByDateForm()
-#         return render(request, 'search-by-DATE.html', {'form': form})
-#
-#     def post(self, request):
-#         form = SearchByDateForm(request.POST)
-#         if request.method == 'POST':
-#             if form.is_valid():
-#                 start_date = form.cleaned_data.get('start_date')
-#                 end_date = form.cleaned_data.get('end_date')
-#                 all_projects = Project.objects.filter(user=request.user)
-#                 all_work_days_for_user = WorkDay.objects.filter(project__in=all_projects)
-#                 search_dates = all_work_days_for_user.filter(date__range=[start_date, end_date]).order_by('date')
-#                 return render(request, 'search-by-DATE.html', {'form': form, 'search_dates': search_dates})
+# ============ GENERATE PDF ================
+class CreatePdfView(View):
+    font_path = os.path.join(settings.BASE_DIR, 'film_lifeapp/static/fonts/bitter/Bitter-Regular.ttf')
+    pdfmetrics.registerFont(TTFont('Bitter', font_path))
+    font_path2 = os.path.join(settings.BASE_DIR, 'film_lifeapp/static/fonts/bitter/Bitter-Bold.ttf')
+    pdfmetrics.registerFont(TTFont('Bitter-Bold', font_path2))
 
-
-class SearchByProjectView(View):
-    pass
+    def get(self, request, pk):
+        today = datetime.now().date()
+        project = Project.objects.get(pk=pk)
+        filename = f"{project.name}_date_of_create_{today}.pdf"
+        buffer = create_pdf(project)
+        return FileResponse(buffer, as_attachment=True, filename=filename)

@@ -387,7 +387,7 @@ def test_workday_add_post_no_date_with_login(user_with_db):
     data = {
         'date': '',
         'overhours': '0',
-        'type_of_day': 'shoot_day',
+        'type_of_day': 'shooting day',
         'notes': '',
         'percent_of_daily': '',
     }
@@ -450,7 +450,7 @@ def test_workday_edit_post_with_login_no_date(user_with_db):
     data = {
         'date': '',
         'overhours': 0,
-        'type_of_day': 'shoot_day',
+        'type_of_day': 'shooting day',
         'notes': '',
         'percent_of_daily': '',
     }
@@ -1128,7 +1128,7 @@ def test_contacts_delete_post_with_login_delete_yes(contact_db_owner_user_with_d
 #         self.project = Project.objects.create(name='test_project', daily_rate=1200, type_of_overhours='10',
 #                                               user_id=self.user_db.id)
 #         self.workday = WorkDay.objects.create(id=37, date='2024-03-17', amount_of_overhours=0,
-#                                               type_of_workday="shoot_day", project_id=self.project.id,
+#                                               type_of_workday="shooting day", project_id=self.project.id,
 #                                               last_updated='2024-03-05 07:53:27.834922 +00:00')
 #
 #     def tearDown(self):

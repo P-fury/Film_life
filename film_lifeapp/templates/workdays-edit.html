@@ -30,12 +30,12 @@
             <input class="center" type='number' min="0" min="99" name="overhours" placeholder='amount_of_overhours'
                    value="{{ workday.amount_of_overhours }}">
             <select class="center" name="type_of_day" id="type_of_day">
-                <option value="shoot_day"{% if workday.type_of_workday == 'shoot_day' %} selected {% endif %} >shoot
-                    day
+                <option value="shooting day" {% if workday.type_of_workday == 'shooting day' %} selected {% endif %}>shooting day
                 </option>
-                <option value="rehersal" {% if workday.type_of_workday == 'rehersal' %} selected {% endif %}>rehersal
+                <option value="rehersal" {% if workday.type_of_workday == 'rehersal' %} selected {% endif %}>
+                rehersal
                 </option>
-                <option value="transport" {% if workday.type_of_workday == 'transport' %} selected {% endif %} >
+                <option value="transport" {% if workday.type_of_workday == 'transport' %} selected {% endif %}>
                     transport
                 </option>
                 <option value="other"{% if workday.type_of_workday == 'other' %} selected {% endif %} >other</option>
