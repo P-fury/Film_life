@@ -1,35 +1,39 @@
 {% extends 'index.html' %}
 {% block content %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+{% load static %}
+<link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
 
-    <p class="generated-text">EDIT PROJECT</p>
-    <form method="POST">
-        {% csrf_token %}
-        {% for message in messages %}
-            <h2 class="center">{{ message }}</h2>
-        {% endfor %}
-        <p class="generated-text">NAME OF PROJECT<input class='center' type='text' name="name"
-                                                        value="{{ project.name }}"></p>
-        <p class="generated-text">DAILY RATE<input class='center' type='number' name="daily_rate"
-                                                   value="{{ project.daily_rate }}">
-        <p class="generated-text">TYPE OF OVERHOURS<input class='center' type='text' name="type_of_overhours"
-                                                          value="{{ project.type_of_overhours }}">
-        <p class="generated-text">OCCUPATION<input class='center' type='text' name="occupation"
-                                                   value="{{ project.occupation }}">
-        <p class="generated-text">NOTES<textarea class='center' rows="5" cols="25" name="notes"
-                                                 value="{{ project.notes }}"></textarea></p>
-        <p class="generated-text">PRODUCTION HOUSE
-            <select class="center" name="production">
-                <option value="{{ project.production.id }}" selected>{{ project.production.name }}</option>
-                {% for production in productions %}
-                    <option value="{{ production.id }}">{{ production.name }}</option>
-                {% endfor %}
-            </select>
-        </p>
-        <input class="center" type="submit" value="edit">
+<p class="generated-text">EDIT PROJECT</p>
+<form method="POST">
+    {% csrf_token %}
+    {% for message in messages %}
+    <h2 class="center">{{ message }}</h2>
+    {% endfor %}
+    <p class="generated-text">NAME OF PROJECT<input class='center' type='text' name="name"
+                                                    value="{{ project.name }}"></p>
+    <p class="generated-text">DAILY RATE<input class='center' type='number' name="daily_rate"
+                                               value="{{ project.daily_rate }}">
+    <p class="generated-text">TYPE OF OVERHOURS
+        <select class="center" name="type_of_overhours">
+            <option value="10">10%</option>
+            <option value="15">15%</option>
+            <option value="progresive">progresive</option>
+        </select></p>
+    <p class="generated-text">OCCUPATION<input class='center' type='text' name="occupation"
+                                               value="{{ project.occupation }}">
+    <p class="generated-text">NOTES<textarea class='center' rows="5" cols="25" name="notes"
+                                             value="{{ project.notes }}"></textarea></p>
+    <p class="generated-text">PRODUCTION HOUSE
+        <select class="center" name="production">
+            <option value="{{ project.production.id }}" selected>{{ project.production.name }}</option>
+            {% for production in productions %}
+            <option value="{{ production.id }}">{{ production.name }}</option>
+            {% endfor %}
+        </select>
+    </p>
+    <input class="center" type="submit" value="edit">
 
-    </form>
+</form>
 
 
 {% endblock %}

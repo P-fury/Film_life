@@ -16,7 +16,7 @@ def user_with_db():
     user_db = User.objects.create_user(username='test', password='test123pytest')
     project = Project.objects.create(name='test_project', daily_rate=1200, type_of_overhours='10', user_id=user_db.id)
     workday = WorkDay.objects.create(date='2024-03-17', amount_of_overhours=0,
-                                     type_of_workday="shoot_day", project_id=project.id,
+                                     type_of_workday="shooting day", project_id=project.id,
                                      last_updated='2024-03-05 07:53:27.834922 +00:00')
     workday.calculate_earnings()
     project.update_total_earnings()
@@ -26,7 +26,7 @@ def user_with_db():
 @pytest.fixture()
 def work_day():
     return WorkDay.objects.create(id=37, date='2024-03-17', amount_of_overhours='0', earnings=1100,
-                                  type_of_workday="shoot_day", project_id=1,
+                                  type_of_workday="shooting day", project_id=1,
                                   last_updated='2024-03-05 07:53:27.834922 +00:00'
                                   )
 
@@ -51,7 +51,7 @@ def workday_add_form():
     data = {
         'date': '2021-03-17',
         'overhours': 0,
-        'type_of_day': 'shoot_day',
+        'type_of_day': 'shooting day',
         'notes': '',
         'percent_of_daily': '',
     }

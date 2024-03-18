@@ -144,6 +144,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
+
 # POTRZEBNE DO SCSS I SASS STATYCZNE PILKI I KOMPILER
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
