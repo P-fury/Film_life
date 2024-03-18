@@ -45,8 +45,10 @@
                     <li>
                         {{ forloop.counter }} DATE:<a href="{% url 'workdays-edit' pk=day.pk %}">{{ day.date }}</a>
                         NAME: <a href="{% url 'workdays-list' pk=day.project_id %}">{{ day.project.name }}</a>
+                        {% if day.project.production_house %}
                         PROD: <a
                             href="{% url 'production-edit' pk=day.project.production_house.id %}">{{ day.project.production_house.name }}</a>
+                        {% endif %}
                         CONTACT: {% for contact in day.project.production_house.contact_set.all %}
                         <a href="{% url 'contacts-edit' pk=contact.id %}"> {{ contact.first_name }} {{ contact.last_name }}</a>
                         ,
