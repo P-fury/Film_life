@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     # 'jquery',  # POTRZEBNY PLIK JQUERY
     # 'bootstrap_datepicker_plus',  # KALENDARZ
     # 'bootstrap4',
-    # 'widget_tweaks',
+    'widget_tweaks',
     # 'phonenumber_field',
 
 ]

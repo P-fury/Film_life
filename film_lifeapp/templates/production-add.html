@@ -15,13 +15,19 @@
     {% endfor %}
     <form method="POST">
         {% csrf_token %}
-        <p class="generated-text">PRODUCTION HOUSE ADD:</p>
-        <input class="center" type='text' name="name" placeholder=" Name of Prod House">
+        <h2>PRODUCTION HOUSE ADD:</h2>
+        <h2>Name of Prod House</h2>
+        <input class="center" type='text' name="name" placeholder="Name of Prod House">
+        <h2>NIP</h2>
         <input class="center" type='text' name="nip" placeholder='NIP'
                value="">
+        <h2>address</h2>
         <input class="center" type="text" name="address" placeholder="address" value="">
+        <h2>email</h2>
         <input class="center" type="email" name="email" placeholder="email" value="">
+        <h2>notes</h2>
         <textarea class="center" rows="5" cols="25" name="notes" placeholder='notes'></textarea>
+        <h2>ratings</h2>
         <select class="center" name="rating" id="rating">
             <option value="0">...</option>
             <option value="1">Weak</option>
@@ -30,12 +36,11 @@
             <option value="4">Very Good</option>
             <option value="5">Excelent</option>
         </select>
-        <input class="center" type="submit" value="ADD">
+        <input class="center lightbig" type="submit" value="ADD">
     </form>
 
 
 
     {% load static %}
-    <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
-    {#    <script src="{% static 'days-edit/days-edit.js' %}"></script>#}
+    <link rel="stylesheet" href="{% static 'style/add.css' %}">
 {% endblock %}

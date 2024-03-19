@@ -10,12 +10,13 @@
 }
 
 ul.lst {
+    text-align: center;
     padding-inline-start: 0;
 }
 
 ul.lst li {
 
-    font-size: 14px;
+    font-size: 24px;
     list-style: none;
 }
 
@@ -32,59 +33,6 @@ input[type=text] {
 }
 
 
-textarea {
-    width: 350px;
-    padding: 12px 20px;
-    margin: 8px 0;
-    box-sizing: border-box;
-}
-
-input[type=submit] {
-    background-color: #74b4fe;
-    border: none;
-    color: white;
-    padding: 5px 32px;
-    text-align: center;
-    text-decoration: none;
-    font-size: 16px;
-    width: 350px;
-}
-
-.center {
-    display: block;
-    justify-content: center;
-    align-items: center;
-    width: 350px;
-    text-align: center;
-    margin: 10px auto;
-    padding: 12px 20px;
-    box-sizing: border-box;
-
-
-}
-
-
-/*------------- Z PROJECT DAYS SYTLOWANIE TABLICY ------------------*/
-
-
-.generated-text {
-    font-family: 'Trebuchet MS', sans-serif;
-    font-size: x-large;
-    font-weight: bold;
-    line-height: 20px;
-    color: #ffffff;
-    background: linear-gradient(45deg, #4199fe, #74b4fe);
-    text-align: center;
-}
-
-
-input[type=text] {
-
-    width: 350px;
-    padding: 8px 12px;
-    box-sizing: border-box;
-}
-
 
 textarea {
     width: 350px;
@@ -103,7 +51,6 @@ input[type=submit] {
     font-size: 16px;
     width: 350px;
 }
-
 .center {
     display: block;
     justify-content: center;
@@ -115,39 +62,42 @@ input[type=submit] {
     box-sizing: border-box;
 
 
+
 }
 
-.table_component {
-    overflow: auto;
-    width: 100%;
-    table-layout: fixed;
-}
-
-.table_component table {
-    border: 2px solid #0000ff;
-    height: 100%;
-    width: 100%;
-    table-layout: auto;
-    border-collapse: separate;
-    border-spacing: 4px;
+h2 {
     text-align: center;
+    font-size: 24px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: white;
+    padding: 10px 0;
 }
 
-.table_component caption {
-    caption-side: top;
+
+
+
+input[type=submit] {
+    background-color: #4f9dee;
+    border: none;
+    color: white;
+    padding: 5px 32px;
     text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bolder;
+    width: 250px;
 }
 
-.table_component th {
-    border: 2px solid #0000ff;
-    background-color: #006bb3;
-    color: #ffffff;
-    padding: 5px;
+.center {
+    display: block;
+    justify-content: center;
+    align-items: center;
+    width: 350px;
+    text-align: center;
+    margin: 10px auto;
+    padding: 12px 20px;
+    box-sizing: border-box;
 }
 
-.table_component td {
-    border: 2px solid #0000ff;
-    background-color: #41a8ec;
-    color: #000000;
-    padding: 5px;
-}
+

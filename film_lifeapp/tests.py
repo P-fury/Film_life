@@ -186,7 +186,7 @@ def test_project_list_get_without_db():
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == '/register_user/?next=/project-list/'
+        assert final_url == '/login_user/?next=/project-list/'
         assert statushttp == 302
 
 
@@ -330,7 +330,7 @@ def test_workday_list_get_without_login(project_test):
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == f'/register_user/?next=/project/days/{project_test.id}/'
+        assert final_url == f'/login_user/?next=/project/days/{project_test.id}/'
         assert statushttp == 302
 
 
@@ -354,7 +354,7 @@ def test_workday_add_get_without_login(project_test):
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == f'/register_user/?next=/project/{project_test.id}/days-add/'
+        assert final_url == f'/login_user/?next=/project/{project_test.id}/days-add/'
         assert statushttp == 302
 
 
@@ -525,7 +525,7 @@ def test_workday_edit_get_without_login(user_with_db):
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == f'/register_user/?next=/project/days-delete/{user_with_db[2].pk}/'
+        assert final_url == f'/login_user/?next=/project/days-delete/{user_with_db[2].pk}/'
         assert statushttp == 302
 
 
@@ -582,7 +582,7 @@ def test_production_house_list_get_without_login(production_house_db):
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == f'/register_user/?next=/productions-list/'
+        assert final_url == f'/login_user/?next=/productions-list/'
         assert statushttp == 302
 
 
@@ -620,7 +620,7 @@ def test_production_house_add_get_without_login(production_house_db):
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == f'/register_user/?next=/production-add/'
+        assert final_url == f'/login_user/?next=/production-add/'
         assert statushttp == 302
 
 
@@ -720,7 +720,7 @@ def test_production_house_edit_get_without_login(user_with_db, production_house_
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == f'/register_user/?next=/production-edit/{production_house_owner_user_with_db.pk}/'
+        assert final_url == f'/login_user/?next=/production-edit/{production_house_owner_user_with_db.pk}/'
         assert statushttp == 302
 
 
@@ -844,7 +844,7 @@ def test_production_house_delete_get_without_login(production_house_owner_user_w
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == f'/register_user/?next=/production-delete/{production_house_owner_user_with_db.pk}/'
+        assert final_url == f'/login_user/?next=/production-delete/{production_house_owner_user_with_db.pk}/'
         assert statushttp == 302
 
 
@@ -912,7 +912,7 @@ def test_contact_list_get_without_login(contact_db_owner_user_with_db):
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == f'/register_user/?next=/contacts-list/'
+        assert final_url == f'/login_user/?next=/contacts-list/'
         assert statushttp == 302
 
 
@@ -939,7 +939,7 @@ def test_contact_add_get_without_login(contact_db_owner_user_with_db):
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == f'/register_user/?next=/contacts-add/'
+        assert final_url == f'/login_user/?next=/contacts-add/'
         assert statushttp == 302
 
 
@@ -1006,7 +1006,7 @@ def test_contact_edit_get_without_login(contact_db_owner_user_with_db):
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == f'/register_user/?next=/contacts-edit/{contact_db_owner_user_with_db.pk}/'
+        assert final_url == f'/login_user/?next=/contacts-edit/{contact_db_owner_user_with_db.pk}/'
         assert statushttp == 302
 
 
@@ -1066,7 +1066,7 @@ def test_contact_delete_get_without_login(contact_db_owner_user_with_db):
     redirect_chain = response.redirect_chain
     if redirect_chain:
         final_url, statushttp = redirect_chain[-1]
-        assert final_url == f'/register_user/?next=/contacts-delete/{contact_db_owner_user_with_db.pk}/'
+        assert final_url == f'/login_user/?next=/contacts-delete/{contact_db_owner_user_with_db.pk}/'
         assert statushttp == 302
 
 

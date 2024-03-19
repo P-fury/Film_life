@@ -1,7 +1,7 @@
 {% extends 'index.html' %}
 {% block content %}
 
-    <p class="generated-text">DETAIL OF CONTACT: {{ contact.first_name }} {% if contact.last_name %}{{ contact.last_name }}{%  endif %}</p>
+    <h2>DETAIL OF CONTACT: {{ contact.first_name }} {% if contact.last_name %}{{ contact.last_name }}{%  endif %}</h2>
 
 
     <ul class="lst" style="font-size: 16px">
@@ -26,6 +26,5 @@
 
 
     {% load static %}
-    <link rel="stylesheet" href="{% static 'project-days/style.css' %}">
-    <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'style/delete.css' %}">
 {% endblock %}

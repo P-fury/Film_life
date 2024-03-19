@@ -1,10 +1,84 @@
 
+.generated-text {
+    font-family: 'Trebuchet MS', sans-serif;
+    font-size: x-large;
+    font-weight: bold;
+    line-height: 20px;
+    color: #ffffff;
+    background: linear-gradient(45deg, #4199fe, #74b4fe);
+    text-align: center;
+}
+
+ul.lst {
+    text-align: center;
+    padding-inline-start: 0;
+}
+
+ul.lst li {
+
+    font-size: 24px;
+    list-style: none;
+}
+
+ul.lst li strong {
+    font-weight: 900;
+    color: wheat;
+}
+
+input[type=text] {
+
+    width: 350px;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+
+textarea {
+    width: 350px;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+}
+
+input[type=submit] {
+    background-color: #74b4fe;
+    border: none;
+    color: white;
+    padding: 5px 32px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    width: 350px;
+}
+
+.centertext {
+    display: block;
+    justify-content: center;
+    align-items: center;
+    width: 500px;
+    text-align: center;
+    margin: 10px auto;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+
+.center {
+    display: block;
+    justify-content: center;
+    align-items: center;
+    width: 350px;
+    text-align: center;
+    margin: 10px auto;
+    padding: 12px 20px;
+    box-sizing: border-box;
+}
 
 * {
     box-sizing: border-box;
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
-
+}
 
 h2 {
     text-align: center;
@@ -12,13 +86,19 @@ h2 {
     text-transform: uppercase;
     letter-spacing: 1px;
     color: white;
-    padding: 10px 0;
+    padding: 2px 0;
+    margin: 2px 2px 2px 2px;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+
 }
 
 /* Table Styles */
 
 .table-wrapper {
-    margin: 5px 30px 70px 0px ;
+    margin: 5px 30px 70px 0px;
     box-shadow: 0px 35px 50px rgba(0, 0, 0, 0.2);
 }
 
@@ -101,8 +181,9 @@ h2 {
         box-sizing: border-box;
         overflow-x: hidden;
         overflow-y: auto;
-        width: 100px;
+        width: 80px;
         font-size: 12px;
+
         text-overflow: ellipsis;
     }
 
@@ -136,4 +217,42 @@ h2 {
         display: block;
         text-align: center;
     }
+}
+
+
+.dark {
+    background-color: #3f76b7;
+    border: none;
+    color: white;
+    padding: 1px 1px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 12px;
+    width: 60px;
+    font-weight: 500;
+}
+
+.light {
+    background-color: #3f76b7;
+    border: none;
+    color: white;
+    padding: 1px 1px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 12px;
+    width: 60px;
+    font-weight: 500;
+}
+
+.lightbig {
+    background-color: #4f9dee;
+    border: none;
+    color: white;
+    padding: 5px 16px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 700;
+    width: 350px;
+}
 

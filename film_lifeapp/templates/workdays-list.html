@@ -50,12 +50,12 @@
                     <td>{{ dayofwork.type_of_workday }}</td>
                     <td>
                         <a href="{% url 'workdays-edit' dayofwork.pk %}">
-                            <button>edit</button>
+                            <button class="dark">EDIT</button>
                         </a>
                     </td>
                     <td>
                         <a href="{% url 'workdays-delete' dayofwork.pk %}">
-                            <button>delete</button>
+                            <button class="light">DELETE</button>
                         </a>
                     </td>
                 </tr>
@@ -69,7 +69,7 @@
             {% endif %}
 
   {% load static %}
-    <link rel="stylesheet" href="{% static 'list-style/lists.css' %}">
-    <script src="{% static 'javascript/javascript.js' %}"></script>
+    <link rel="stylesheet" href="{% static '/style/lists.css' %}">
+    <script src="{% static 'javascript/edit_pages.js' %}"></script>
 {% endblock %}
 

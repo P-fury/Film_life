@@ -48,22 +48,22 @@
                 <td><a href="/productions-list/">{{ project.production_house.name }}</a></td>
                 <td>
                     <a href="{% url 'workdays-add' pk=project.pk %}">
-                        <button id="project_details">Add days</button>
+                        <button class="light" id="project_details">ADD DAYS</button>
                     </a>
                     </a>
                 </td>
                 <td><a href="{% url 'workdays-list' pk=project.pk %}">
-                    <button id="add_days">See days</button>
+                    <button class="dark id="add_days">SEE DAYS</button>
                 </a></td>
                 <td><a href="{% url 'project-edit' pk=project.pk %}">
-                    <button id="edit_project">edit</button>
+                    <button class="light" id="edit_project">EDIT</button>
                 </a></td>
                 <td><a href="{% url 'project-delete' pk=project.pk %}">
-                    <button id="delete_project">delete</button>
+                    <button class="dark"  id="delete_project">DELETE</button>
                 </a></td>
                 </a></td>
                 <td><a href="{% url 'create-pdf' pk=project.pk %}">
-                    <button id="print_project">download</button>
+                    <button class="light" id="print_project">DOWNLOAD</button>
                 </a></td>
             </tr>
         {% endfor %}
@@ -74,7 +74,7 @@
 
 
         {% load static %}
-    <link rel="stylesheet" href="{% static 'list-style/lists.css' %}">
+    <link rel="stylesheet" href="{% static 'style/lists.css' %}">
 {% endblock %}
 
 

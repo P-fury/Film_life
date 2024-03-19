@@ -52,12 +52,12 @@
                     </td>
                     <td>
                         <a href="{% url 'contacts-edit' pk=contact.pk %}" id="edit">
-                            <button>edit</button>
+                            <button class="light">EDIT</button>
                         </a>
                     </td>
                     <td>
                         <a href="{% url 'contacts-delete' pk=contact.pk %}" id="delete">
-                            <button>delete</button>
+                            <button class="dark">DELETE</button>
                         </a>
                     </td>
 
@@ -70,7 +70,7 @@
 
 
     {% load static %}
-    <link rel="stylesheet" href="{% static 'list-style/lists.css' %}">
-    <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'style/lists.css' %}">
+
 {% endblock %}
 
