@@ -11,7 +11,7 @@
 
 
 
-    <p class="generated-text">DETAIL OF PROJECT: {{ project.name }}</p>
+    <h2>DETAIL OF PROJECT: {{ project.name }}</h2>
 
 
 
@@ -40,31 +40,33 @@
             <input class="center" id="percent_of_daily" style='display: none' type="number" name="percent_of_daily"
                    placeholder="percent amount of daily rate" min=1 max=99>
             <textarea class="center" rows="5" cols="25" name="notes" placeholder='notes'></textarea>
-            <button class="center" type="submit" name="add_day" value="add_day">ADD DAY</button>
+            <button class="center lightbig" type="submit" name="add_day" value="add_day">ADD DAY</button>
         </form>
 
 
         {% if daysofwork %}
             {% for dayofwork in daysofwork %}
 
-                <li class="center">
+                <li class="centertext">
                     {{ forloop.counter }} DATE: {{ dayofwork.date }}
                     Earining: {{ dayofwork.earnings }} {{ dayofwork.amount_of_overhours }} {{ dayofwork.notes }} {{ dayofwork.type_of_workday }}
                     <a href="{% url 'workdays-edit' pk=dayofwork.pk %}">
-                        <button type="submit" name="edit_day" value="{{ dayofwork.pk }}">edit</button>
-                    </a>
+                        <button class="edit" type="submit" name="edit_day" value="{{ dayofwork.pk }}">EDIT</button></a>
+
                     <a href="{% url 'workdays-delete' dayofwork.pk %}">
-                        <button>delete</button>
+                        <button class="delete">DELETE</button>
                     </a>
                 </li>
             {% endfor %}
-            <div class="center">
-                <h2>Work days at {{ project.name }}: {{ days_count }} Total earn: {{ project_earned }} PLN</h2>
+            <div class="centertext">
+                <h2>Work days at {{ project.name }}: {{ days_count }}</h2>
+                    <br>
+                <h2>Total earn: {{ project_earned }} PLN</h2>
             </div>
         {% endif %}
 
 
         {% load static %}
-        <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+        <link rel="stylesheet" href="{% static 'style/add.css' %}">
         <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
 {% endblock %}

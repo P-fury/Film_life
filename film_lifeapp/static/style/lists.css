@@ -141,3 +141,28 @@ body {
         text-align: center;
     }
 }
+
+
+
+.light {
+    background-color: #6AAFE6;
+    border: none;
+    color: white;
+    padding: 1px 1px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 10px;
+    width: 65px;
+    font-weight: 700;
+}
+.dark {
+    background-color: #3f76b7;
+    border: none;
+    color: white;
+    padding: 1px 1px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 10px;
+    width: 65px;
+    font-weight: 700;
+}

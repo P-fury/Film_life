@@ -1,39 +1,39 @@
 {% extends 'index.html' %}
 {% block content %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
 
-<p class="generated-text">EDIT PROJECT</p>
+
+<h2>EDIT PROJECT</h2>
 <form method="POST">
     {% csrf_token %}
     {% for message in messages %}
     <h2 class="center">{{ message }}</h2>
     {% endfor %}
-    <p class="generated-text">NAME OF PROJECT<input class='center' type='text' name="name"
-                                                    value="{{ project.name }}"></p>
-    <p class="generated-text">DAILY RATE<input class='center' type='number' name="daily_rate"
-                                               value="{{ project.daily_rate }}">
-    <p class="generated-text">TYPE OF OVERHOURS
+    <h2>NAME OF PROJECT<input class='center' type='text' name="name"
+                                                    value="{{ project.name }}"></h2>
+    <h2>DAILY RATE<input class='center' type='number' name="daily_rate"
+                         value="{{ project.daily_rate }}"></h2>
+    <h2>TYPE OF OVERHOURS
         <select class="center" name="type_of_overhours">
             <option value="10">10%</option>
             <option value="15">15%</option>
             <option value="progresive">progresive</option>
-        </select></p>
-    <p class="generated-text">OCCUPATION<input class='center' type='text' name="occupation"
-                                               value="{{ project.occupation }}">
-    <p class="generated-text">NOTES<textarea class='center' rows="5" cols="25" name="notes"
-                                             value="{{ project.notes }}"></textarea></p>
-    <p class="generated-text">PRODUCTION HOUSE
+        </select></h2>
+    <h2>OCCUPATION<input class='center' type='text' name="occupation"
+                         value="{{ project.occupation }}"></h2>
+    <h2>NOTES<textarea class='center' rows="5" cols="25" name="notes"
+                                             value="{{ project.notes }}"></textarea></h2>
+    <h2>PRODUCTION HOUSE
         <select class="center" name="production">
             <option value="{{ project.production.id }}" selected>{{ project.production.name }}</option>
             {% for production in productions %}
             <option value="{{ production.id }}">{{ production.name }}</option>
             {% endfor %}
         </select>
-    </p>
-    <input class="center" type="submit" value="edit">
+    </h2>
+    <input class="center lightbig" type="submit" value="EDIT">
 
 </form>
 
-
+{% load static %}
+<link rel="stylesheet" href="{% static 'style/edit.css' %}">
 {% endblock %}

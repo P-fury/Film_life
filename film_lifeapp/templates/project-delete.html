@@ -1,7 +1,7 @@
 {% extends 'index.html' %}
 {% block content %}
 
-    <p class="generated-text">DETAIL OF PROJECT: {{ project.name }}</p>
+    <h2>NAME OF PROJECT: {{ project.name }}</h2>
 
 
     <ul class="lst" style="font-size: 16px">
@@ -24,6 +24,6 @@
 
 
     {% load static %}
-    <link rel="stylesheet" href="{% static 'project-days/style.css' %}">
+    <link rel="stylesheet" href="{% static 'style/delete.css' %}">
     <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
 {% endblock %}

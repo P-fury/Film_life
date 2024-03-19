@@ -1,8 +1,6 @@
 {% extends 'index.html' %}
 
 {% block content %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'user-form/register_user.css' %}">
     <br>
     <form method="POST">
 
@@ -46,7 +44,8 @@
             </div>
         </div>
     </form>
-
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'style/user.css' %}">
 {% endblock %}
 
 

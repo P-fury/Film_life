@@ -1,6 +1,6 @@
 
 
-        {% load static %}
+{% load static %}
 
 
 {########LADOWANIE SASS I SCSS#}
@@ -13,7 +13,6 @@
 <script type="text/javascript" src="{% static 'jQuery 3.7.1.js' %}">
 </script>
 {#<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>  <----JQUERY Z NETA#}
-
 
 
 <!doctype html>
@@ -103,12 +102,12 @@
 {% endif %}
 <div>
     {% block content %}
-        <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+        <link rel="stylesheet" href="{% static 'style/add.css' %}">
         {% if not user.is_authenticated %}
             <h2 class="center">Welcome to Film life calc, you time on set calculator</h2>
             <br>
             <p class="center">You need to create account at USER tab to get full expperience of out app</p>
-            <p class="generated-text">LASTED UPDATED PROJECT: Example project name</p>
+            <p class="-text">LASTED UPDATED PROJECT: Example project name</p class="-text">
             <ul class="lst" style="font-size: 16px">
                 <li>Occupation: Example occupation</li>
                 <li>Rate: Example daily rate</li>
@@ -123,7 +122,7 @@
 
 
             {% if last_project %}
-                <p class="generated-text">LASTED UPDATED PROJECT: {{ last_project.project.name }}</p>
+                <h2>LASTED UPDATED PROJECT: {{ last_project.project.name }}</h2>
                 <ul class="lst" style="font-size: 16px">
                     <li>Occupation: {{ last_project.project.occupation }}</li>
                     <li>Rate: {{ last_project.project.daily_rate }}</li>
@@ -143,7 +142,7 @@
                 <form class="center" method="post">
                     {% csrf_token %}
                     {% if button_select == True %}
-                        <button type="submit" name="start-bt" value="start">Start</button>
+                        <button type="submit" name="start-bt" class="darkbig" value="start">START</button>
                     {% elif button_select == False %}
                         <button type="submit" name="stop-bt" value="{{ stop_timer }}">Stop</button>
                     {% endif %}

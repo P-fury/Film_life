@@ -1,26 +1,33 @@
 {% extends 'index.html' %}
 {% block content %}
-<p class="generated-text">CONTACT ADD:</p>
+    <h2>CONTACT ADD:</h2>
     {% for message in messages %}
         <h2 class="center">{{ message }}</h2>
     {% endfor %}
     <form method="POST">
         {% csrf_token %}
-        <div class ='center'>
+        <div>
+            <h2>first name</h2>
             {{ form.first_name }}
+            <h2>last name</h2>
             {{ form.last_name }}
+            <h2>occupation</h2>
             {{ form.occupation }}
-            {{ form.production_house }}
+            <h2>produciton house</h2>
+            <div style="text-align: center;">{{ form.production_house }}</div>
+            <h2>email</h2>
             {{ form.email }}
+            <h2>phone</h2>
             {{ form.phone }}
+            <h2>notes</h2>
             {{ form.notes }}
-            </div>
-        <input class="center"  type="submit" value="ADD">
+        </div>
+        <input class="center lightbig" type="submit" value="ADD">
     </form>
 
 
 
     {% load static %}
-    <link rel="stylesheet" href="{% static 'contact-add/contact-add.css' %}">
-    {#    <script src="{% static 'days-edit/days-edit.js' %}"></script>#}
+    <link rel="stylesheet" href="{% static 'style/edit.css' %}">
+
 {% endblock %}

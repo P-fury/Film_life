@@ -5,18 +5,24 @@
     {% for message in messages %}
         <h2 class="center">{{ message }}</h2>
     {% endfor %}
-    <p class="generated-text">PRODUCTION HOUSE TO EDIT:</p>
+    <h2>PRODUCTION HOUSE TO EDIT:</h2>
     <form method="POST">
-    {%  csrf_token %}
-    {% render_field form.name class="center" value="{{ form.name }}" placeholder="Enter name"%}
-    {% render_field form.nip class="center" placeholder="Enter NIP"%}
-    {% render_field form.address class="center" placeholder="Enter adress" %}
-    {% render_field form.email class="center" placeholder="Enter email"%}
-    {% render_field form.rating class="center" placeholder="Enter rating"%}
-    {% render_field form.notes class="center" placeholder="Enter notes"%}
-    <input type="submit" value="edit" class="center">
-        </form>
+        {% csrf_token %}
+        <h2 class="center">NAME: </h2>
+        {% render_field form.name class="center" value="{{ form.name }}" placeholder="Enter name" %}
+        <h2 class="center">NIP: </h2>
+        {% render_field form.nip class="center" placeholder="Enter NIP" %}
+        <h2 class="center">ADDRESS: </h2>
+        {% render_field form.address class="center" placeholder="Enter adress" %}
+        <h2 class="center">EMAIL: </h2>
+        {% render_field form.email class="center" placeholder="Enter email" %}
+        <h2 class="center">RATINGS: </h2>
+        {% render_field form.rating class="center" placeholder="Enter rating" %}
+        <h2 class="center">NOTES: </h2>
+        {% render_field form.notes class="center" placeholder="Enter notes" %}
+        <input class="center lightbig" type="submit" value="EDIT">
+    </form>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
-    {#    <script src="{% static 'days-edit/days-edit.js' %}"></script>#}
+    <link rel="stylesheet" href="{% static 'style/edit.css' %}">
+
 {% endblock %}

@@ -12,7 +12,7 @@
             </ul>
         {% endif %}
 
-        <p class="generated-text">WORK DAY DATE: {{ workday.date }}</p>
+        <h2>WORK DAY DATE: {{ workday.date }}</h2>
 
         <ul class="lst" style="font-size: 16px">
             <li>Project : {{ workday.project.name }}</li>
@@ -25,15 +25,16 @@
         </ul>
         <form method="POST">
             {% csrf_token %}
-            <p class="generated-text">DAY TO EDIT:</p>
+            <h2>DAY TO EDIT:</h2>
             <input class="center" type='date' name="date" value="{{ workday_date }}">
             <input class="center" type='number' min="0" min="99" name="overhours" placeholder='amount_of_overhours'
                    value="{{ workday.amount_of_overhours }}">
             <select class="center" name="type_of_day" id="type_of_day">
-                <option value="shooting day" {% if workday.type_of_workday == 'shooting day' %} selected {% endif %}>shooting day
+                <option value="shooting day" {% if workday.type_of_workday == 'shooting day' %} selected {% endif %}>
+                    shooting day
                 </option>
                 <option value="rehersal" {% if workday.type_of_workday == 'rehersal' %} selected {% endif %}>
-                rehersal
+                    rehersal
                 </option>
                 <option value="transport" {% if workday.type_of_workday == 'transport' %} selected {% endif %}>
                     transport
@@ -43,11 +44,11 @@
             <input class="center" id="percent_of_daily" style='display: none' type="number" name="percent_of_daily"
                    placeholder="percent amount of daily rate" min=1 value="{{ percent_amout_of_daily }}">
             <textarea class="center" rows="5" cols="25" name="notes" placeholder='notes'>{{ workday.notes }}</textarea>
-            <button class="center" type="submit" name="add_day" value="add_day">edit</button>
+            <button class="center edit" type="submit" name="add_day" value="add_day">EDIT</button>
         </form>
 
 
         {% load static %}
-        <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
-        <script src="{% static 'days-edit/days-edit.js' %}"></script>
+        <link rel="stylesheet" href="{% static 'style/edit.css' %}">
+        <script src="{% static 'javascript/edit_pages.js' %}"></script>
 {% endblock %}
