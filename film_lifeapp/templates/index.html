@@ -1,4 +1,6 @@
-{% load static %}
+
+
+        {% load static %}
 
 
 {########LADOWANIE SASS I SCSS#}
@@ -6,11 +8,13 @@
 {#    <link type="text/x-scss" href="{% static 'style/navbar/navbar.sass' %}" rel="stylesheet" media="screen">#}
 {#{% endcompress %}#}
 
-<link rel="stylesheet" href="{% static 'style/navbar/navbar.css' %}">
-<script src="{% static 'style/navbar/navbar.js' %}"></script>
+<link rel="stylesheet" href="{% static 'navbar/navbar.css' %}">
+<script src="{% static 'navbar/navbar.js' %}"></script>
 <script type="text/javascript" src="{% static 'jQuery 3.7.1.js' %}">
 </script>
 {#<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>  <----JQUERY Z NETA#}
+
+
 
 <!doctype html>
 <html lang="en">
@@ -23,14 +27,14 @@
 
 </head>
 <body>
-{% if user.is_authenticated %}
-    Witaj {{ user.username }}
-{% endif %}
+
 <section class="navigation">
     <div class="nav-container">
         <div class="brand">
+
             <a href="{% url 'main' %}">Film life</a>
         </div>
+
         <nav>
             <div class="nav-mobile"><a id="navbar-toggle" href="#!"><span></span></a></div>
             <ul class="nav-list">
@@ -58,7 +62,7 @@
                         </li>
                     </ul>
                 </li>
-                 <li>
+                <li>
                     <a href="#!">Contacts</a>
                     <ul class="navbar-dropdown">
                         <li>
@@ -69,7 +73,7 @@
                         </li>
                     </ul>
                 </li>
-                    <li>
+                <li>
                     <a href='{% url 'search' %}'>Search</a>
                 </li>
                 <li>
@@ -94,6 +98,9 @@
         </nav>
     </div>
 </section>
+{% if user.is_authenticated %}
+    Welcome : {{ user.username }}
+{% endif %}
 <div>
     {% block content %}
         <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
@@ -138,7 +145,7 @@
                     {% if button_select == True %}
                         <button type="submit" name="start-bt" value="start">Start</button>
                     {% elif button_select == False %}
-                        <button type="submit" name="stop-bt" value="{{ stop_timer}}" >Stop</button>
+                        <button type="submit" name="stop-bt" value="{{ stop_timer }}">Stop</button>
                     {% endif %}
                 </form>
             {% else %}
@@ -152,4 +159,7 @@
 
             </html>
         {% endif %}
+
+
+
     {% endblock %}
