@@ -100,12 +100,3 @@ ul.messages li {
 .container .info span .fa {
   color: #EF3B3A;
 }
-body {
-  background: #23418c; /* fallback for old browsers */
-  background: rgb(64, 81, 194);
-  background: linear-gradient(90deg, rgb(2, 153, 218) 0%, rgb(46, 98, 215) 50%);
-  font-family: "Roboto", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-

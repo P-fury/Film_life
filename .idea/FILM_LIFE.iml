@@ -13,7 +13,11 @@
     </facet>
   </component>
   <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/film_lifeapp/static/javascript" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/film_lifeapp/static/list-style" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/film_lifeapp/static/navbar" isTestSource="false" />
+    </content>
     <orderEntry type="jdk" jdkName="Python 3.11" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="jquery" level="application" />

@@ -674,3 +674,12 @@ class CreatePdfView(View):
         filename = f"{project.name}_date_of_create_{today}.pdf"
         buffer = create_pdf(project)
         return FileResponse(buffer, as_attachment=True, filename=filename)
+
+
+
+class Test(View):
+    def get(self, request):
+        projects = Project.objects.filter(user=request.user)
+        if projects.count() == 0:
+            messages.add_message(request, messages.INFO, 'No projects')
+        return render(request, 'test.html', {"projects": projects})

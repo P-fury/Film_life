@@ -6,7 +6,7 @@ body{
 }
  .navigation {
      height: 55px;
-     background: linear-gradient(45deg, #4199fe, #74b4fe);
+     background: linear-gradient(45deg,  #6AAFE6 67%, #8EC0E4 80%);
 }
  .brand {
      position: absolute;
@@ -41,7 +41,7 @@ body{
      padding: 0 20px;
      line-height: 55px;
      color: #fff;
-     background: #262626 ;
+     background: #8EC0E4;
      text-decoration: none;
 }
  nav ul li a{
@@ -49,7 +49,7 @@ body{
      color: #FFF;
 }
  nav ul li a:hover, nav ul li a:visited:hover {
-     background: #2581DC;
+     background: #5496c9;
      color: #ffffff;
 }
  .navbar-dropdown li a{
@@ -71,7 +71,7 @@ body{
      display: none;
      z-index: 1;
      background: #fff;
-     box-shadow: 0 0 35px 0 rgba(0,0,0,0.25);
+     box-shadow: 0 0 35px 0 rgba(0, 0, 0, 0.25);
 }
 /* Mobile navigation */
  .nav-mobile {
@@ -164,11 +164,19 @@ body{
          transform: rotate(-45deg);
      }
  }
-
-
 body{
-    background-color: #2581DC;
+    background-color: #CBC9FF;
 }
+
+
+body {
+  background: linear-gradient(90deg, rgb(202, 219, 233) 0%, rgb(106, 175, 230) 50%);
+  font-family: "Roboto", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
 
 
 

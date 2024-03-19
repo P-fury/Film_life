@@ -1,11 +1,8 @@
 {% extends 'index.html' %}
 
 {% block content %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'project-edit/style.css' %}">
 
-
-    <p class="generated-text">LIST OF PROJECT:</p>
+<h2>WORKDAYS : {{ project.name }}</h2>
     <div>
         <ul class="lst">
             {% if messages %}
@@ -17,79 +14,67 @@
             {% endif %}
 
 
-            <div style="display: inline-block;">
-                <table class="table_component center">
-                    <tbody>
-                    <tr>
-                        <td>NO:</td>
-                        <td>NAME:</td>
-                        <td>Oc:</td>
-                        <td>Notes:</td>
-                        <td>Rate:</td>
-                        <td>Earned:</td>
-                        <td>Overtime type:</td>
-                        <td>Date of create:</td>
-                        <td>Production:</td>
-                        <td>ADD</td>
-                        <td>SEE</td>
-                        <td>EDIT</td>
-                        <td>DELETE</td>
-                        <td>SUMMARY</td>
-                    </tr>
+<div class="table-wrapper">
+    <table class="fl-table">
+        <thead>
+        <tr>
+            <th>NO:</th>
+            <th>NAME:</th>
+            <th>Oc:</th>
+            <th>Notes:</th>
+            <th>Rate:</th>
+            <th>Earned:</th>
+            <th>Overtime type:</th>
+            <th>Date of create:</th>
+            <th>Production:</th>
+            <th>ADD</th>
+            <th>SEE</th>
+            <th>EDIT</th>
+            <th>DELETE</th>
+            <th>SUMMARY</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for project in projects %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ project.name }}</td>
+                <td>{{ project.occupation }}</td>
+                <td>{{ project.notes }}</td>
+                <td>{{ project.daily_rate }}</td>
+                <td>{{ project.total_earnings_for_project }}</td>
+                <td>{{ project.type_of_overhours }}</td>
+                <td>{{ project.date_created.date }}</td>
+                <td><a href="/productions-list/">{{ project.production_house.name }}</a></td>
+                <td>
+                    <a href="{% url 'workdays-add' pk=project.pk %}">
+                        <button id="project_details">Add days</button>
+                    </a>
+                    </a>
+                </td>
+                <td><a href="{% url 'workdays-list' pk=project.pk %}">
+                    <button id="add_days">See days</button>
+                </a></td>
+                <td><a href="{% url 'project-edit' pk=project.pk %}">
+                    <button id="edit_project">edit</button>
+                </a></td>
+                <td><a href="{% url 'project-delete' pk=project.pk %}">
+                    <button id="delete_project">delete</button>
+                </a></td>
+                </a></td>
+                <td><a href="{% url 'create-pdf' pk=project.pk %}">
+                    <button id="print_project">download</button>
+                </a></td>
+            </tr>
+        {% endfor %}
 
-                    {% for project in projects %}
-                        <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ project.name }}</td>
-                            <td>{{ project.occupation }}</td>
-                            <td>{{ project.notes }}</td>
-                            <td>{{ project.daily_rate }}</td>
-                            <td>{{ project.total_earnings_for_project }}</td>
-                            <td>{{ project.type_of_overhours }}</td>
-                            <td>{{ project.date_created.date }}</td>
-                            <td><a href="/productions-list/" >{{ project.production_house.name }}</a></td>
-                            <td>
-                                <a href="{% url 'workdays-add' pk=project.pk %}">
-                                    <button id="project_details">Add days</button>
-                                </a>
-                                </a>
-                            </td>
-                            <td><a href="{% url 'workdays-list' pk=project.pk %}">
-                                <button id="add_days">See days</button>
-                            </a></td>
-                            <td><a href="{% url 'project-edit' pk=project.pk %}">
-                                <button id="edit_project">edit</button>
-                            </a></td>
-                          <td><a href="{% url 'project-delete' pk=project.pk %}">
-                                <button id="delete_project">delete</button>
-                            </a></td>
-                              </a></td>
-                          <td><a href="{% url 'create-pdf' pk=project.pk %}">
-                                <button id="print_project">download</button>
-                            </a></td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <tbody>
+    </table>
+</div>
 
 
-            <!-- PAGINATOR DO WYSWIETLANIA ILOSC STRON Z DNIAMI PRACY --->
-
-            {% if daysofwork.has_previous %}
-                <a href="?page={{ daysofwork.previous_page_number }}">< back </a>
-            {% endif %}
-            {% for num in daysofwork.paginator.page_range %}
-                {% if num == daysofwork.number %}
-                    <span style="text-decoration: underline;">{{ num }}</span>
-                {% else %}
-                    <a href="?page={{ num }}">| {{ num }} |</a>
-                {% endif %}
-            {% endfor %}
-            {% if daysofwork.has_next %}
-                <a href="?page={{ daysofwork.next_page_number }}"> next > </a>
-            {% endif %}
-    </div>
+        {% load static %}
+    <link rel="stylesheet" href="{% static 'list-style/lists.css' %}">
 {% endblock %}
 
 
