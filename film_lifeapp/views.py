@@ -50,7 +50,7 @@ class MainView(View):
             return render(request, 'index.html')
         if last_project != None:
             if len(WorkDay.objects.all()) > 0:
-                workdays = WorkDay.objects.filter(project__user=request.user).count()
+                workdays = WorkDay.objects.filter(project_id=last_project.project_id).count()
             else:
                 workdays = 0
         else:
@@ -116,7 +116,7 @@ class RegisterUserView(CreateView):
 
     def form_invalid(self, form):
         response = super().form_invalid(form)
-        messages.info(self.request, 'Passwords are different')
+        messages.error(self.request, 'Passwords are different or too common')
         return response
 
 
@@ -149,7 +149,7 @@ class ProjectListView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
     def get(self, request):
-        projects = Project.objects.filter(user=request.user)
+        projects = Project.objects.filter(user=request.user).order_by("name")
         if projects.count() == 0:
             messages.add_message(request, messages.INFO, 'No projects')
         return render(request, 'project-list.html', {"projects": projects})
@@ -305,8 +305,6 @@ class WorkDaysAddView(UserPassesTestMixin, View):
         if request.POST.get('percent_of_daily') != '':
             percent_of_daily = request.POST.get('percent_of_daily')
             type_of_day = percent_of_daily + '% of daily rate'
-        if request.POST.get('percent_of_daily') == '':
-            type_of_day = 'shooting day'
         if all([date, overhours, type_of_day]):
             added_day = WorkDay.objects.create(date=date, amount_of_overhours=overhours,
                                                type_of_workday=type_of_day,
@@ -623,7 +621,6 @@ class SearchView(LoginRequiredMixin, View):
         all_work_days = WorkDay.objects.filter(project__in=all_projects).order_by('date')
         all_production_houses = ProductionHouse.objects.filter(user=self.request.user)
         all_contacts = Contact.objects.filter(user=self.request.user)
-        print(all_work_days)
         date_start = request.GET.get('date_start')
         date_end = request.GET.get('date_end')
 
@@ -676,10 +673,3 @@ class CreatePdfView(View):
         return FileResponse(buffer, as_attachment=True, filename=filename)
 
 
-
-class Test(View):
-    def get(self, request):
-        projects = Project.objects.filter(user=request.user)
-        if projects.count() == 0:
-            messages.add_message(request, messages.INFO, 'No projects')
-        return render(request, 'test.html', {"projects": projects})

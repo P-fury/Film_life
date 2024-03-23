@@ -1,9 +1,7 @@
 {% extends 'index.html' %}
 
 {% block content %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'project-list/projects-list.css' %}">
-    <h2>PROJECTS LIST:</h2>
+    <h2>WORKDAYS : {{ project.name }}</h2>
     <ul class="lst">
     {% if messages %}
         <ul>
@@ -21,8 +19,16 @@
         <li>Overhours: {{ project.type_of_overhours }} %</li>
         <li>Date of create: {{ project.date_created.date }}</li>
         <li>Notes: {{ project.notes }}</li>
-        <li>Production House: <a href={% url 'productions-list' %}>{{ project.production_house.name }}</a></li>
+        <li>Production House: <a class="linkclick" href={% url 'productions-list' %}>{{ project.production_house.name }}</a></li>
     </ul>
+
+<div class="whitehead">PROJECT:</div>
+    <br>
+    <a href="{% url 'project-edit' pk=project.pk %}">
+                    <button class="lightbig" id="edit_project">EDIT</button></a>
+
+<a href="{% url 'project-delete' pk=project.pk %}">
+                    <button class="darkbig"  id="delete_project">DELETE</button></a>
 
     <div class="table-wrapper">
         <table class="fl-table">
@@ -69,7 +75,7 @@
             {% endif %}
 
   {% load static %}
-    <link rel="stylesheet" href="{% static '/style/lists.css' %}">
+    <link rel="stylesheet" href="{% static 'style/lists.css' %}">
     <script src="{% static 'javascript/edit_pages.js' %}"></script>
 {% endblock %}
 

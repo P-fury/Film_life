@@ -25,7 +25,6 @@
                 <th>EMAIL:</th>
                 <th>PHONE:</th>
                 <th>NOTES:</th>
-                <th>PROJECTS:</th>
                 <th>EDIT</th>
                 <th>DELETE</th>
             </tr>
@@ -39,7 +38,7 @@
                     <td>{{ contact.occupation }}</td>
                     <td>
                         {% for production_house in contact.production_house.all %}
-                            <a href={% url 'productions-list' %}>
+                            <a class="linkclick" href={% url 'productions-list' %}>
                                 <li>- {{ production_house.name }}</li>
                             </a>
                         {% endfor %}
@@ -47,9 +46,6 @@
                     <td>{{ contact.email }}</td>
                     <td>{{ contact.phone }}</td>
                     <td>{{ contact.notes }}</td>
-                    <td>
-                        {{ contact.production_house.name }}
-                    </td>
                     <td>
                         <a href="{% url 'contacts-edit' pk=contact.pk %}" id="edit">
                             <button class="light">EDIT</button>

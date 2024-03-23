@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<h2>WORKDAYS : {{ project.name }}</h2>
+<h2>PROJECTS LIST:</h2>
     <div>
         <ul class="lst">
             {% if messages %}
@@ -28,9 +28,7 @@
             <th>Date of create:</th>
             <th>Production:</th>
             <th>ADD</th>
-            <th>SEE</th>
-            <th>EDIT</th>
-            <th>DELETE</th>
+            <th>DETAILS</th>
             <th>SUMMARY</th>
         </tr>
         </thead>
@@ -38,14 +36,14 @@
         {% for project in projects %}
             <tr>
                 <td>{{ forloop.counter }}</td>
-                <td>{{ project.name }}</td>
+                <td><a class="linkclick" href="{% url 'workdays-list' pk=project.pk %}">{{ project.name }}</a></td>
                 <td>{{ project.occupation }}</td>
                 <td>{{ project.notes }}</td>
                 <td>{{ project.daily_rate }}</td>
                 <td>{{ project.total_earnings_for_project }}</td>
                 <td>{{ project.type_of_overhours }}</td>
                 <td>{{ project.date_created.date }}</td>
-                <td><a href="/productions-list/">{{ project.production_house.name }}</a></td>
+                <td><a class="linkclick" href="/productions-list/">{{ project.production_house.name }}</a></td>
                 <td>
                     <a href="{% url 'workdays-add' pk=project.pk %}">
                         <button class="light" id="project_details">ADD DAYS</button>
@@ -53,14 +51,7 @@
                     </a>
                 </td>
                 <td><a href="{% url 'workdays-list' pk=project.pk %}">
-                    <button class="dark id="add_days">SEE DAYS</button>
-                </a></td>
-                <td><a href="{% url 'project-edit' pk=project.pk %}">
-                    <button class="light" id="edit_project">EDIT</button>
-                </a></td>
-                <td><a href="{% url 'project-delete' pk=project.pk %}">
-                    <button class="dark"  id="delete_project">DELETE</button>
-                </a></td>
+                    <button class="dark" id='add_days'>WORK-DAYS</button>
                 </a></td>
                 <td><a href="{% url 'create-pdf' pk=project.pk %}">
                     <button class="light" id="print_project">DOWNLOAD</button>

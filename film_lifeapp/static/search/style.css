@@ -109,3 +109,32 @@ input[type=submit] {
 
 
 
+
+/* unvisited link */
+a.linkclick:link {
+    color: black;
+    text-decoration: none;
+}
+
+/* visited link */
+a.linkclick:visited {
+    color: black;
+    text-decoration: none;
+}
+
+/* mouse over link */
+a.linkclick:hover {
+    color: #4f9dee;
+    text-decoration: underline;
+}
+
+/* selected link */
+a.linkclick:active {
+    color: blue;
+    text-decoration: underline;
+}
+.whitecolor {
+    color: whitesmoke;
+}
+
+

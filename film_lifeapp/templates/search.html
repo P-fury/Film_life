@@ -1,8 +1,7 @@
 {% extends 'index.html' %}
 
 {% block content %}
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'search/style.css' %}">
+
 
     <div>
         <ul class="lst">
@@ -16,7 +15,7 @@
             <form method="GET">
                 <input type="date" id="date_start" name="date_start">
                 <input type="date" id="date_end" name="date_end">
-            <br>
+                <br>
                 <input class="bnt" type="submit" value="search">
                 <br>
                 <label>------------PROJECT:---------</label>
@@ -40,18 +39,21 @@
 
             </form>
 
-<h2>FOUND :</h2>
+            <h2>FOUND :</h2>
             {% if all_work_days %}
                 {% for day in all_work_days %}
-                    <li>
-                        {{ forloop.counter }} DATE:<a href="{% url 'workdays-edit' pk=day.pk %}">{{ day.date }}</a>
-                        NAME: <a href="{% url 'workdays-list' pk=day.project_id %}">{{ day.project.name }}</a>
+                    <li class="whitecolor">
+                        {{ forloop.counter }} : DATE:<a class="linkclick"
+                                                      href="{% url 'workdays-edit' pk=day.pk %}">{{ day.date }}</a>
+                        NAME: <a class="linkclick"
+                                 href="{% url 'workdays-list' pk=day.project_id %}">{{ day.project.name }}</a>
                         {% if day.project.production_house %}
-                        PROD: <a
-                            href="{% url 'production-edit' pk=day.project.production_house.id %}">{{ day.project.production_house.name }}</a>
+                            PROD: <a class="linkclick"
+                                     href="{% url 'production-edit' pk=day.project.production_house.id %}">{{ day.project.production_house.name }}</a>
                         {% endif %}
                         CONTACT: {% for contact in day.project.production_house.contact_set.all %}
-                        <a href="{% url 'contacts-edit' pk=contact.id %}"> {{ contact.first_name }} {{ contact.last_name }}</a>
+                        <a class="linkclick"
+                           href="{% url 'contacts-edit' pk=contact.id %}"> {{ contact.first_name }} {{ contact.last_name }}</a>
                         ,
                     {% endfor %}
                     </li>
@@ -83,6 +85,10 @@
             {#                {% endfor %}#}
             {#            {% endif %}#}
     </div>
+
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'search/style.css' %}">
     <script src="{% static 'search/search.js' %}"></script>
 {% endblock %}
 
