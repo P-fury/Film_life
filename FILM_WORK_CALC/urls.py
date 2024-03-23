@@ -57,7 +57,5 @@ urlpatterns = [
 
     path('project_pdf/<int:pk>', views.CreatePdfView.as_view(), name='create-pdf'),
 
-    path('test/', views.Test.as_view())
-
 
 ]

@@ -38,13 +38,13 @@
                     <td>{{ prod.nip }}</td>
                     <td>{{ prod.address }}</td>
                     <td>{% for contact in prod.contact_set.all %}
-                        <br><a href="/contacts-list/">{{ contact.first_name }} {{ contact.last_name }}</a>
+                        <br><a class="linkclick" href="/contacts-list/">{{ contact.first_name }} {{ contact.last_name }}</a>
                     {% endfor %}</td>
                     <td>{{ prod.email }}</td>
                     <td>{{ prod.get_rating_display }}</td>
                     <td>{{ prod.notes }}</td>
                     <td>{% for project in prod.project_set.all %}
-                        <br><a href={% url 'workdays-list' pk=project.pk %}>- {{ project.name }}</a>
+                        <br><a class="linkclick" href={% url 'workdays-list' pk=project.pk %}>- {{ project.name }}</a>
                     {% endfor %}</td>
                     <td>
                         <a href="{% url 'production-edit' pk=prod.pk %}" id="edit">

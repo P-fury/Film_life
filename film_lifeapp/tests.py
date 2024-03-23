@@ -59,7 +59,7 @@ def test_register_user_post_different_passwords():
     response = client.post(url, data)
     messages = list(response.context['messages'])
     assert response.status_code == 200
-    assert str(messages[0]) == 'Passwords are different'
+    assert str(messages[0]) == 'Passwords are different or too common'
 
 
 @pytest.mark.django_db
