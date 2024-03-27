@@ -255,3 +255,9 @@ body {
     font-weight: 700;
     width: 350px;
 }
+
+.chart {
+    display: flex;
+    justify-content: center;
+}
+

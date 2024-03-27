@@ -1102,7 +1102,7 @@ def test_contacts_delete_post_with_login_delete_no(contact_db_owner_user_with_db
 
 
 @pytest.mark.django_db
-def test_contacts_delete_post_with_login_delete_yes(contact_db_owner_user_with_db):
+def test_contacts_delete_post_with_login_delete_yes(contact_db_owner_user_with_db,):
     client = Client()
     client.force_login(contact_db_owner_user_with_db.user)
     url = reverse('contacts-delete', args=[contact_db_owner_user_with_db.pk])
