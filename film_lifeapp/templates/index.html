@@ -101,7 +101,7 @@
 {% endif %}
 <div>
     {% block content %}
-        <link rel="stylesheet" href="{% static 'style/add.css' %}">
+
         {% if not user.is_authenticated %}
             <h2 class="center">Welcome to Film life calc, you time on set calculator</h2>
             <br>
@@ -141,18 +141,25 @@
                 <form class="center" method="post">
                     {% csrf_token %}
                     {% if button_select == True %}
-                        <button type="submit" name="start-bt" class="darkbig" value="start">START</button>
+                        <button class="dark" type="submit" name="start-bt" class="darkbig" value="start">START</button>
                     {% elif button_select == False %}
-                        <button type="submit" name="stop-bt" value="{{ stop_timer }}">Stop</button>
+                        <button class="light" type="submit" name="stop-bt" value="{{ stop_timer }}">STOP</button>
                     {% endif %}
                 </form>
             {% else %}
                 <h3 class="center"> YOU NEED TO ADD PROJECT AND ADD AT LEAST ONE DAY TO USE THIS FUNCTION</h3>
-
+            {% endif %}
+            </div>
+            <div class="chart">
+            {% if chart %}
+                <img  src="data:image/png;base64, {{chart|safe}}">
             {% endif %}
 
             </div>
         {% endif %}
+
+
+ <link rel="stylesheet" href="{% static 'style/add.css' %}"
     {% endblock %}
 
 </body>

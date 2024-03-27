@@ -1,22 +1,18 @@
 import math
 import os
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, TemplateView, UpdateView, DeleteView, FormView
-
-from django import forms
-from reportlab.lib import colors
-
+from django.views.generic import CreateView, UpdateView, DeleteView
 from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm, ProjectDeleteForm, DaysDeleteForm, \
-    ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm, SearchByDateForm
+    ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm
 from film_lifeapp.models import *
 from django.db.models import Sum
 from django.contrib import messages
@@ -24,13 +20,10 @@ from film_lifeapp.functions import nip_checker, create_pdf
 
 # ========= PDF DOCU ====================
 from django.http import FileResponse
-import io
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import inch
-from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+
+from film_lifeapp.utils import get_piechart
 
 
 # Create your views here.
@@ -55,8 +48,15 @@ class MainView(View):
                 workdays = 0
         else:
             workdays = None
+            # MATPLOT ------
+        projects = Project.objects.filter(user=request.user).order_by('-total_earnings_for_project')
+        earnings = [x.total_earnings_for_project for x in projects]
+        projects_names = [x.name for x in projects]
+        chart = get_piechart(earnings, projects_names)
+
         return render(request, 'index.html',
-                      {'last_project': last_project, 'workdays': workdays, 'button_select': button_select})
+                      {'last_project': last_project, 'workdays': workdays, 'button_select': button_select,
+                       'chart': chart})
 
     def post(self, request):
         start_timer = datetime.now()
@@ -98,9 +98,13 @@ class MainView(View):
                     workday.calculate_earnings()
 
         workdays = WorkDay.objects.filter(project_id=last_project.project.id).count()
+        projects = Project.objects.filter(user=request.user).order_by('-total_earnings_for_project')
+        earnings = [x.total_earnings_for_project for x in projects]
+        projects_names = [x.name for x in projects]
+        chart = get_piechart(earnings, projects_names)
         return render(request, 'index.html',
                       {'last_project': last_project, 'workdays': workdays, 'button_select': button_select,
-                       "stop_timer": stop_timer})
+                       "stop_timer": stop_timer, 'chart': chart})
 
 
 # ========================================================================================
@@ -671,5 +675,3 @@ class CreatePdfView(View):
         filename = f"{project.name}_date_of_create_{today}.pdf"
         buffer = create_pdf(project)
         return FileResponse(buffer, as_attachment=True, filename=filename)
-
-
