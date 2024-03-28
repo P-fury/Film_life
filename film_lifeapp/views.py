@@ -53,7 +53,10 @@ class MainView(View):
         projects = Project.objects.filter(user=request.user).order_by('-total_earnings_for_project')
         earnings = [x.total_earnings_for_project for x in projects]
         projects_names = [x.name for x in projects]
-        chart = get_piechart(earnings, projects_names)
+        try:
+            chart = get_piechart(earnings, projects_names)
+        except RuntimeError:
+            chart = None
 
         return render(request, 'index.html',
                       {'last_project': last_project, 'workdays': workdays, 'button_select': button_select,

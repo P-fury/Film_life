@@ -44,7 +44,7 @@
                     <td>{{ prod.get_rating_display }}</td>
                     <td>{{ prod.notes }}</td>
                     <td>{% for project in prod.project_set.all %}
-                        <br><a class="linkclick" href={% url 'workdays-list' pk=project.pk %}>- {{ project.name }}</a>
+                        <br><a class="linkclick" href={% url 'workdays-list' pk=project.pk %}>{{ project.name }}</a>
                     {% endfor %}</td>
                     <td>
                         <a href="{% url 'production-edit' pk=prod.pk %}" id="edit">
