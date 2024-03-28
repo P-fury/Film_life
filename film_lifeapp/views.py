@@ -1,7 +1,6 @@
 import math
 import os
 from datetime import datetime, timezone
-import pytz
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
@@ -13,7 +12,6 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView
 from ip2geotools.databases.noncommercial import DbIpCity
-from timezonefinder import TimezoneFinder
 
 from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm, ProjectDeleteForm, DaysDeleteForm, \
     ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm
@@ -68,13 +66,13 @@ class MainView(View):
         start = datetime.now(find_timezone(city))
         global worktime
         button_select = True
-
         try:
             last_project = WorkDay.objects.latest('last_updated')
         except WorkDay.DoesNotExist:
             return render(request, 'index.html')
         if request.POST.get('start-bt') == 'start':
-            worktime = StartStop.objects.create(start_time=start)
+            time_diff = str(datetime.now(find_timezone(city)))[-6:]
+            worktime = StartStop.objects.create(start_time=start, time_diff=time_diff)
             button_select = False
         if request.POST.get('stop-bt') == 'stop':
             button_select = True
