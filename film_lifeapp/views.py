@@ -1,6 +1,7 @@
 import math
 import os
 from datetime import datetime, timezone
+import pytz
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
@@ -11,18 +12,20 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView
+from ip2geotools.databases.noncommercial import DbIpCity
+from timezonefinder import TimezoneFinder
+
 from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm, ProjectDeleteForm, DaysDeleteForm, \
     ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm
 from film_lifeapp.models import *
 from django.db.models import Sum
 from django.contrib import messages
-from film_lifeapp.functions import nip_checker, create_pdf
+from film_lifeapp.functions import nip_checker, create_pdf, find_timezone
 
 # ========= PDF DOCU ====================
 from django.http import FileResponse
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-
 from film_lifeapp.utils import get_piechart
 
 
@@ -59,9 +62,10 @@ class MainView(View):
                        'chart': chart})
 
     def post(self, request):
-        start_timer = datetime.now()
-        stop = datetime.now()
-        stop_timer = stop.strftime('%Y-%m-%d %H:%M:%S.%f')
+        # --- GEOLOCALIZATRION FOR STARTSTOP TABLE ----
+        user_ip = request.META.get('REMOTE_ADDR', None)
+        city = DbIpCity.get(user_ip, api_key='free')
+        start = datetime.now(find_timezone(city))
         global worktime
         button_select = True
 
@@ -70,13 +74,12 @@ class MainView(View):
         except WorkDay.DoesNotExist:
             return render(request, 'index.html')
         if request.POST.get('start-bt') == 'start':
-            worktime = StartStop.objects.create(start_time=start_timer)
+            worktime = StartStop.objects.create(start_time=start)
             button_select = False
-        if request.POST.get('stop-bt'):
+        if request.POST.get('stop-bt') == 'stop':
             button_select = True
-            recive_time = request.POST.get('stop-bt')
-            end_time = datetime.strptime(recive_time, '%Y-%m-%d %H:%M:%S.%f')
-            worktime.end_time = end_time
+            stop = datetime.now(find_timezone(city))
+            worktime.end_time = stop
             worktime.save()
             diff = worktime.end_time - worktime.start_time
             worktime.duration = diff.total_seconds()
@@ -104,7 +107,7 @@ class MainView(View):
         chart = get_piechart(earnings, projects_names)
         return render(request, 'index.html',
                       {'last_project': last_project, 'workdays': workdays, 'button_select': button_select,
-                       "stop_timer": stop_timer, 'chart': chart})
+                       'chart': chart})
 
 
 # ========================================================================================

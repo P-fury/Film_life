@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.core.exceptions import ObjectDoesNotExist
+from freezegun import freeze_time
 from pycparser.ply.yacc import Production
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -160,20 +161,21 @@ def test_main_post_logged_start_stop_validate_by_earnings_column(user_with_db):
     client = Client()
     url = reverse('main')
     client.force_login(user_with_db[0])
-    end = datetime.now() + timedelta(hours=12, seconds=14)
     response = client.post(url, {'start-bt': 'start'})
     assert user_with_db[1].workday_set.count() == 1
     assert response.status_code == 200
     assert StartStop.objects.all().count() == 1
-    response = client.post(url, {'stop-bt': end})
-    assert user_with_db[1].workday_set.count() == 2
-    user_with_db[1].refresh_from_db()
-    assert user_with_db[1].workday_set.order_by('-last_updated').first().amount_of_overhours == 1
-    user_with_db[1].refresh_from_db()
-    # ====== TWO WORKING DAYS AND ONE OVERHOUR ============
-    earinings = ((int(user_with_db[1].type_of_overhours) / 100)
-                 * user_with_db[1].daily_rate + 2 * user_with_db[1].daily_rate)
-    assert user_with_db[1].total_earnings_for_project == earinings
+    #--- freezegun timemachine
+    with freeze_time(datetime.now() + timedelta(hours=12, seconds=14)):
+        client.post(url, {'stop-bt': 'stop'})
+        assert user_with_db[1].workday_set.count() == 2
+        user_with_db[1].refresh_from_db()
+        assert user_with_db[1].workday_set.order_by('-last_updated').first().amount_of_overhours == 1
+        user_with_db[1].refresh_from_db()
+        # ====== TWO WORKING DAYS AND ONE OVERHOUR ============
+        earinings = ((int(user_with_db[1].type_of_overhours) / 100)
+                     * user_with_db[1].daily_rate + 2 * user_with_db[1].daily_rate)
+        assert user_with_db[1].total_earnings_for_project == earinings
 
 
 # ================== LIST OF PROJECT  VIEW =============================

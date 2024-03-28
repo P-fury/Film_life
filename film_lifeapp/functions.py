@@ -1,5 +1,6 @@
 import os
 
+import pytz
 # ========= PDF DOCU ====================
 from django.http import FileResponse
 import io
@@ -10,6 +11,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from timezonefinder import TimezoneFinder
 
 from FILM_WORK_CALC import settings
 
@@ -132,3 +134,16 @@ def create_pdf(project):
     pdf_buffer.seek(0)
 
     return pdf_buffer
+
+# TIMEZONE CHECKER =====
+def find_timezone(city):
+    lat = city.latitude
+    long = city.longitude
+    tf = TimezoneFinder()
+    timezone = tf.timezone_at(lat=lat, lng=long)
+    if timezone:
+        selected_timezone = pytz.timezone(f'{timezone}')
+        return selected_timezone
+    else:
+        selected_timezone = pytz.timezone('UTC')
+        return selected_timezone
