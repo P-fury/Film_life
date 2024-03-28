@@ -131,3 +131,4 @@ class StartStop(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
     duration = models.IntegerField(null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    # time_dif = models.IntegerField(null=True, blank=True)

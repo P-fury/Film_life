@@ -8,7 +8,7 @@ def get_graph():
     plt.savefig(buffer, format='png', transparent=True)
     buffer.seek(0)
     image_png = buffer.getvalue()
-    graph = base64.b64encode(image_png).decode('utf-8')  # ????
+    graph = base64.b64encode(image_png).decode('utf-8')
     buffer.close()
     return graph
 
@@ -29,13 +29,15 @@ def get_graph():
 
 def get_piechart(x, y):
     plt.switch_backend('agg')
-    explode = [0.1 if i == 1 else 0 for i in range(len(x))]
+    explode = [0.1 if i == 0 else 0 for i in range(len(x))]
     plt.figure(figsize=(7, 7))
-    plt.title("Projects Pie", fontsize=12)
+    plt.title("Earning wheel", fontsize=12)
     colors = plt.cm.Set3.colors
     plt.pie(x, explode=explode, autopct='%1.1f%%', shadow=True, colors=colors, pctdistance=1.1)
     plt.rcParams['font.size'] = 8
-    plt.legend(y,loc='upper right')
+    legend = plt.legend(y, loc='upper right', bbox_to_anchor=(1.2, 1))
+    frame = legend.get_frame()
+    frame.set_facecolor((0.74, 0.83, 0.9, 1))
     plt.tight_layout()
     graph = get_graph()
     return graph
