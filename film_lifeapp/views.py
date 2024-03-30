@@ -37,12 +37,12 @@ class MainView(View):
         button_select = True
         try:
             last_project = WorkDay.objects.filter(project__user=request.user).order_by('last_updated').last()
-            if last_project != None:
+            if last_project is not None:
                 if last_project.project.user != request.user:
                     last_project = None
         except WorkDay.DoesNotExist and TypeError:
             return render(request, 'index.html')
-        if last_project != None:
+        if last_project is not None:
             if len(WorkDay.objects.all()) > 0:
                 workdays = WorkDay.objects.filter(project_id=last_project.project_id).count()
             else:
@@ -632,16 +632,16 @@ class SearchView(LoginRequiredMixin, View):
         date_start = request.GET.get('date_start')
         date_end = request.GET.get('date_end')
 
-        if request.GET.get('project') != None:
+        if request.GET.get('project') is not None:
             selected_project = request.GET.getlist('project')
             all_work_days = WorkDay.objects.filter(project__name__in=selected_project).order_by('date')
 
-        if request.GET.get('production') != None:
+        if request.GET.get('production') is not None:
             selected_production = request.GET.getlist('production')
             all_work_days = all_work_days.filter(
                 project__production_house__name__in=selected_production).order_by(
                 'date')
-        if request.GET.get('contacts') != None:
+        if request.GET.get('contacts') is not None:
             selected_contacts = request.GET.getlist('contacts')
             all_work_days = all_work_days.filter(
                 project__production_house__contact__first_name__in=selected_contacts).order_by(
