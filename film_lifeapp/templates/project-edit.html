@@ -1,6 +1,16 @@
 {% extends 'index.html' %}
 {% block content %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Project Edit</title>
 
+</head>
+<body>
 
 <h2>EDIT PROJECT</h2>
 <form method="POST">
@@ -20,20 +30,29 @@
         </select></h2>
     <h2>OCCUPATION<input class='center' type='text' name="occupation"
                          value="{{ project.occupation }}"></h2>
-    <h2>NOTES<textarea class='center' rows="5" cols="25" name="notes"
-                                             value="{{ project.notes }}"></textarea></h2>
+    <h2>NOTES<textarea class='center' rows="5" cols="25" name="notes">{{ project.notes }}</textarea></h2>
     <h2>PRODUCTION HOUSE
         <select class="center" name="production">
-            <option value="{{ project.production.id }}" selected>{{ project.production.name }}</option>
+            <option value="{{ project.production_house.id }}" selected>{{ project.production_house.name }}</option>
             {% for production in productions %}
+                {% if production != project.production_house %}
             <option value="{{ production.id }}">{{ production.name }}</option>
+                {% endif %}
             {% endfor %}
         </select>
     </h2>
-    <input class="center lightbig" type="submit" value="EDIT">
+    <input class="center lightbig" type="submit" value="SAVE">
 
 </form>
 
-{% load static %}
+
+
+
+    {% load static %}
 <link rel="stylesheet" href="{% static 'style/edit.css' %}">
+</body>
+</html>
+
+
+
 {% endblock %}

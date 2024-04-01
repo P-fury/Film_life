@@ -14,7 +14,7 @@
         <li>Occupation: {{ project.occupation }}</li>
         <li>Rate: {{ project.daily_rate }}</li>
         <li>Overhours: {{ project.type_of_overhours }} %</li>
-        <li>Date of create: {{ project.date_created.date }}</li>
+        <li>Create date: {{ project.date_created.date }}</li>
         <li>Notes: {{ project.notes }}</li>
         <li>Production House: {{ project.production.name }}</li>
     </ul>
@@ -41,30 +41,36 @@
                     {% endfor %}
                 </ul>
             {% endif %}
-            <button class="center lightbig" type="submit" name="add_day" value="add_day">ADD DAY</button>
+            <button class="center lightbig" type="submit" name="add_day" value="add_day" id="add_day">ADD DAY</button>
     </form>
 
 
     {% if daysofwork %}
         {% for dayofwork in daysofwork %}
+            <span class="center">
+                    {{ forloop.counter }} DATE: {{ dayofwork.date }}
+                    Earining: {{ dayofwork.earnings }} Overhours: {{ dayofwork.amount_of_overhours }} Type of
+                    day: {{ dayofwork.notes }} {{ dayofwork.type_of_workday }}
+            </span>
 
-            <li class="centertext">
-                {{ forloop.counter }} DATE: {{ dayofwork.date }}
-                Earining: {{ dayofwork.earnings }} Overhours: {{ dayofwork.amount_of_overhours }} Type of day: {{ dayofwork.notes }} {{ dayofwork.type_of_workday }}
-                <br>
 
+<div class="button-container">
+    <form action="{% url 'workdays-edit' dayofwork.pk %}" method="get">
+        <button class="light">EDIT</button>
+    </form>
+    <form action="{% url 'workdays-delete' dayofwork.pk %}" method="get">
+        <button class="light">DELETE</button>
+    </form>
+</div>
+<br>
 
-                    <a href="{% url 'workdays-edit' pk=dayofwork.pk %}"><button class="light" type="submit" name="edit_day" value="{{ dayofwork.pk }}">EDIT</button></a>
-                    <a href="{% url 'workdays-delete' dayofwork.pk %}"><button class="light">DELETE</button></a>
-
-            </li>
         {% endfor %}
-        <div class="centertext">
-            <h2>Work days at {{ project.name }}: {{ days_count }}</h2>
-            <br>
-            <h2>Total earn: {{ project_earned }} PLN</h2>
-        </div>
     {% endif %}
+    <div class="centertext">
+        <h2>Work days at {{ project.name }}: {{ days_count }}</h2>
+        <br>
+        <h2>Total earn: {{ project_earned }} PLN</h2>
+    </div>
 
 
     {% load static %}
