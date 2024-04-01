@@ -14,7 +14,7 @@ from django.views.generic import CreateView, UpdateView, DeleteView
 from ip2geotools.databases.noncommercial import DbIpCity
 
 from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm, ProjectDeleteForm, DaysDeleteForm, \
-    ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm
+    ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm, EditProjectForm, EditWorkDayForm
 from film_lifeapp.models import *
 from django.db.models import Sum
 from django.contrib import messages
@@ -209,33 +209,20 @@ class ProjectEditView(UserPassesTestMixin, View):
         except Project.DoesNotExist:
             return redirect('main')
         productions = ProductionHouse.objects.filter(user=request.user)
-        return render(request, 'project-edit.html', {"project": project, "productions": productions})
+        form = EditProjectForm(instance=project)
+        return render(request, 'project-edit.html', {"form": form, "project": project, "productions": productions})
 
     def post(self, request, pk):
-        project_to_edit = Project.objects.get(pk=pk)
-        edited_name = request.POST.get('name')
-        edited_daily_rate = request.POST.get('daily_rate')
-        edited_type_of_overhours = request.POST.get('type_of_overhours')
-        edited_occupation = request.POST.get('occupation')
-        edited_notes = request.POST.get('notes')
-        edited_production = request.POST.get('production')
-        print(edited_production)
-        if all([edited_name, edited_daily_rate, edited_type_of_overhours]):
-            project_to_edit.name = edited_name
-            project_to_edit.daily_rate = edited_daily_rate
-            project_to_edit.type_of_overhours = edited_type_of_overhours
-            project_to_edit.occupation = edited_occupation
-            project_to_edit.notes = edited_notes
-            if edited_production != '':
-                project_to_edit.production_house_id = edited_production
-            project_to_edit.save()
-            for day in WorkDay.objects.filter(project_id=project_to_edit):
+        project = Project.objects.get(pk=pk)
+        form = EditProjectForm(request.POST, instance=project)
+        if form.is_valid():
+            form.save()
+            for day in WorkDay.objects.filter(project=project):
                 day.calculate_earnings()
-            # project_to_edit.update_project_total_earnings()
             return redirect('project-list')
         else:
             messages.error(request, 'Need to fill all necessary fields')
-            return redirect('project-edit', pk=project_to_edit.pk)
+            return render(request, 'project-edit.html', {"form": form, "project": project})
 
 
 # ------------------------------------- DELETING PROJECTS -----------------------------------
@@ -339,30 +326,22 @@ class WorkDaysEditView(LoginRequiredMixin, UserPassesTestMixin, View):
         # DLA DOMYSLNEJ DATY
         workday_date = str(workday.date)
         percent_amout_of_daily = just_numb(workday.type_of_workday)
-        print(percent_amout_of_daily)
-        return render(request, 'workdays-edit.html', {'workday': workday, "workday_date": workday_date,
+        form = EditWorkDayForm(instance=workday)
+
+        return render(request, 'workdays-edit.html', {'form': form, 'workday': workday, "workday_date": workday_date,
                                                       "percent_amout_of_daily": percent_amout_of_daily})
 
     def post(self, request, pk):
         day_of_work = WorkDay.objects.get(id=pk)
-        date = request.POST.get('date')
-        overhours = request.POST.get('overhours')
-        type_of_day = request.POST.get('type_of_day')
-        notes = request.POST.get('notes')
-        if type_of_day == 'other':
-            if request.POST.get('percent_of_daily') != '':
-                percent_of_daily = request.POST.get('percent_of_daily')
-                type_of_day = percent_of_daily + '% of daily rate'
-            else:
-                type_of_day = '100 % of daily rate'
-        if all([date, overhours, type_of_day]):
-            # NADPISYWANIE DANYCH
-            day_of_work.date = date
-            day_of_work.amount_of_overhours = overhours
-            day_of_work.type_of_workday = type_of_day
-            day_of_work.notes = notes
-            day_of_work.save()
-            day_of_work = WorkDay.objects.get(id=pk)
+        form = EditWorkDayForm(request.POST, instance=day_of_work)
+        if form.is_valid():
+            if form.cleaned_data['type_of_workday'] == 'other':
+                if form.cleaned_data['percent_of_daily'] is None:
+                    day_of_work.type_of_workday = '100% of daily rate'
+                else:
+                    percent_of_daily = request.POST.get('percent_of_daily')
+                    day_of_work.type_of_workday = percent_of_daily + '% of daily rate'
+            form.save()
             day_of_work.calculate_earnings()
             return redirect('workdays-list', pk=day_of_work.project.id)
         else:

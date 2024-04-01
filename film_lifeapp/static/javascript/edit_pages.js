@@ -1,10 +1,18 @@
+document.addEventListener('DOMContentLoaded', function () {
+    const typeOfWorkdaySelect = document.getElementById('id_type_of_workday');
+    const percentOfDailyInput = document.querySelector('#id_percent_of_daily').parentElement;
 
-const selector = document.getElementById('type_of_day')
-const  percent_of_daily = document.getElementById('percent_of_daily')
-selector.addEventListener('change',function (e){
-    if(selector.value === 'other'){
-        percent_of_daily.style.display = 'block';
-    }else{
-        percent_of_daily.style.display = 'none';
+    typeOfWorkdaySelect.addEventListener('change', function () {
+        if (typeOfWorkdaySelect.value === 'other') {
+            percentOfDailyInput.style.display = 'block';
+        } else {
+            percentOfDailyInput.style.display = 'none';
+        }
+    });
+    if (typeOfWorkdaySelect.value !== 'other') {
+        percentOfDailyInput.style.display = 'none';
+    } else if (typeOfWorkdaySelect.value === 'other') {
+        percentOfDailyInput.style.display = 'block';
     }
-})
+
+});

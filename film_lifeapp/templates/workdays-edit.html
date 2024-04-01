@@ -11,48 +11,29 @@
                 {% endfor %}
             </ul>
         {% endif %}
+    </ul>
+    <h2>WORK DAY DATE: {{ workday.date }}</h2>
 
-        <h2>WORK DAY DATE: {{ workday.date }}</h2>
+    <ul class="lst" style="font-size: 16px">
+        <li>Project : {{ workday.project.name }}</li>
+        <li>Occupation: {{ workday.project.occupation }}</li>
+        <li>Rate: {{ workday.project.daily_rate }}</li>
+        <li>Overhours: {{ workday.project.type_of_overhours }} %</li>
 
-        <ul class="lst" style="font-size: 16px">
-            <li>Project : {{ workday.project.name }}</li>
-            <li>Occupation: {{ workday.project.occupation }}</li>
-            <li>Rate: {{ workday.project.daily_rate }}</li>
-            <li>Overhours: {{ workday.project.type_of_overhours }} %</li>
-
-            <li>Date of create: {{ workday.project.date_created.date }}</li>
-            <li>Notes: {{ workday.project.notes }}</li>
-        </ul>
-        <form method="POST">
-            {% csrf_token %}
-            <h2>DAY TO EDIT:</h2>
-        <h2>DATE</h2>
-            <input class="center" type='date' name="date" value="{{ workday_date }}">
-        <h2>OVEHOURS</h2>
-            <input class="center" type='number' min="0" min="99" name="overhours" placeholder='amount_of_overhours'
-                   value="{{ workday.amount_of_overhours }}">
-        <h2>TYPE OF DAY</h2>
-            <select class="center" name="type_of_day" id="type_of_day">
-                <option value="shooting day" {% if workday.type_of_workday == 'shooting day' %} selected {% endif %}>
-                    shooting day
-                </option>
-                <option value="rehersal" {% if workday.type_of_workday == 'rehersal' %} selected {% endif %}>
-                    rehersal
-                </option>
-                <option value="transport" {% if workday.type_of_workday == 'transport' %} selected {% endif %}>
-                    transport
-                </option>
-                <option value="other"{% if workday.type_of_workday == 'other' %} selected {% endif %} >other</option>
-            </select>
-            <input class="center" id="percent_of_daily" style='display: none' type="number" name="percent_of_daily"
-                   placeholder="percent amount of daily rate" min=1 value="{{ percent_amout_of_daily }}">
-        <h2>NOTES</h2>
-            <textarea class="center" rows="5" cols="25" name="notes" placeholder='notes'>{{ workday.notes }}</textarea>
-            <button class="edit lightbig" type="submit"  name="add_day" value="add_day">SAVE</button>
-        </form>
+        <li>Date of create: {{ workday.project.date_created.date }}</li>
+        <li>Notes: {{ workday.project.notes }}</li>
+    </ul>
+    <form method="POST">
+        {% csrf_token %}
+        <h2>DAY TO EDIT:</h2>
+        {{ form }}
 
 
-        {% load static %}
-        <link rel="stylesheet" href="{% static 'style/edit.css' %}">
-        <script src="{% static 'javascript/edit_pages.js' %}"></script>
+        <button class="center edit lightbig" type="submit" name="add_day" value="add_day">SAVE</button>
+    </form>
+
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style/edit.css' %}">
+    <script src="{% static 'javascript/edit_pages.js' %}"></script>
 {% endblock %}

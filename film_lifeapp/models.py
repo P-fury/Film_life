@@ -49,7 +49,7 @@ class Project(models.Model):
     type_of_overhours = models.CharField(max_length=32)
     production_house = models.ForeignKey(ProductionHouse, on_delete=models.CASCADE, null=True)
     notes = models.TextField(default="", null=True)
-    occupation = models.CharField(max_length=56, null=True)
+    occupation = models.CharField(max_length=56, null=True,blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     total_earnings_for_project = models.IntegerField(default=0)
 

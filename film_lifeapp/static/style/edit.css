@@ -23,7 +23,6 @@ input[type=text] {
 }
 
 
-
 textarea {
     width: 350px;
     padding: 12px 20px;
@@ -79,6 +78,53 @@ h2 {
 }
 
 
+form label {
+    font-weight: 600;
+    font-size: 24px;
+    display: block;
+    text-align: center;
+    text-transform: uppercase;
+    color: white;
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+form input[name=daily_rate] {
+    width: 326px;
+    padding: 12px;
 
 
+}
 
+form input {
+    display: block;
+    margin: 0 auto;
+    padding: 12px;
+    width: 350px;
+    text-align: center;
+}
+
+
+form select {
+    display: block;
+    padding: 12px;
+    margin: 0 auto;
+    width: 350px;
+    text-align: center;
+}
+
+form textarea {
+    display: block;
+    margin: 0 auto;
+}
+
+
+form input[type='date'] {
+    padding: 12px;
+    width: 326px;
+}
+
+form input[type='number'] {
+    padding: 12px;
+    width: 326px;
+}
