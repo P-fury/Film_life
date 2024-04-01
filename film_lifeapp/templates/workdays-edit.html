@@ -26,9 +26,12 @@
         <form method="POST">
             {% csrf_token %}
             <h2>DAY TO EDIT:</h2>
+        <h2>DATE</h2>
             <input class="center" type='date' name="date" value="{{ workday_date }}">
+        <h2>OVEHOURS</h2>
             <input class="center" type='number' min="0" min="99" name="overhours" placeholder='amount_of_overhours'
                    value="{{ workday.amount_of_overhours }}">
+        <h2>TYPE OF DAY</h2>
             <select class="center" name="type_of_day" id="type_of_day">
                 <option value="shooting day" {% if workday.type_of_workday == 'shooting day' %} selected {% endif %}>
                     shooting day
@@ -43,8 +46,9 @@
             </select>
             <input class="center" id="percent_of_daily" style='display: none' type="number" name="percent_of_daily"
                    placeholder="percent amount of daily rate" min=1 value="{{ percent_amout_of_daily }}">
+        <h2>NOTES</h2>
             <textarea class="center" rows="5" cols="25" name="notes" placeholder='notes'>{{ workday.notes }}</textarea>
-            <button class="center edit" type="submit" name="add_day" value="add_day">EDIT</button>
+            <button class="edit lightbig" type="submit"  name="add_day" value="add_day">SAVE</button>
         </form>
 
 

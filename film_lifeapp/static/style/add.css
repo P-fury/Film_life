@@ -261,3 +261,8 @@ body {
     justify-content: center;
 }
 
+.button-container {
+    display: inline-flex;
+    gap: 10px;
+    text-align: center;
+}

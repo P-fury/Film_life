@@ -306,22 +306,23 @@ class WorkDaysAddView(UserPassesTestMixin, View):
                        "project_earned": project_earned})
 
     def post(self, request, pk):
-        date = request.POST.get('date')
-        overhours = request.POST.get('overhours')
-        type_of_day = request.POST.get('type_of_day')
-        notes = request.POST.get('notes')
-        if request.POST.get('percent_of_daily') != '':
-            percent_of_daily = request.POST.get('percent_of_daily')
-            type_of_day = percent_of_daily + '% of daily rate'
-        if all([date, overhours, type_of_day]):
-            added_day = WorkDay.objects.create(date=date, amount_of_overhours=overhours,
-                                               type_of_workday=type_of_day,
-                                               notes=notes, project_id=pk)
-            added_day.calculate_earnings()
-            return redirect('workdays-add', pk=pk)
-        else:
-            messages.add_message(request, messages.INFO, "Need to fill date")
-            return redirect('workdays-add', pk=pk)
+        if request.POST.get('add_day'):
+            date = request.POST.get('date')
+            overhours = request.POST.get('overhours')
+            type_of_day = request.POST.get('type_of_day')
+            notes = request.POST.get('notes')
+            if request.POST.get('percent_of_daily') != '':
+                percent_of_daily = request.POST.get('percent_of_daily')
+                type_of_day = percent_of_daily + '% of daily rate'
+            if all([date, overhours, type_of_day]):
+                added_day = WorkDay.objects.create(date=date, amount_of_overhours=overhours,
+                                                   type_of_workday=type_of_day,
+                                                   notes=notes, project_id=pk)
+                added_day.calculate_earnings()
+                return redirect('workdays-add', pk=pk)
+            else:
+                messages.add_message(request, messages.INFO, "Need to fill date")
+                return redirect('workdays-add', pk=pk)
 
 
 # ------------------------------------- EDITING WORK DAY -----------------------------------

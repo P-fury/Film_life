@@ -118,13 +118,14 @@ class ContactAddForm(forms.ModelForm):
             'class': 'center',
         })
 
-        self.fields['production_house'] = forms.MultipleChoiceField(choices=self.get_production_house_choices(user),
-                                                                    required=False,
-                                                                    widget=forms.CheckboxSelectMultiple())
-
-    def get_production_house_choices(self, user):
-        production_houses = ProductionHouse.objects.filter(user=user).values_list('id', 'name')
-        return production_houses
+        # Pobierz wszystkie domy produkcyjne użytkownika
+        production_houses = ProductionHouse.objects.filter(user=user)
+        # Utwórz wybory dla pola production_house
+        self.fields['production_house'] = forms.ModelMultipleChoiceField(
+            queryset=production_houses,
+            widget=forms.CheckboxSelectMultiple(),
+            required=False,
+        )
 
     class Meta:
         model = Contact
