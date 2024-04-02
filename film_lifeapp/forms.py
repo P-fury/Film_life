@@ -57,6 +57,28 @@ class LoginForm(AuthenticationForm):
         })
 
 
+# ================= ADD PROJECT =================
+class AddProjectForm(forms.ModelForm):
+    daily_rate = forms.DecimalField(min_value=1)
+    CHOICES = [
+        ('10', '10%'),
+        ('15', '15%'),
+        ('progresive', 'Progresive'),
+    ]
+
+    type_of_overhours = forms.ChoiceField(choices=CHOICES, required=False)
+    class Meta:
+        model = Project
+        fields = ['name', 'daily_rate', 'type_of_overhours', 'occupation','production_house', 'notes']
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['occupation'].required = False
+        self.fields['production_house'].required = False
+        self.fields['notes'].required = False
+
+
 # ================= ADD PRODCTION HOUSE ========
 
 
