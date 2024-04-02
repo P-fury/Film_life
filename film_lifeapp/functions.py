@@ -16,14 +16,9 @@ from timezonefinder import TimezoneFinder
 from FILM_WORK_CALC import settings
 
 
-
-
-
-
 def progresive_hours_counter(daily_rate, amount_of_overhours):
     sum = daily_rate
     overhours = int(amount_of_overhours)
-
     if overhours < 3:
         sum += daily_rate * 0.15 * overhours
         print(sum)
@@ -35,7 +30,6 @@ def progresive_hours_counter(daily_rate, amount_of_overhours):
     else:
         sum += daily_rate
         sum += daily_rate * 0.50 * (overhours - 5)
-
     return sum
 
 
@@ -126,6 +120,7 @@ def create_pdf(project):
     pdf_buffer.seek(0)
 
     return pdf_buffer
+
 
 # TIMEZONE CHECKER =====
 def find_timezone(city):

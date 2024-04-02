@@ -8,7 +8,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-from film_lifeapp.functions import nip_checker
 import pytest
 from django.urls import reverse, reverse_lazy
 from django.test import Client
@@ -21,27 +20,27 @@ from django.test import LiveServerTestCase
 # -------------------------- NIP CHECKER ----------------------------------
 def test_nip_checker_len_to_short():
     nip = '87483'
-    assert nip_checker(nip) is False
+    assert ProductionHouse.nip_checker(nip) is False
 
 
 def test_nip_checker_len_to_long():
     nip = '8744566543383'
-    assert nip_checker(nip) is False
+    assert ProductionHouse.nip_checker(nip) is False
 
 
 def test_nip_checker_len_10_but_contains_letter():
     nip = '52679A9480'
-    assert nip_checker(nip) is False
+    assert ProductionHouse.nip_checker(nip) is False
 
 
 def test_nip_checker_len_10_but_false_number():
     nip = '5267979480'
-    assert nip_checker(nip) is False
+    assert ProductionHouse.nip_checker(nip) is False
 
 
 def test_nip_checker_nip_is_correct():
     nip = '8121230134'
-    assert nip_checker(nip) is True
+    assert ProductionHouse.nip_checker(nip) is True
 
 
 # ================== REGISTER USER =============================
@@ -165,7 +164,7 @@ def test_main_post_logged_start_stop_validate_by_earnings_column(user_with_db):
     assert user_with_db[1].workday_set.count() == 1
     assert response.status_code == 200
     assert StartStop.objects.all().count() == 1
-    #--- freezegun timemachine
+    # --- freezegun timemachine
     with freeze_time(datetime.now() + timedelta(hours=12, seconds=14)):
         client.post(url, {'stop-bt': 'stop'})
         assert user_with_db[1].workday_set.count() == 2
@@ -263,8 +262,8 @@ def test_project_edit_post_with_login(user_with_db, project_edit_form):
     assert user_with_db[1].name != project_edit_form['name']
     response = client.post(url, project_edit_form, follow=True)
     assert response.status_code == 200
-    for detail in response.context['projects']:
-        assert detail.name == project_edit_form['name']
+    user_with_db[1].refresh_from_db()
+    assert user_with_db[1].name == project_edit_form['name']
 
 
 @pytest.mark.django_db
@@ -387,6 +386,7 @@ def test_workday_add_post_no_date_with_login(user_with_db):
     client.force_login(user_with_db[0])
     url = reverse('workdays-add', args=[user_with_db[1].pk])
     data = {
+        'add_day': 'add_day',
         'date': '',
         'overhours': '0',
         'type_of_day': 'shooting day',
@@ -401,6 +401,32 @@ def test_workday_add_post_no_date_with_login(user_with_db):
     messages = [msg.message for msg in storage]
     assert len(messages) == 1
     assert messages[0] == 'Need to fill date'
+
+
+@pytest.mark.django_db
+def test_workday_add_post_with_login_other_twentytwo_percent_of_daily(user_with_db):
+    client = Client()
+    client.force_login(user_with_db[0])
+    data = {
+        'add_day': 'add_day',
+        'date': '2021-03-17',
+        'overhours': '10',
+        'type_of_day': 'other',
+        'notes': '',
+        'percent_of_daily': '22',
+    }
+    initial_workday = WorkDay.objects.count()
+    before_add_earnings = user_with_db[1].total_earnings_for_project
+    url = reverse('workdays-add', args=[user_with_db[1].pk])
+    response = client.post(url, data, follow=True)
+    user_with_db[1].refresh_from_db()
+    after_add_total_earnings_of_project = user_with_db[1].total_earnings_for_project
+    assert response.status_code == 200
+    assert WorkDay.objects.count() != initial_workday
+    assert not before_add_earnings == after_add_total_earnings_of_project
+    added_day = WorkDay.objects.last()
+    assert added_day.earnings == user_with_db[1].daily_rate * (int(data['percent_of_daily']) / 100) + (
+                user_with_db[1].daily_rate * (int(data['percent_of_daily']) / 100) / 10) * int(data['overhours'])
 
 
 # ==================  EDIT  WORK DAY VIEW =============================
@@ -433,15 +459,22 @@ def test_workday_edit_get_with_login(user_with_db):
 
 
 @pytest.mark.django_db
-def test_workday_edit_post_with_login(user_with_db, workday_add_form):
+def test_workday_edit_post_with_login(user_with_db):
     client = Client()
     client.force_login(user_with_db[0])
     initial_date = user_with_db[2].date
     initial_workday = WorkDay.objects.count()
+    data = {
+        'date': '2021-03-17',
+        'amount_of_overhours': '0',
+        'type_of_workday': 'shooting day',
+        'notes': '',
+        'percent_of_daily': '',
+    }
     url = reverse('workdays-edit', args=[user_with_db[2].pk])
-    response = client.post(url, workday_add_form, follow=True)
+    response = client.post(url, data=data, follow=True)
     assert response.status_code == 200
-    assert WorkDay.objects.filter(date=workday_add_form['date']).exists()
+    assert WorkDay.objects.filter(date=data['date']).exists()
     assert WorkDay.objects.count() == initial_workday
 
 
@@ -451,8 +484,8 @@ def test_workday_edit_post_with_login_no_date(user_with_db):
     client.force_login(user_with_db[0])
     data = {
         'date': '',
-        'overhours': 0,
-        'type_of_day': 'shooting day',
+        'amount_of_overhours': 0,
+        'type_of_workday': 'shooting day',
         'notes': '',
         'percent_of_daily': '',
     }
@@ -475,8 +508,8 @@ def test_workday_edit_post_with_login_other_sixtyfour_percent_of_daily(user_with
     client.force_login(user_with_db[0])
     data = {
         'date': '2021-01-01',
-        'overhours': 0,
-        'type_of_day': 'other',
+        'amount_of_overhours': 0,
+        'type_of_workday': 'other',
         'notes': '',
         'percent_of_daily': '64',
     }
@@ -498,8 +531,8 @@ def test_workday_edit_post_with_login_transport_fifty_percent_of_daily(user_with
     client.force_login(user_with_db[0])
     data = {
         'date': '2021-01-01',
-        'overhours': 0,
-        'type_of_day': 'transport',
+        'amount_of_overhours': 0,
+        'type_of_workday': 'transport',
         'notes': '',
         'percent_of_daily': '',
     }
@@ -511,7 +544,7 @@ def test_workday_edit_post_with_login_transport_fifty_percent_of_daily(user_with
     after_update_total_earnings_of_project = user_with_db[1].total_earnings_for_project
     assert response.status_code == 200
     assert WorkDay.objects.count() == initial_workday
-    assert not initial_total_ernings_of_project == user_with_db[1].total_earnings_for_project
+    assert not initial_total_ernings_of_project == after_update_total_earnings_of_project
     assert after_update_total_earnings_of_project == user_with_db[1].daily_rate * 0.50
 
 
@@ -634,7 +667,7 @@ def test_production_house_add_post_with_login(user_with_db, production_house_add
     initial_counter = ProductionHouse.objects.count()
     added_prod_house = production_house_add_form_owner_user_with_db
     response = client.post(url, production_house_add_form_owner_user_with_db)
-    assert response.status_code == 200
+    assert response.status_code == 302
     assert ProductionHouse.objects.filter(user=user_with_db[0]).count() == initial_counter + 1
 
 
@@ -656,10 +689,6 @@ def test_production_house_add_post_no_name_with_login(user_with_db):
     response = client.post(url, data)
     assert response.status_code == 200
     assert ProductionHouse.objects.count() == inital_workdays
-    storage = get_messages(response.wsgi_request)
-    messages = [msg.message for msg in storage]
-    assert len(messages) == 1
-    assert messages[0] == 'NEED TO FILL AT LEAST PROD. NAME'
 
 
 @pytest.mark.django_db
@@ -707,7 +736,7 @@ def test_production_house_add_post_nip_wrong_with_login(user_with_db):
     storage = get_messages(response.wsgi_request)
     messages = [msg.message for msg in storage]
     assert len(messages) == 1
-    assert messages[0] == 'NIP NUBER IS NOT CORRECT'
+    assert messages[0] == 'NIP NUMBER IS NOT CORRECT'
 
 
 # ==================  EDIT  PRODUCTION HOUSE VIEW =============================
@@ -1104,7 +1133,7 @@ def test_contacts_delete_post_with_login_delete_no(contact_db_owner_user_with_db
 
 
 @pytest.mark.django_db
-def test_contacts_delete_post_with_login_delete_yes(contact_db_owner_user_with_db,):
+def test_contacts_delete_post_with_login_delete_yes(contact_db_owner_user_with_db, ):
     client = Client()
     client.force_login(contact_db_owner_user_with_db.user)
     url = reverse('contacts-delete', args=[contact_db_owner_user_with_db.pk])

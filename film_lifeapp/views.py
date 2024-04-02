@@ -337,6 +337,7 @@ class WorkDaysEditView(LoginRequiredMixin, UserPassesTestMixin, View):
         day_of_work = WorkDay.objects.get(id=pk)
         form = EditWorkDayForm(request.POST, instance=day_of_work)
         if form.is_valid():
+            print(form.cleaned_data)
             if form.cleaned_data['type_of_workday'] == 'other':
                 if form.cleaned_data['percent_of_daily'] is None:
                     day_of_work.type_of_workday = '100% of daily rate'
@@ -415,6 +416,8 @@ class ProductionAddView(LoginRequiredMixin, View):
                         return render(request, 'production-add.html', {'form': form})
             prod_house.save()
             return redirect('productions-list')
+        else:
+            return render(request, 'production-add.html', {'form': form})
 
 
 # -----------------------------EDIT PRODUCTION HOUSES --------------------------

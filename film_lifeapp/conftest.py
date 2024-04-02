@@ -49,8 +49,9 @@ def project_add_form():
 @pytest.fixture()
 def workday_add_form():
     data = {
+        'add_day': 'add_day',
         'date': '2021-03-17',
-        'overhours': 0,
+        'overhours': '0',
         'type_of_day': 'shooting day',
         'notes': '',
         'percent_of_daily': '',
@@ -63,7 +64,7 @@ def project_edit_form():
     data = {
         'name': 'edited_project',
         'daily_rate': 100,
-        'type_of_overhours': 14
+        'type_of_overhours': 10
     }
     return data
 
