@@ -16,11 +16,11 @@ from scrapy.http.request import form
 
 from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm, ProjectDeleteForm, DaysDeleteForm, \
     ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm, EditProjectForm, EditWorkDayForm, \
-    AddProductionHouseForm
+    AddProductionHouseForm, AddProjectForm
 from film_lifeapp.models import *
 from django.db.models import Sum
 from django.contrib import messages
-from film_lifeapp.functions import  create_pdf, find_timezone
+from film_lifeapp.functions import create_pdf, find_timezone
 
 # ========= PDF DOCU ====================
 from django.http import FileResponse
@@ -177,22 +177,17 @@ class ProjectAddView(LoginRequiredMixin, View):
         if projects.count() == 0:
             messages.add_message(request, messages.INFO, 'No projects')
         productions = ProductionHouse.objects.filter(user=request.user)
-        return render(request, 'project-add.html', {'projects': projects, "productions": productions})
+        form = AddProjectForm()
+        return render(request, 'project-add.html', {'form': form, 'projects': projects, "productions": productions})
 
     def post(self, request):
-        name = request.POST.get('name')
-        daily_rate = request.POST.get('daily_rate')
-        type_of_overhours = request.POST.get('type_of_overhours')
-        occupation = request.POST.get('occupation')
-        notes = request.POST.get('notes')
-        production = request.POST.get('production')
-        if all([name, daily_rate, type_of_overhours]):
-            Project.objects.create(name=name, daily_rate=daily_rate, type_of_overhours=type_of_overhours,
-                                   occupation=occupation, notes=notes, production_house_id=production,
-                                   user_id=request.user.id)
+        form = AddProjectForm(request.POST)
+        if form.is_valid():
+            project = form.save(commit=False)
+            project.user = request.user
+            project.save()
             return redirect('project-list')
         else:
-            messages.error(request, 'Need to fill all fields')
             return redirect('project-add')
 
 
@@ -337,7 +332,6 @@ class WorkDaysEditView(LoginRequiredMixin, UserPassesTestMixin, View):
         day_of_work = WorkDay.objects.get(id=pk)
         form = EditWorkDayForm(request.POST, instance=day_of_work)
         if form.is_valid():
-            print(form.cleaned_data)
             if form.cleaned_data['type_of_workday'] == 'other':
                 if form.cleaned_data['percent_of_daily'] is None:
                     day_of_work.type_of_workday = '100% of daily rate'

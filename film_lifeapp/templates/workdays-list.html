@@ -29,6 +29,8 @@
 
 <a href="{% url 'project-delete' pk=project.pk %}">
                     <button class="darkbig"  id="delete_project">DELETE</button></a>
+<a href="{% url 'workdays-add' pk=project.pk %}">
+                <button class="lightbig"  id="workdays_add">ADD DAYS</button></a>
 
     <div class="table-wrapper">
         <table class="fl-table">
