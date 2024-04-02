@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.safestring import SafeString
 from pycparser.ply.yacc import Production
 
-from film_lifeapp.models import ProductionHouse, Contact, Project, WorkDay, just_numb
+from film_lifeapp.models import ProductionHouse, Contact, Project, WorkDay
 
 
 class RegisterUserForm(UserCreationForm):
@@ -55,6 +55,20 @@ class LoginForm(AuthenticationForm):
             'minlength': '8',
             'maxlength': '64',
         })
+
+
+# ================= ADD PRODCTION HOUSE ========
+
+
+class AddProductionHouseForm(forms.ModelForm):
+    class Meta:
+        model = ProductionHouse
+        fields = '__all__'
+        exclude = ['user']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nip'].required = False
 
 
 # ================= EDIT USER  ==================
@@ -117,7 +131,7 @@ class EditWorkDayForm(forms.ModelForm):
         self.fields['notes'].required = False
         self.fields['percent_of_daily'].required = False
         if 'type_of_workday' in self.initial and '% of daily rate' in self.initial['type_of_workday']:
-            percent = just_numb(self.initial['type_of_workday'])
+            percent = ProductionHouse.just_numb(self.initial['type_of_workday'])
             self.initial['type_of_workday'] = 'other'
             self.fields['percent_of_daily'].widget.attrs['style'] = 'display: block;'
             self.initial['percent_of_daily'] = percent
