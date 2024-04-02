@@ -12,13 +12,15 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView
 from ip2geotools.databases.noncommercial import DbIpCity
+from scrapy.http.request import form
 
 from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm, ProjectDeleteForm, DaysDeleteForm, \
-    ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm, EditProjectForm, EditWorkDayForm
+    ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm, EditProjectForm, EditWorkDayForm, \
+    AddProductionHouseForm
 from film_lifeapp.models import *
 from django.db.models import Sum
 from django.contrib import messages
-from film_lifeapp.functions import nip_checker, create_pdf, find_timezone
+from film_lifeapp.functions import  create_pdf, find_timezone
 
 # ========= PDF DOCU ====================
 from django.http import FileResponse
@@ -325,7 +327,7 @@ class WorkDaysEditView(LoginRequiredMixin, UserPassesTestMixin, View):
         workday = WorkDay.objects.get(pk=pk)
         # DLA DOMYSLNEJ DATY
         workday_date = str(workday.date)
-        percent_amout_of_daily = just_numb(workday.type_of_workday)
+        percent_amout_of_daily = ProductionHouse.just_numb(workday.type_of_workday)
         form = EditWorkDayForm(instance=workday)
 
         return render(request, 'workdays-edit.html', {'form': form, 'workday': workday, "workday_date": workday_date,
@@ -390,45 +392,29 @@ class ProductionHousesListView(LoginRequiredMixin, View):
 class ProductionAddView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
-    def get(self, request):
-        return render(request, 'production-add.html')
+    def get(self, request, *args, **kwargs):
+        form = AddProductionHouseForm
+        return render(request, 'production-add.html', {'form': form})
 
     def post(self, request):
-        validate_nip = None
-        prod_name = request.POST.get('name')
-        if prod_name == '':
-            messages.add_message(request, messages.INFO, "NEED TO FILL AT LEAST PROD. NAME")
-            return render(request, 'production-add.html')
-        prod_nip = request.POST.get('nip')
-        if prod_nip:
-            if not all(char.isdigit() or char == '-' for char in prod_nip):
-                messages.add_message(request, messages.INFO, "NIP NUMBER CAN USE ONLY DIGIT AND '-' ")
-                return render(request, 'production-add.html')
-            else:
-                clean_nip = prod_nip.replace('-', '')
-                if len(clean_nip) != 10:
+        form = AddProductionHouseForm(request.POST)
+        if form.is_valid():
+            prod_house = form.save(commit=False)
+            prod_house.user = request.user
+            if prod_house.nip:
+                nip = str(prod_house.nip)
+                if len(nip) != 10:
                     messages.add_message(request, messages.INFO, "LENGTH OF NIP NUMBER IS NOT CORRECT")
-                    return render(request, 'production-add.html')
+                    return render(request, 'production-add.html', {'form': form})
                 else:
-                    if nip_checker(clean_nip) is True:
-                        validate_nip = clean_nip
-                    else:
-                        messages.add_message(request, messages.INFO, "NIP NUBER IS NOT CORRECT")
-                        return render(request, 'production-add.html')
-        # ============ NIP VALIDATE =========
+                    if ProductionHouse.nip_checker(nip) is True:
+                        prod_house.nip = nip
 
-        prod_address = request.POST.get('address')
-        prod_email = request.POST.get('email')
-        prod_notes = request.POST.get('notes')
-        prod_rate = request.POST.get('rating')
-        if ProductionHouse.objects.filter(name=prod_name).exists():
-            messages.add_message(request, messages.INFO, "PRODUCTION EXIST")
-            return render(request, 'production-add.html')
-        else:
-            ProductionHouse.objects.create(name=prod_name, nip=validate_nip, address=prod_address,
-                                           email=prod_email, notes=prod_notes, rating=prod_rate, user=request.user)
-            messages.add_message(request, messages.INFO, "PRODUCTION ADDED")
-            return render(request, 'production-add.html')
+                    else:
+                        messages.add_message(request, messages.INFO, "NIP NUMBER IS NOT CORRECT")
+                        return render(request, 'production-add.html', {'form': form})
+            prod_house.save()
+            return redirect('productions-list')
 
 
 # -----------------------------EDIT PRODUCTION HOUSES --------------------------
@@ -469,7 +455,7 @@ class ProductionEditView(LoginRequiredMixin, UserPassesTestMixin, View):
                     messages.add_message(request, messages.INFO, "LENGTH OF NIP NUMBER IS NOT CORRECT")
                     return render(request, self.template_name, {'form': form})
                 else:
-                    if nip_checker(clean_nip) is True:
+                    if ProductionHouse.nip_checker(clean_nip) is True:
                         validate_nip = clean_nip
                     else:
                         messages.add_message(request, messages.INFO, "NIP NUBER IS NOT CORRECT")
