@@ -504,6 +504,19 @@ class ProductionEditView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 
 # ----------------------- DELETING PRODUCTION HOUSE ---------------------------------
+"""
+PRODUCTION HOUSE DELETE VIEW after selecting contact 
+confirm delete or go back to list of production house page
+
+:parameters
+-----------
+choosed production house
+
+:return
+----------
+deleted production house object from database
+
+"""
 
 class ProductionHouseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     login_url = reverse_lazy('login-user')
@@ -530,6 +543,11 @@ class ProductionHouseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteV
 # =============================================================================
 # ============================ CONTACT JOURNEY ================================
 # ----------------------------- CONTACT LIST  ---------------------------------
+
+"""
+CONTACT LIST VIEW list of all created contacts
+
+"""
 class ContactListView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -539,6 +557,18 @@ class ContactListView(LoginRequiredMixin, View):
 
 
 # ----------------------------- CONTACT ADD  ----------------------------------
+"""
+CONTACT CREATE VIEW
+
+:parameters
+------------
+at least name of contact 
+
+:return
+------------
+added contact to database
+
+"""
 class ContactCreateView(LoginRequiredMixin, CreateView):
     login_url = reverse_lazy('login-user')
     model = Contact
@@ -561,7 +591,18 @@ class ContactCreateView(LoginRequiredMixin, CreateView):
 
 
 # ----------------------------- CONTACT EDIT  ----------------------------------
+"""
+CONTACT EDIT VIEW
 
+:parameter
+-----------
+selected contact
+
+:return
+-----------
+edited contact details
+
+"""
 class ContactEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     login_url = reverse_lazy('login-user')
 
@@ -596,7 +637,7 @@ choosed contact
 
 :return
 ----------
-deleted contact object form database
+deleted contact object from database
 
 """
 
