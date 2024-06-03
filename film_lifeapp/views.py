@@ -142,12 +142,12 @@ class RegisterUserView(CreateView):
 """
 SIMPLE LOGIN VIEW
 
-Parameters
+:parameter
 ------------------
 username: username
 password: password
 
-Return
+:return
 ------------------
 Logged into user page
 
@@ -166,6 +166,17 @@ class LogoutUserView(View):
 
 
 # ----------------------------------------- EDIT USER ----------------------------------------
+"""
+USER EDIT VIEW
+
+:parameter
+-----------
+logged user
+
+:return
+----------
+Edited User data
+"""
 class EditUserView(UpdateView):
     model = User
     fields = ['username', 'email', 'first_name', 'last_name']
@@ -575,7 +586,19 @@ class ContactEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 # ----------------------------- CONTACT DELETE  ----------------------------------
+"""
+CONTACT DELETE VIEW after selecting contact 
+confirm delete or go back to list of contact page
 
+:parameters
+-----------
+choosed contact
+
+:return
+----------
+deleted contact object form database
+
+"""
 
 class ContactDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     login_url = reverse_lazy('login-user')
@@ -601,7 +624,22 @@ class ContactDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 # =======================================================================================
 # ===================================  SEARCH JURNEY =====================================
+"""
+SEARCH VIEW base on selected options from html FORM
+shows via GET method projects which meets selected requirements
 
+:parameters
+------------
+DATE:
+PROJECT NAME:
+PRODUCTION HOUSES:
+CONTACTS:
+
+:return
+------------
+PROJECT WHICH MEETS SELECTED OPTIONS
+
+"""
 class SearchView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -651,6 +689,20 @@ class SearchView(LoginRequiredMixin, View):
 
 
 # ============ GENERATE PDF ================
+
+"""
+VIEW for generating pdf for selected PROJECT, with all days of work
+
+:parameters
+--------------
+Project with at least one work day
+
+:returns
+--------------
+PDF DOWNLOADABLE file with project summary 
+"""
+
+
 class CreatePdfView(View):
     font_path = os.path.join(settings.BASE_DIR, 'film_lifeapp/static/fonts/bitter/Bitter-Regular.ttf')
     pdfmetrics.registerFont(TTFont('Bitter', font_path))
