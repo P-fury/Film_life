@@ -27,7 +27,6 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from film_lifeapp.utils import get_piechart
 
-
 # Create your views here.
 # ===================================== HOME JOURNEY ================================
 # ------------------------------------- HOME PAGE -----------------------------------
@@ -37,6 +36,8 @@ and Start/Stop option for adding new work day to last edited project.
 
 #TODO: NEED TO USE SESSION OR COOKIES FOR BETTER TIME COUNTING 
 """
+
+
 class MainView(View):
 
     def get(self, request):
@@ -126,6 +127,8 @@ VIEW FOR Creating new user
 
 #TODO: NEED TO CHANGE USER NAME FOR EMAIL AND ADD EMAIL AUTHENTICATION OPTION
 """
+
+
 class RegisterUserView(CreateView):
     model = User
     form_class = RegisterUserForm
@@ -152,6 +155,8 @@ password: password
 Logged into user page
 
 """
+
+
 class LoginUserView(LoginView):
     form_class = LoginForm
     template_name = 'user-login.html'
@@ -159,6 +164,19 @@ class LoginUserView(LoginView):
 
 
 # ----------------------------------------- LOGOUT ----------------------------------------
+"""
+LOGOUT VIEW
+
+:parameter
+-----------
+LOGGED USER
+
+:return
+-----------
+Logged out
+"""
+
+
 class LogoutUserView(View):
     def get(self, request):
         logout(request)
@@ -177,6 +195,8 @@ logged user
 ----------
 Edited User data
 """
+
+
 class EditUserView(UpdateView):
     model = User
     fields = ['username', 'email', 'first_name', 'last_name']
@@ -187,6 +207,9 @@ class EditUserView(UpdateView):
 # ============================================================================================
 # ==================================== projects journey ======================================
 # ------------------------------------ LIST OF PROJECTS --------------------------------------
+"""
+PROJECT LIST VIEW list of all created PROJECT for logged USER
+"""
 class ProjectListView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -198,6 +221,18 @@ class ProjectListView(LoginRequiredMixin, View):
 
 
 # ---------------------------------- ADDING PROJECTS -----------------------------------
+"""
+PROJECT CREATE VIEW
+
+:parameters
+------------
+at least project name
+
+:return
+------------
+add PROJECT to database for logged USER
+
+"""
 class ProjectAddView(LoginRequiredMixin, View):
     redirect_unauthenticated_users_to = 'register'
 
@@ -224,6 +259,20 @@ class ProjectAddView(LoginRequiredMixin, View):
 
 
 # ------------------------------------- EDIT PROJECTS -----------------------------------
+
+"""
+EDIT PROJECT View for editing choose PROJECT
+
+:parameter
+-----------
+selected PROJECT 
+
+:return
+-----------
+edited PROJECT details
+
+"""
+
 class ProjectEditView(UserPassesTestMixin, View):
     def test_func(self):
         user = self.request.user
@@ -255,6 +304,19 @@ class ProjectEditView(UserPassesTestMixin, View):
 
 
 # ------------------------------------- DELETING PROJECTS -----------------------------------
+"""
+PROJECT DELETE VIEW after login USER
+confirm delete or go back to list of PROJECT LIST page
+
+:parameters
+-----------
+LOGGED USER
+
+:return
+----------
+deleted PROJECT object from database
+
+"""
 class ProjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     login_url = reverse_lazy('login-user')
 
@@ -280,6 +342,10 @@ class ProjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 # ===============================================================================================
 # ======================================= DAYS JOURNEY ==========================================
 # ------------------------------------- WORK DAY LIST VIEW --------------------------------------
+
+"""
+WORK DAY LIST VIEW for selected PROJECT for logged USER 
+"""
 class WorkDaysListView(LoginRequiredMixin, UserPassesTestMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -302,6 +368,18 @@ class WorkDaysListView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 
 # ------------------------------------- ADD WORK DAY VIEW ---------------------------------------
+"""
+WORK DAY CREATE VIEW
+
+:parameters
+------------
+WORK DAY date and details
+
+:return
+------------
+add WORK DAY to selected PROJECT and save to DATABASE
+
+"""
 class WorkDaysAddView(UserPassesTestMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -342,6 +420,19 @@ class WorkDaysAddView(UserPassesTestMixin, View):
 
 
 # ------------------------------------- EDITING WORK DAY -----------------------------------
+"""
+EDIT WORK DAY View for editing choose PROJECT
+
+:parameter
+-----------
+selected WORK DAY 
+
+:return
+-----------
+edited WORK DAY details
+
+"""
+
 class WorkDaysEditView(LoginRequiredMixin, UserPassesTestMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -379,6 +470,20 @@ class WorkDaysEditView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 
 # ------------------------------------- DELETING OF WORKING DAYS -----------------------------------
+"""
+WORK DAY DELETE VIEW after selecting PROJECT 
+confirm delete or go back to list of WORK DAY page
+
+:parameters
+-----------
+choose PROJECT
+
+:return
+----------
+deleted WORK DAY object from database
+
+"""
+
 class WorkDaysDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     login_url = reverse_lazy('login-user')
 
@@ -407,6 +512,12 @@ class WorkDaysDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 # =======================================================================================
 # ============================ PRODUCTION HOUSES JOURNEY ================================
 # ----------------------------- PRODUCTION HOUSES LIST ----------------------------------
+
+"""
+PRODUCTION HOUSE LIST VIEW list of all created production houses for logged user
+"""
+
+
 class ProductionHousesListView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -416,6 +527,19 @@ class ProductionHousesListView(LoginRequiredMixin, View):
 
 
 # ---------------------- ADDING PRODUCTION HOUSE AND NIP VALIDATE -------------------------
+"""
+PRODUCTION HOUSE CREATE VIEW with nip validator and error messages
+for nip validator -> models.py -> ProductionHouses @staticmethod nip_checker
+
+:parameters
+------------
+at least production house name
+
+:return
+------------
+add production house to database
+
+"""
 class ProductionAddView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -447,6 +571,23 @@ class ProductionAddView(LoginRequiredMixin, View):
 
 
 # -----------------------------EDIT PRODUCTION HOUSES --------------------------
+
+
+"""
+EDIT PRODUCTION HOUSE View for editing choose production house with NIP VALIDATOR
+for nip validator -> models.py -> ProductionHouses @staticmethod nip_checker
+
+:parameter
+-----------
+selected PRODUCTION HOUSE
+
+:return
+-----------
+edited PRODUCTION HOUSE details
+
+"""
+
+
 class ProductionEditView(LoginRequiredMixin, UserPassesTestMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -510,13 +651,14 @@ confirm delete or go back to list of production house page
 
 :parameters
 -----------
-choosed production house
+choose production house
 
 :return
 ----------
 deleted production house object from database
 
 """
+
 
 class ProductionHouseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     login_url = reverse_lazy('login-user')
@@ -545,9 +687,11 @@ class ProductionHouseDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteV
 # ----------------------------- CONTACT LIST  ---------------------------------
 
 """
-CONTACT LIST VIEW list of all created contacts
+CONTACT LIST VIEW list of all created contacts for logged user
 
 """
+
+
 class ContactListView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -566,9 +710,11 @@ at least name of contact
 
 :return
 ------------
-added contact to database
+add contact to database
 
 """
+
+
 class ContactCreateView(LoginRequiredMixin, CreateView):
     login_url = reverse_lazy('login-user')
     model = Contact
@@ -603,6 +749,8 @@ selected contact
 edited contact details
 
 """
+
+
 class ContactEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     login_url = reverse_lazy('login-user')
 
@@ -633,13 +781,14 @@ confirm delete or go back to list of contact page
 
 :parameters
 -----------
-choosed contact
+choose contact
 
 :return
 ----------
 deleted contact object from database
 
 """
+
 
 class ContactDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     login_url = reverse_lazy('login-user')
@@ -681,6 +830,8 @@ CONTACTS:
 PROJECT WHICH MEETS SELECTED OPTIONS
 
 """
+
+
 class SearchView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
