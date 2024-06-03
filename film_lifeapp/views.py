@@ -12,7 +12,6 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, UpdateView, DeleteView
 from ip2geotools.databases.noncommercial import DbIpCity
-from scrapy.http.request import form
 
 from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm, ProjectDeleteForm, DaysDeleteForm, \
     ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm, EditProjectForm, EditWorkDayForm, \
@@ -32,7 +31,12 @@ from film_lifeapp.utils import get_piechart
 # Create your views here.
 # ===================================== HOME JOURNEY ================================
 # ------------------------------------- HOME PAGE -----------------------------------
+"""
+MainView showing last edited project with summary of all work days in PieChart(Matplot lib),
+and Start/Stop option for adding new work day to last edited project.
 
+#TODO: NEED TO USE SESSION OR COOKIES FOR BETTER TIME COUNTING 
+"""
 class MainView(View):
 
     def get(self, request):
@@ -117,7 +121,11 @@ class MainView(View):
 # ===================================== user journey =====================================
 # ---------------------------------------- REGISTER --------------------------------------
 
+""" 
+VIEW FOR Creating new user
 
+#TODO: NEED TO CHANGE USER NAME FOR EMAIL AND ADD EMAIL AUTHENTICATION OPTION
+"""
 class RegisterUserView(CreateView):
     model = User
     form_class = RegisterUserForm
@@ -131,6 +139,19 @@ class RegisterUserView(CreateView):
 
 
 # ------------------------------------------ LOGIN ----------------------------------------
+"""
+SIMPLE LOGIN VIEW
+
+Parameters
+------------------
+username: username
+password: password
+
+Return
+------------------
+Logged into user page
+
+"""
 class LoginUserView(LoginView):
     form_class = LoginForm
     template_name = 'user-login.html'
