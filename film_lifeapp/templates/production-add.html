@@ -1,41 +1,41 @@
 {% extends 'index.html' %}
 {% block content %}
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Prodcuin house add</title>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'style/add.css' %}">
+    </head>
+    <body>
+    <ul class="lst">
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <h2>
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    </h2>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <form method="POST">
+            {% csrf_token %}
+            <h2>PRODUCTION HOUSE ADD:</h2>
 
-    {#    <p class="generated-text">DETAIL OF PROJECT: {{ day_of_work.project.name }}</p>#}
-    {##}
-    {#    <ul class="lst" style="font-size: 16px">#}
-    {#        <li>Occupation: {{ day_of_work.project.occupation }}</li>#}
-    {#        <li>Rate: {{ day_of_work.project.daily_rate }}</li>#}
-    {#        <li>Overhours: {{ day_of_work.project.type_of_overhours }} %</li>#}
-    {#        <li>Date of create: {{ day_of_work.project.date_created.date }}</li>#}
-    {#        <li>Notes: {{ day_of_work.project.notes }}</li>#}
-    {#    </ul>#}
-    {% for message in messages %}
-        <h2 class="center">{{ message }}</h2>
-    {% endfor %}
-    <form method="POST">
-        {% csrf_token %}
-        <p class="generated-text">PRODUCTION HOUSE ADD:</p>
-        <input class="center" type='text' name="name" placeholder=" Name of Prod House">
-        <input class="center" type='text' name="nip" placeholder='NIP'
-               value="">
-        <input class="center" type="text" name="address" placeholder="address" value="">
-        <input class="center" type="email" name="email" placeholder="email" value="">
-        <textarea class="center" rows="5" cols="25" name="notes" placeholder='notes'></textarea>
-        <select class="center" name="rating" id="rating">
-            <option value="0">...</option>
-            <option value="1">Weak</option>
-            <option value="2">Average</option>
-            <option value="3">Good</option>
-            <option value="4">Very Good</option>
-            <option value="5">Excelent</option>
-        </select>
-        <input class="center" type="submit" value="ADD">
-    </form>
+            {{ form }}
+            <input class="center lightbig" type="submit" value="ADD">
+
+        </form>
 
 
+    </body>
+    </html>
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
-    {#    <script src="{% static 'days-edit/days-edit.js' %}"></script>#}
+
+
+
 {% endblock %}

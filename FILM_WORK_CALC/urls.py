@@ -53,9 +53,9 @@ urlpatterns = [
 
 
 
-    path('search_index', views.Search.as_view(), name='search'),
-    # path('searchbydate', views.SearchByDateView.as_view(), name='search-by-date'),
-    # path('searchbyproject', views.SearchByProjectView.as_view(), name='search-by-project'),
+    path('search_index/', views.SearchView.as_view(), name='search'),
+
+    path('project_pdf/<int:pk>', views.CreatePdfView.as_view(), name='create-pdf'),
 
 
 ]

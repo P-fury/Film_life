@@ -1,7 +1,20 @@
 {% extends 'index.html' %}
 {% block content %}
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Contact Delete</title>
 
-    <p class="generated-text">DETAIL OF CONTACT: {{ contact.first_name }} {% if contact.last_name %}{{ contact.last_name }}{%  endif %}</p>
+            {% load static %}
+    <link rel="stylesheet" href="{% static 'style/delete.css' %}">
+    </head>
+    <body>
+
+    <h2>DETAIL OF CONTACT: {{ contact.first_name }} {% if contact.last_name %}{{ contact.last_name }}{% endif %}</h2>
 
 
     <ul class="lst" style="font-size: 16px">
@@ -23,9 +36,6 @@
 
 
 
-
-
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'project-days/style.css' %}">
-    <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
+    </body>
+    </html>
 {% endblock %}

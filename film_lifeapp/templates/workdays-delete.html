@@ -1,11 +1,11 @@
 {% extends 'index.html' %}
 {% block content %}
 
-    <p class="generated-text">DETAIL OF WORKDAY date:{{ workday.date}} </p>
+    <h2>DETAIL OF WORKDAY date: {{ workday.date}} </h2>
 
 
     <ul class="lst" style="font-size: 16px">
-        <li>PROJECT NAME:: {{ workday.project.name }}</li>
+        <li>PROJECT NAME: {{ workday.project.name }}</li>
         <li>EARNINGS:  {{ workday.earnings }}</li>
         <li>AMOUNT OF OVERHOURS: {{ workday.amount_of_overhours }} %</li>
         <li>TYPE OF WORK DAY: {{ workday.type_of_workday }}</li>
@@ -23,6 +23,6 @@
 
 
     {% load static %}
-    <link rel="stylesheet" href="{% static 'project-days/style.css' %}">
-    <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'style/delete.css' %}">
+    <script src="{% static 'javascript/edit_pages.js' %}"></script>
 {% endblock %}

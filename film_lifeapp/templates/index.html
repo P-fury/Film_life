@@ -1,17 +1,3 @@
-{% load static %}
-
-
-{########LADOWANIE SASS I SCSS#}
-{#{% load compress %}{% compress css %}#}
-{#    <link type="text/x-scss" href="{% static 'style/navbar/navbar.sass' %}" rel="stylesheet" media="screen">#}
-{#{% endcompress %}#}
-
-<link rel="stylesheet" href="{% static 'style/navbar/navbar.css' %}">
-<script src="{% static 'style/navbar/navbar.js' %}"></script>
-<script type="text/javascript" src="{% static 'jQuery 3.7.1.js' %}">
-</script>
-{#<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>  <----JQUERY Z NETA#}
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -19,18 +5,34 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Film life</title>
+    <title>FILM LIFE APP</title>
+
+    {% load static %}
+
+
+    {########LADOWANIE SASS I SCSS#}
+    {#{% load compress %}{% compress css %}#}
+    {#    <link type="text/x-scss" href="{% static 'style/navbar/navbar.sass' %}" rel="stylesheet" media="screen">#}
+    {#{% endcompress %}#}
+
+    <link rel="stylesheet" href="{% static 'navbar/navbar.css' %}">
+    <script src="{% static 'navbar/navbar.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jQuery 3.7.1.js' %}">
+    </script>
+    {#<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>  <----JQUERY Z NETA#}
+
 
 </head>
 <body>
-{% if user.is_authenticated %}
-    Witaj {{ user.username }}
-{% endif %}
+
+
 <section class="navigation">
     <div class="nav-container">
         <div class="brand">
+
             <a href="{% url 'main' %}">Film life</a>
         </div>
+
         <nav>
             <div class="nav-mobile"><a id="navbar-toggle" href="#!"><span></span></a></div>
             <ul class="nav-list">
@@ -58,7 +60,7 @@
                         </li>
                     </ul>
                 </li>
-                 <li>
+                <li>
                     <a href="#!">Contacts</a>
                     <ul class="navbar-dropdown">
                         <li>
@@ -69,7 +71,7 @@
                         </li>
                     </ul>
                 </li>
-                    <li>
+                <li>
                     <a href='{% url 'search' %}'>Search</a>
                 </li>
                 <li>
@@ -94,14 +96,17 @@
         </nav>
     </div>
 </section>
+{% if user.is_authenticated %}
+    Welcome : {{ user.username }}
+{% endif %}
 <div>
     {% block content %}
-        <link rel="stylesheet" href="{% static 'style/projects/style.css' %}">
+
         {% if not user.is_authenticated %}
             <h2 class="center">Welcome to Film life calc, you time on set calculator</h2>
             <br>
             <p class="center">You need to create account at USER tab to get full expperience of out app</p>
-            <p class="generated-text">LASTED UPDATED PROJECT: Example project name</p>
+            <h2>LASTED UPDATED PROJECT: Example project name</h2>
             <ul class="lst" style="font-size: 16px">
                 <li>Occupation: Example occupation</li>
                 <li>Rate: Example daily rate</li>
@@ -116,7 +121,7 @@
 
 
             {% if last_project %}
-                <p class="generated-text">LASTED UPDATED PROJECT: {{ last_project.project.name }}</p>
+                <h2>LASTED UPDATED PROJECT: {{ last_project.project.name }}</h2>
                 <ul class="lst" style="font-size: 16px">
                     <li>Occupation: {{ last_project.project.occupation }}</li>
                     <li>Rate: {{ last_project.project.daily_rate }}</li>
@@ -136,20 +141,66 @@
                 <form class="center" method="post">
                     {% csrf_token %}
                     {% if button_select == True %}
-                        <button type="submit" name="start-bt" value="start">Start</button>
+                        <button class="dark" type="submit" name="start-bt" class="darkbig" value="start">START</button>
                     {% elif button_select == False %}
-                        <button type="submit" name="stop-bt" value="{{ stop_timer}}" >Stop</button>
+                        <button class="light" type="submit" name="stop-bt" value="stop">STOP</button>
                     {% endif %}
                 </form>
             {% else %}
                 <h3 class="center"> YOU NEED TO ADD PROJECT AND ADD AT LEAST ONE DAY TO USE THIS FUNCTION</h3>
-
+            {% endif %}
+            </div>
+            <div class="chart">
+            {% if chart %}
+                <img  src="data:image/png;base64, {{chart|safe}}">
             {% endif %}
 
             </div>
-            </body>
-
-
-            </html>
         {% endif %}
+
+
+ <link rel="stylesheet" href="{% static 'style/add.css' %}">
     {% endblock %}
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -3,9 +3,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.safestring import SafeString
 from pycparser.ply.yacc import Production
 
-from film_lifeapp.models import ProductionHouse, Contact
+from film_lifeapp.models import ProductionHouse, Contact, Project, WorkDay
 
 
 class RegisterUserForm(UserCreationForm):
@@ -56,12 +57,109 @@ class LoginForm(AuthenticationForm):
         })
 
 
+# ================= ADD PROJECT =================
+class AddProjectForm(forms.ModelForm):
+    daily_rate = forms.DecimalField(min_value=1)
+    CHOICES = [
+        ('10', '10%'),
+        ('15', '15%'),
+        ('progresive', 'Progresive'),
+    ]
+
+    type_of_overhours = forms.ChoiceField(choices=CHOICES, required=False)
+    class Meta:
+        model = Project
+        fields = ['name', 'daily_rate', 'type_of_overhours', 'occupation','production_house', 'notes']
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['occupation'].required = False
+        self.fields['production_house'].required = False
+        self.fields['notes'].required = False
+
+
+# ================= ADD PRODCTION HOUSE ========
+
+
+class AddProductionHouseForm(forms.ModelForm):
+    class Meta:
+        model = ProductionHouse
+        fields = '__all__'
+        exclude = ['user']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nip'].required = False
+
+
+# ================= EDIT USER  ==================
 class EditUserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name']
 
 
+# ================= EDIT PROJECT ==================
+class EditProjectForm(forms.ModelForm):
+    daily_rate = forms.IntegerField(min_value=1,
+                                    widget=forms.NumberInput(attrs={'step': 1}))
+
+    CHOICES = [
+        ('10', '10%'),
+        ('15', '15%'),
+        ('progresive', 'Progresive'),
+    ]
+
+    type_of_overhours = forms.ChoiceField(choices=CHOICES, required=False)
+
+    class Meta:
+        model = Project
+        fields = ['name', 'daily_rate', 'type_of_overhours', 'occupation', 'notes', 'production_house']
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('label_suffix', '')
+        super().__init__(*args, **kwargs)
+        self.fields['notes'].required = False
+        self.fields['production_house'].required = False
+
+    def clean_occupation(self):
+        occupation = self.cleaned_data['occupation']
+        if occupation is None:
+            return ""
+        return occupation
+
+
+# ================= EDIT WORK DAY ==================
+class EditWorkDayForm(forms.ModelForm):
+    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), required=True)
+    amount_of_overhours = forms.IntegerField(min_value=0, max_value=99, widget=forms.NumberInput(attrs={'step': 1}))
+    CHOICES = [
+        ('shooting day', 'shooting day'),
+        ('rehersal', 'rehersal'),
+        ('transport', 'transport'),
+        ('other', 'other')
+    ]
+    type_of_workday = forms.ChoiceField(choices=CHOICES, required=True)
+    percent_of_daily = forms.IntegerField(min_value=0, max_value=100)
+
+    class Meta:
+        model = WorkDay
+        fields = '__all__'
+        exclude = ['project', 'earnings']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['notes'].required = False
+        self.fields['percent_of_daily'].required = False
+        if 'type_of_workday' in self.initial and '% of daily rate' in self.initial['type_of_workday']:
+            percent = ProductionHouse.just_numb(self.initial['type_of_workday'])
+            self.initial['type_of_workday'] = 'other'
+            self.fields['percent_of_daily'].widget.attrs['style'] = 'display: block;'
+            self.initial['percent_of_daily'] = percent
+
+
+# ================= EDIT PRODUCTION ==================
 class EditProductionForm(forms.ModelForm):
     class Meta:
         model = ProductionHouse
@@ -118,13 +216,14 @@ class ContactAddForm(forms.ModelForm):
             'class': 'center',
         })
 
-        self.fields['production_house'] = forms.MultipleChoiceField(choices=self.get_production_house_choices(user),
-                                                                    required=False,
-                                                                    widget=forms.CheckboxSelectMultiple())
-
-    def get_production_house_choices(self, user):
-        production_houses = ProductionHouse.objects.filter(user=user).values_list('id', 'name')
-        return production_houses
+        # Pobierz wszystkie domy produkcyjne użytkownika
+        production_houses = ProductionHouse.objects.filter(user=user)
+        # Utwórz wybory dla pola production_house
+        self.fields['production_house'] = forms.ModelMultipleChoiceField(
+            queryset=production_houses,
+            widget=forms.CheckboxSelectMultiple(),
+            required=False,
+        )
 
     class Meta:
         model = Contact

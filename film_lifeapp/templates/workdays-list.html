@@ -1,15 +1,17 @@
 {% extends 'index.html' %}
-{% block content %}
 
-    <p class="generated-text">WORKDAYS : {{ project.name }}</p>
-        <ul class="lst">
-            {% if messages %}
-                <ul>
-                    {% for message in messages %}
-                        <h2><li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li></h2>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+{% block content %}
+    <h2>WORKDAYS : {{ project.name }}</h2>
+    <ul class="lst">
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <h2>
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                </h2>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
     <ul class="lst" style="font-size: 16px">
         <li>Occupation: {{ project.occupation }}</li>
@@ -17,60 +19,65 @@
         <li>Overhours: {{ project.type_of_overhours }} %</li>
         <li>Date of create: {{ project.date_created.date }}</li>
         <li>Notes: {{ project.notes }}</li>
-        <li>Production House: <a href={% url 'productions-list' %}>{{ project.production_house.name }}</a></li>
+        <li>Production House: <a class="linkclick" href={% url 'productions-list' %}>{{ project.production_house.name }}</a></li>
     </ul>
-    <div style="display: inline-block;">
-        <table class="table_component center">
-            <tbody>
+
+<div class="whitehead">PROJECT:</div>
+    <br>
+    <a href="{% url 'project-edit' pk=project.pk %}">
+                    <button class="lightbig" id="edit_project">EDIT</button></a>
+
+<a href="{% url 'project-delete' pk=project.pk %}">
+                    <button class="darkbig"  id="delete_project">DELETE</button></a>
+<a href="{% url 'workdays-add' pk=project.pk %}">
+                <button class="lightbig"  id="workdays_add">ADD DAYS</button></a>
+
+    <div class="table-wrapper">
+        <table class="fl-table">
+            <thead>
             <tr>
-                <td>NO:</td>
-                <td>DATE:</td>
-                <td>Earining:</td>
-                <td>AMOUNT OF OVERHOURS:</td>
-                <td>NOTES:</td>
-                <td>TYPE OF WORK DAY:</td>
-                <td>EDIT:</td>
-                <td>DELETE:</td>
+                <th>NO:</th>
+                <th>DATE:</th>
+                <th>Earining:</th>
+                <th>AMOUNT OF OVERHOURS:</th>
+                <th>NOTES:</th>
+                <th>TYPE OF WORK DAY:</th>
+                <th>EDIT:</th>
+                <th>DELETE:</th>
             </tr>
+            </thead>
+            <tbody>
             {% if daysofwork %}
-                {% for dayofwork in daysofwork %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ dayofwork.date }}</td>
-                        <td>{{ dayofwork.earnings }}</td>
-                        <td>{{ dayofwork.amount_of_overhours }}</td>
-                        <td>{{ dayofwork.notes }}</td>
-                        <td>{{ dayofwork.type_of_workday }}</td>
-                            <td>
-                                <a href="{% url 'workdays-edit' dayofwork.pk %}">
-                                    <button>edit</button>
-                                </a>
-                            </td>
-                            <td>
-                                <a href="{% url 'workdays-delete' dayofwork.pk %}">
-                                    <button>delete</button>
-                                </a>
-                            </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-                </table>
-                </div>
-
-
-
-
+            {% for dayofwork in daysofwork %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ dayofwork.date }}</td>
+                    <td>{{ dayofwork.earnings }}</td>
+                    <td>{{ dayofwork.amount_of_overhours }}</td>
+                    <td>{{ dayofwork.notes }}</td>
+                    <td>{{ dayofwork.type_of_workday }}</td>
+                    <td>
+                        <a href="{% url 'workdays-edit' dayofwork.pk %}">
+                            <button class="dark">EDIT</button>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'workdays-delete' dayofwork.pk %}">
+                            <button class="light">DELETE</button>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            <tbody>
+        </table>
+    </div>
                 <div>
                     Work days at {{ project.name }}: {{ days_count }} Total earn: {{ project_earned }} PLN
                 </div>
             {% endif %}
 
-
-
-
-
-
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'project-days/style.css' %}">
-    <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
+  {% load static %}
+    <link rel="stylesheet" href="{% static 'style/lists.css' %}">
+    <script src="{% static 'javascript/edit_pages.js' %}"></script>
 {% endblock %}
+

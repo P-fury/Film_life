@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-3x@mr9)q8t*17tn+%3*9!i^wa@8+sp)90#vn+#!vntsiscpo56
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# ALLOWED_HOSTS = ["192.168.1.100"]
+# ALLOWED_HOSTS = ["51.20.103.213"]
+
 
 # Application definition
 
@@ -37,12 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'film_lifeapp',
-    'compressor',  # KOMPRESOR DO SASS I SCSS
-    'jquery',  # POTRZEBNY PLIK JQUERY
-    'bootstrap_datepicker_plus',  # KALENDARZ
-    'bootstrap4',
+    # 'compressor',  # KOMPRESOR DO SASS I SCSS
+    # 'jquery',  # POTRZEBNY PLIK JQUERY
+    # 'bootstrap_datepicker_plus',  # KALENDARZ
+    # 'bootstrap4',
     'widget_tweaks',
-    'phonenumber_field',
+    # 'phonenumber_field',
 
 ]
 
@@ -78,9 +80,9 @@ WSGI_APPLICATION = 'FILM_WORK_CALC.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "film_lifeapp/../film_lifeapp/static"),
+    os.path.join(BASE_DIR, "/film_lifeapp"),
 ]
 try:
     from FILM_WORK_CALC.local_settings import DATABASES
@@ -88,6 +90,20 @@ except ModuleNotFoundError:
     print("Brak konfiguracji bazy danych w pliku local_settings.py!")
     print("Uzupełnij dane i spróbuj ponownie!")
     exit(0)
+
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'film_life',
+#         'USER': '',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -116,12 +132,13 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = True
+
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -129,6 +146,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
 
 # POTRZEBNE DO SCSS I SASS STATYCZNE PILKI I KOMPILER
 STATICFILES_FINDERS = (

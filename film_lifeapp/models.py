@@ -5,6 +5,8 @@ from django.db.models import Sum
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from film_lifeapp.functions import progresive_hours_counter
+
 
 # Create your models here.
 
@@ -25,6 +27,24 @@ class ProductionHouse(models.Model):
     notes = models.TextField(blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
+    def __str__(self):
+        return self.name
+
+    @staticmethod
+    def just_numb(value):
+        return re.sub(r'[^0-9]', '', value)
+    @staticmethod
+    def nip_checker(nip):
+        weight = [6, 5, 7, 2, 3, 4, 5, 6, 7]
+        try:
+            lst = [int(number) for number in nip[:-1]]
+        except ValueError:
+            return False
+        result = [weight * number for weight, number in zip(weight, lst)]
+        if sum(result) % 11 == int(nip[-1]):
+            return True
+        return False
+
 
 class Contact(models.Model):
     first_name = models.CharField(max_length=128)
@@ -44,10 +64,9 @@ class Project(models.Model):
     type_of_overhours = models.CharField(max_length=32)
     production_house = models.ForeignKey(ProductionHouse, on_delete=models.CASCADE, null=True)
     notes = models.TextField(default="", null=True)
-    occupation = models.CharField(max_length=56, null=True)
+    occupation = models.CharField(max_length=56, null=True,blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     total_earnings_for_project = models.IntegerField(default=0)
-
     def update_total_earnings(self):
         total_earnings = self.workday_set.aggregate(total_earnings=Sum('earnings'))['total_earnings'] or 0
         self.total_earnings_for_project = total_earnings
@@ -56,8 +75,6 @@ class Project(models.Model):
 
 # ================== DODAWANIE PODSUMOWANIA ZAROBKOW DO PROJEKTU ==============
 
-def just_numb(value):
-    return re.sub(r'[^0-9]', '', value)
 
 
 class WorkDay(models.Model):
@@ -70,34 +87,50 @@ class WorkDay(models.Model):
     last_updated = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     def calculate_earnings(self):
-        if self.amount_of_overhours != '0':
-            # ZAROBKI DLA WYBRANEGO TYPU DNIA PRACY wraz z wybranym procentowo
-            if self.type_of_workday == 'shoot_day':
-                self.earnings = int(self.amount_of_overhours) * (
-                        self.project.daily_rate * (int(self.project.type_of_overhours) / 100)) + self.project.daily_rate
-            elif self.type_of_workday == 'rehersal':
-                self.earnings = (int(self.amount_of_overhours) * (
-                        self.project.daily_rate * (
-                        int(self.project.type_of_overhours) / 100)) + self.project.daily_rate) / 2
-            elif self.type_of_workday == 'transport':
-                self.earnings = (int(self.amount_of_overhours) * (
-                        self.project.daily_rate * (
-                        int(self.project.type_of_overhours) / 100)) + self.project.daily_rate) / 2
-            else:
-                self.earnings = (int(self.amount_of_overhours) * (
-                        self.project.daily_rate * (
-                        int(self.project.type_of_overhours) / 100)) + self.project.daily_rate) * (
-                                        int(just_numb(self.type_of_workday)) / 100)
-        else:
-            if self.type_of_workday == 'shoot_day':
-                self.earnings = self.project.daily_rate
-            elif self.type_of_workday == 'rehersal' or self.type_of_workday == 'transport':
-                self.earnings = self.project.daily_rate / 2
-            # elif self.type_of_workday == 'transport':
-            #     self.earnings = self.project.daily_rate / 2
-            else:
 
-                self.earnings = self.project.daily_rate * (int(just_numb(self.type_of_workday)) / 100)
+        if self.project.type_of_overhours == 'progresive':
+            if self.amount_of_overhours != '0':
+                if self.type_of_workday == 'shooting day':
+                    sum = progresive_hours_counter(self.project.daily_rate, self.amount_of_overhours)
+                    self.earnings = sum
+                elif self.type_of_workday == 'rehersal' or self.type_of_workday == 'transport':
+                    sum = progresive_hours_counter(self.project.daily_rate, self.amount_of_overhours)
+                    self.earnings = sum / 2
+                else:
+                    sum = progresive_hours_counter(self.project.daily_rate, self.amount_of_overhours)
+                    self.earnings = sum * int(ProductionHouse.just_numb(self.type_of_workday)) / 100
+
+            else:
+                if self.type_of_workday == 'shooting day':
+                    self.earnings = self.project.daily_rate
+                elif self.type_of_workday == 'rehersal' or self.type_of_workday == 'transport':
+                    self.earnings = self.project.daily_rate / 2
+                else:
+                    self.earnings = self.project.daily_rate * (int(ProductionHouse.just_numb(self.type_of_workday)) / 100)
+
+        else:
+            if self.amount_of_overhours != '0':
+                # ZAROBKI DLA WYBRANEGO TYPU DNIA PRACY wraz z wybranym procentowo
+                if self.type_of_workday == 'shooting day':
+                    self.earnings = int(self.amount_of_overhours) * (
+                            self.project.daily_rate * (
+                            int(self.project.type_of_overhours) / 100)) + self.project.daily_rate
+                elif self.type_of_workday == 'rehersal' or self.type_of_workday == 'transport':
+                    self.earnings = (int(self.amount_of_overhours) * (
+                            self.project.daily_rate * (
+                            int(self.project.type_of_overhours) / 100)) + self.project.daily_rate) / 2
+                else:
+                    self.earnings = (int(self.amount_of_overhours) * (
+                            self.project.daily_rate * (
+                            int(self.project.type_of_overhours) / 100)) + self.project.daily_rate) * (
+                                            int(ProductionHouse.just_numb(self.type_of_workday)) / 100)
+            else:
+                if self.type_of_workday == 'shooting day':
+                    self.earnings = self.project.daily_rate
+                elif self.type_of_workday == 'rehersal' or self.type_of_workday == 'transport':
+                    self.earnings = self.project.daily_rate / 2
+                else:
+                    self.earnings = self.project.daily_rate * (int(ProductionHouse.just_numb(self.type_of_workday)) / 100)
 
         self.save()
 
@@ -113,3 +146,4 @@ class StartStop(models.Model):
     end_time = models.DateTimeField(null=True, blank=True)
     duration = models.IntegerField(null=True, blank=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, null=True, blank=True)
+    time_diff = models.CharField(null=True, blank=True)

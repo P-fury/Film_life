@@ -1,0 +1,76 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+    <h2>LIST OF CONTACTS:</h2>
+    <ul class="lst">
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <h2>
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                </h2>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <div class="table-wrapper">
+        <table class="fl-table">
+            <thead>
+            <tr>
+                <th>NO:</th>
+                <th>FIRST NAME:</th>
+                <th>LAST NAME:</th>
+                <th>OCCUPATION:</th>
+                <th>PRODUCTION HOUSE:</th>
+                <th>EMAIL:</th>
+                <th>PHONE:</th>
+                <th>NOTES:</th>
+                <th>PROJECTS:</th>
+                <th>EDIT</th>
+                <th>DELETE</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for contact in contacts %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ contact.first_name }}</td>
+                    <td>{{ contact.last_name }}</td>
+                    <td>{{ contact.occupation }}</td>
+                    <td>
+                        {% for production_house in contact.production_house.all %}
+                            <a href={% url 'productions-list' %}>
+                                <li>- {{ production_house.name }}</li>
+                            </a>
+                        {% endfor %}
+                    </td>
+                    <td>{{ contact.email }}</td>
+                    <td>{{ contact.phone }}</td>
+                    <td>{{ contact.notes }}</td>
+                    <td>
+                        {{ contact.production_house.name }}
+                    </td>
+                    <td>
+                        <a href="{% url 'contacts-edit' pk=contact.pk %}" id="edit">
+                            <button>edit</button>
+                        </a>
+                    </td>
+                    <td>
+                        <a href="{% url 'contacts-delete' pk=contact.pk %}" id="delete">
+                            <button>delete</button>
+                        </a>
+                    </td>
+
+                </tr>
+            {% endfor %}
+            <tbody>
+        </table>
+    </div>
+
+
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'project-list/projects-list.css' %}">
+    <script src="{% static 'project-details-add-day/javascript.js' %}"></script>
+{% endblock %}
+

@@ -1,69 +1,92 @@
 import math
-from datetime import datetime, timezone, timedelta
+import os
+from datetime import datetime, timezone
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect
 from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
-from django.views.generic import CreateView, TemplateView, UpdateView, DeleteView, FormView
+from django.views.generic import CreateView, UpdateView, DeleteView
+from ip2geotools.databases.noncommercial import DbIpCity
 
-from django import forms
 from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm, ProjectDeleteForm, DaysDeleteForm, \
-    ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm, SearchByDateForm
+    ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm, EditProjectForm, EditWorkDayForm, \
+    AddProductionHouseForm, AddProjectForm
 from film_lifeapp.models import *
 from django.db.models import Sum
 from django.contrib import messages
-from film_lifeapp.functions import nip_checker
+from film_lifeapp.functions import create_pdf, find_timezone
+
+# ========= PDF DOCU ====================
+from django.http import FileResponse
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from film_lifeapp.utils import get_piechart
 
 
 # Create your views here.
 # ===================================== HOME JOURNEY ================================
 # ------------------------------------- HOME PAGE -----------------------------------
+"""
+MainView showing last edited project with summary of all work days in PieChart(Matplot lib),
+and Start/Stop option for adding new work day to last edited project.
 
+#TODO: NEED TO USE SESSION OR COOKIES FOR BETTER TIME COUNTING 
+"""
 class MainView(View):
 
     def get(self, request):
         button_select = True
         try:
             last_project = WorkDay.objects.filter(project__user=request.user).order_by('last_updated').last()
-            if last_project != None:
+            if last_project is not None:
                 if last_project.project.user != request.user:
                     last_project = None
         except WorkDay.DoesNotExist and TypeError:
             return render(request, 'index.html')
-        if last_project != None:
+        if last_project is not None:
             if len(WorkDay.objects.all()) > 0:
-                workdays = WorkDay.objects.filter(project__user=request.user).count()
+                workdays = WorkDay.objects.filter(project_id=last_project.project_id).count()
             else:
                 workdays = 0
         else:
             workdays = None
+            # MATPLOT ------
+        projects = Project.objects.filter(user=request.user).order_by('-total_earnings_for_project')
+        earnings = [x.total_earnings_for_project for x in projects]
+        projects_names = [x.name for x in projects]
+        try:
+            chart = get_piechart(earnings, projects_names)
+        except RuntimeError:
+            chart = None
+
         return render(request, 'index.html',
-                      {'last_project': last_project, 'workdays': workdays, 'button_select': button_select})
+                      {'last_project': last_project, 'workdays': workdays, 'button_select': button_select,
+                       'chart': chart})
 
     def post(self, request):
-        start_timer = datetime.now()
-        stop = datetime.now()
-        stop_timer = stop.strftime('%Y-%m-%d %H:%M:%S.%f')
+        # --- GEOLOCALIZATRION FOR STARTSTOP TABLE ----
+        user_ip = request.META.get('REMOTE_ADDR', None)
+        city = DbIpCity.get(user_ip, api_key='free')
+        start = datetime.now(find_timezone(city))
         global worktime
         button_select = True
-
         try:
             last_project = WorkDay.objects.latest('last_updated')
         except WorkDay.DoesNotExist:
             return render(request, 'index.html')
         if request.POST.get('start-bt') == 'start':
-            worktime = StartStop.objects.create(start_time=start_timer)
+            time_diff = str(datetime.now(find_timezone(city)))[-6:]
+            worktime = StartStop.objects.create(start_time=start, time_diff=time_diff)
             button_select = False
-        if request.POST.get('stop-bt'):
+        if request.POST.get('stop-bt') == 'stop':
             button_select = True
-            recive_time = request.POST.get('stop-bt')
-            end_time = datetime.strptime(recive_time, '%Y-%m-%d %H:%M:%S.%f')
-            worktime.end_time = end_time
+            stop = datetime.now(find_timezone(city))
+            worktime.end_time = stop
             worktime.save()
             diff = worktime.end_time - worktime.start_time
             worktime.duration = diff.total_seconds()
@@ -73,28 +96,36 @@ class MainView(View):
                 # ===== 12 godzin dniowki =======
                 if diff.total_seconds() <= (60 * 60 * 12):
                     workday = WorkDay.objects.create(date=timezone.now().date(), amount_of_overhours=0,
-                                                     type_of_workday='shoot_day',
+                                                     type_of_workday='shooting day',
                                                      notes='', project_id=last_project.project.id)
                     workday.calculate_earnings()
                 elif diff.total_seconds() > (60 * 60 * 12):
                     # ===== powyzej 12 godzin dniowki =======
                     overhours = math.ceil((diff.total_seconds() - (60 * 60 * 12)) / 3600)
                     workday = WorkDay.objects.create(date=timezone.now().date(), amount_of_overhours=overhours,
-                                                     type_of_workday='shoot_day',
+                                                     type_of_workday='shooting day',
                                                      notes='', project_id=last_project.project.id)
                     workday.calculate_earnings()
 
         workdays = WorkDay.objects.filter(project_id=last_project.project.id).count()
+        projects = Project.objects.filter(user=request.user).order_by('-total_earnings_for_project')
+        earnings = [x.total_earnings_for_project for x in projects]
+        projects_names = [x.name for x in projects]
+        chart = get_piechart(earnings, projects_names)
         return render(request, 'index.html',
                       {'last_project': last_project, 'workdays': workdays, 'button_select': button_select,
-                       "stop_timer": stop_timer})
+                       'chart': chart})
 
 
 # ========================================================================================
 # ===================================== user journey =====================================
 # ---------------------------------------- REGISTER --------------------------------------
 
+""" 
+VIEW FOR Creating new user
 
+#TODO: NEED TO CHANGE USER NAME FOR EMAIL AND ADD EMAIL AUTHENTICATION OPTION
+"""
 class RegisterUserView(CreateView):
     model = User
     form_class = RegisterUserForm
@@ -103,11 +134,24 @@ class RegisterUserView(CreateView):
 
     def form_invalid(self, form):
         response = super().form_invalid(form)
-        messages.info(self.request, 'Passwords are different')
+        messages.error(self.request, 'Passwords are different or too common')
         return response
 
 
 # ------------------------------------------ LOGIN ----------------------------------------
+"""
+SIMPLE LOGIN VIEW
+
+:parameter
+------------------
+username: username
+password: password
+
+:return
+------------------
+Logged into user page
+
+"""
 class LoginUserView(LoginView):
     form_class = LoginForm
     template_name = 'user-login.html'
@@ -122,6 +166,17 @@ class LogoutUserView(View):
 
 
 # ----------------------------------------- EDIT USER ----------------------------------------
+"""
+USER EDIT VIEW
+
+:parameter
+-----------
+logged user
+
+:return
+----------
+Edited User data
+"""
 class EditUserView(UpdateView):
     model = User
     fields = ['username', 'email', 'first_name', 'last_name']
@@ -136,7 +191,7 @@ class ProjectListView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
     def get(self, request):
-        projects = Project.objects.filter(user=request.user)
+        projects = Project.objects.filter(user=request.user).order_by("name")
         if projects.count() == 0:
             messages.add_message(request, messages.INFO, 'No projects')
         return render(request, 'project-list.html', {"projects": projects})
@@ -154,22 +209,17 @@ class ProjectAddView(LoginRequiredMixin, View):
         if projects.count() == 0:
             messages.add_message(request, messages.INFO, 'No projects')
         productions = ProductionHouse.objects.filter(user=request.user)
-        return render(request, 'project-add.html', {'projects': projects, "productions": productions})
+        form = AddProjectForm()
+        return render(request, 'project-add.html', {'form': form, 'projects': projects, "productions": productions})
 
     def post(self, request):
-        name = request.POST.get('name')
-        daily_rate = request.POST.get('daily_rate')
-        type_of_overhours = request.POST.get('type_of_overhours')
-        occupation = request.POST.get('occupation')
-        notes = request.POST.get('notes')
-        production = request.POST.get('production')
-        if all([name, daily_rate, type_of_overhours]):
-            Project.objects.create(name=name, daily_rate=daily_rate, type_of_overhours=type_of_overhours,
-                                   occupation=occupation, notes=notes, production_house_id=production,
-                                   user_id=request.user.id)
+        form = AddProjectForm(request.POST)
+        if form.is_valid():
+            project = form.save(commit=False)
+            project.user = request.user
+            project.save()
             return redirect('project-list')
         else:
-            messages.error(request, 'Need to fill all fields')
             return redirect('project-add')
 
 
@@ -188,33 +238,20 @@ class ProjectEditView(UserPassesTestMixin, View):
         except Project.DoesNotExist:
             return redirect('main')
         productions = ProductionHouse.objects.filter(user=request.user)
-        return render(request, 'project-edit.html', {"project": project, "productions": productions})
+        form = EditProjectForm(instance=project)
+        return render(request, 'project-edit.html', {"form": form, "project": project, "productions": productions})
 
     def post(self, request, pk):
-        project_to_edit = Project.objects.get(pk=pk)
-        edited_name = request.POST.get('name')
-        edited_daily_rate = request.POST.get('daily_rate')
-        edited_type_of_overhours = request.POST.get('type_of_overhours')
-        edited_occupation = request.POST.get('occupation')
-        edited_notes = request.POST.get('notes')
-        edited_production = request.POST.get('production')
-        print(edited_production)
-        if all([edited_name, edited_daily_rate, edited_type_of_overhours]):
-            project_to_edit.name = edited_name
-            project_to_edit.daily_rate = edited_daily_rate
-            project_to_edit.type_of_overhours = edited_type_of_overhours
-            project_to_edit.occupation = edited_occupation
-            project_to_edit.notes = edited_notes
-            if edited_production != '':
-                project_to_edit.production_house_id = edited_production
-            project_to_edit.save()
-            for day in WorkDay.objects.filter(project_id=project_to_edit):
+        project = Project.objects.get(pk=pk)
+        form = EditProjectForm(request.POST, instance=project)
+        if form.is_valid():
+            form.save()
+            for day in WorkDay.objects.filter(project=project):
                 day.calculate_earnings()
-            # project_to_edit.update_project_total_earnings()
             return redirect('project-list')
         else:
             messages.error(request, 'Need to fill all necessary fields')
-            return redirect('project-edit', pk=project_to_edit.pk)
+            return render(request, 'project-edit.html', {"form": form, "project": project})
 
 
 # ------------------------------------- DELETING PROJECTS -----------------------------------
@@ -285,22 +322,23 @@ class WorkDaysAddView(UserPassesTestMixin, View):
                        "project_earned": project_earned})
 
     def post(self, request, pk):
-        date = request.POST.get('date')
-        overhours = request.POST.get('overhours')
-        type_of_day = request.POST.get('type_of_day')
-        notes = request.POST.get('notes')
-        if request.POST.get('percent_of_daily') != '':
-            percent_of_daily = request.POST.get('percent_of_daily')
-            type_of_day = percent_of_daily + '% of daily rate'
-        if all([date, overhours, type_of_day]):
-            added_day = WorkDay.objects.create(date=date, amount_of_overhours=overhours,
-                                               type_of_workday=type_of_day,
-                                               notes=notes, project_id=pk)
-            added_day.calculate_earnings()
-            return redirect('workdays-add', pk=pk)
-        else:
-            messages.add_message(request, messages.INFO, "Need to fill date")
-            return redirect('workdays-add', pk=pk)
+        if request.POST.get('add_day'):
+            date = request.POST.get('date')
+            overhours = request.POST.get('overhours')
+            type_of_day = request.POST.get('type_of_day')
+            notes = request.POST.get('notes')
+            if request.POST.get('percent_of_daily') != '':
+                percent_of_daily = request.POST.get('percent_of_daily')
+                type_of_day = percent_of_daily + '% of daily rate'
+            if all([date, overhours, type_of_day]):
+                added_day = WorkDay.objects.create(date=date, amount_of_overhours=overhours,
+                                                   type_of_workday=type_of_day,
+                                                   notes=notes, project_id=pk)
+                added_day.calculate_earnings()
+                return redirect('workdays-add', pk=pk)
+            else:
+                messages.add_message(request, messages.INFO, "Need to fill date")
+                return redirect('workdays-add', pk=pk)
 
 
 # ------------------------------------- EDITING WORK DAY -----------------------------------
@@ -316,29 +354,23 @@ class WorkDaysEditView(LoginRequiredMixin, UserPassesTestMixin, View):
         workday = WorkDay.objects.get(pk=pk)
         # DLA DOMYSLNEJ DATY
         workday_date = str(workday.date)
-        percent_amout_of_daily = just_numb(workday.type_of_workday)
-        print(percent_amout_of_daily)
-        return render(request, 'workdays-edit.html', {'workday': workday, "workday_date": workday_date,
+        percent_amout_of_daily = ProductionHouse.just_numb(workday.type_of_workday)
+        form = EditWorkDayForm(instance=workday)
+
+        return render(request, 'workdays-edit.html', {'form': form, 'workday': workday, "workday_date": workday_date,
                                                       "percent_amout_of_daily": percent_amout_of_daily})
 
     def post(self, request, pk):
         day_of_work = WorkDay.objects.get(id=pk)
-        date = request.POST.get('date')
-        overhours = request.POST.get('overhours')
-        type_of_day = request.POST.get('type_of_day')
-        notes = request.POST.get('notes')
-        if type_of_day == 'other':
-            if request.POST.get('percent_of_daily') != '':
-                percent_of_daily = request.POST.get('percent_of_daily')
-                type_of_day = percent_of_daily + '% of daily rate'
-        if all([date, overhours, type_of_day]):
-            # NADPISYWANIE DANYCH
-            day_of_work.date = date
-            day_of_work.amount_of_overhours = overhours
-            day_of_work.type_of_workday = type_of_day
-            day_of_work.notes = notes
-            day_of_work.save()
-            day_of_work = WorkDay.objects.get(id=pk)
+        form = EditWorkDayForm(request.POST, instance=day_of_work)
+        if form.is_valid():
+            if form.cleaned_data['type_of_workday'] == 'other':
+                if form.cleaned_data['percent_of_daily'] is None:
+                    day_of_work.type_of_workday = '100% of daily rate'
+                else:
+                    percent_of_daily = request.POST.get('percent_of_daily')
+                    day_of_work.type_of_workday = percent_of_daily + '% of daily rate'
+            form.save()
             day_of_work.calculate_earnings()
             return redirect('workdays-list', pk=day_of_work.project.id)
         else:
@@ -387,45 +419,31 @@ class ProductionHousesListView(LoginRequiredMixin, View):
 class ProductionAddView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
-    def get(self, request):
-        return render(request, 'production-add.html')
+    def get(self, request, *args, **kwargs):
+        form = AddProductionHouseForm
+        return render(request, 'production-add.html', {'form': form})
 
     def post(self, request):
-        validate_nip = None
-        prod_name = request.POST.get('name')
-        if prod_name == '':
-            messages.add_message(request, messages.INFO, "NEED TO FILL AT LEAST PROD. NAME")
-            return render(request, 'production-add.html')
-        prod_nip = request.POST.get('nip')
-        if prod_nip:
-            if not all(char.isdigit() or char == '-' for char in prod_nip):
-                messages.add_message(request, messages.INFO, "NIP NUMBER CAN USE ONLY DIGIT AND '-' ")
-                return render(request, 'production-add.html')
-            else:
-                clean_nip = prod_nip.replace('-', '')
-                if len(clean_nip) != 10:
+        form = AddProductionHouseForm(request.POST)
+        if form.is_valid():
+            prod_house = form.save(commit=False)
+            prod_house.user = request.user
+            if prod_house.nip:
+                nip = str(prod_house.nip)
+                if len(nip) != 10:
                     messages.add_message(request, messages.INFO, "LENGTH OF NIP NUMBER IS NOT CORRECT")
-                    return render(request, 'production-add.html')
+                    return render(request, 'production-add.html', {'form': form})
                 else:
-                    if nip_checker(clean_nip) is True:
-                        validate_nip = clean_nip
-                    else:
-                        messages.add_message(request, messages.INFO, "NIP NUBER IS NOT CORRECT")
-                        return render(request, 'production-add.html')
-        # ============ NIP VALIDATE =========
+                    if ProductionHouse.nip_checker(nip) is True:
+                        prod_house.nip = nip
 
-        prod_address = request.POST.get('address')
-        prod_email = request.POST.get('email')
-        prod_notes = request.POST.get('notes')
-        prod_rate = request.POST.get('rating')
-        if ProductionHouse.objects.filter(name=prod_name).exists():
-            messages.add_message(request, messages.INFO, "PRODUCTION EXIST")
-            return render(request, 'production-add.html')
+                    else:
+                        messages.add_message(request, messages.INFO, "NIP NUMBER IS NOT CORRECT")
+                        return render(request, 'production-add.html', {'form': form})
+            prod_house.save()
+            return redirect('productions-list')
         else:
-            ProductionHouse.objects.create(name=prod_name, nip=validate_nip, address=prod_address,
-                                           email=prod_email, notes=prod_notes, rating=prod_rate, user=request.user)
-            messages.add_message(request, messages.INFO, "PRODUCTION ADDED")
-            return render(request, 'production-add.html')
+            return render(request, 'production-add.html', {'form': form})
 
 
 # -----------------------------EDIT PRODUCTION HOUSES --------------------------
@@ -466,7 +484,7 @@ class ProductionEditView(LoginRequiredMixin, UserPassesTestMixin, View):
                     messages.add_message(request, messages.INFO, "LENGTH OF NIP NUMBER IS NOT CORRECT")
                     return render(request, self.template_name, {'form': form})
                 else:
-                    if nip_checker(clean_nip) is True:
+                    if ProductionHouse.nip_checker(clean_nip) is True:
                         validate_nip = clean_nip
                     else:
                         messages.add_message(request, messages.INFO, "NIP NUBER IS NOT CORRECT")
@@ -568,7 +586,19 @@ class ContactEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
 
 # ----------------------------- CONTACT DELETE  ----------------------------------
+"""
+CONTACT DELETE VIEW after selecting contact 
+confirm delete or go back to list of contact page
 
+:parameters
+-----------
+choosed contact
+
+:return
+----------
+deleted contact object form database
+
+"""
 
 class ContactDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     login_url = reverse_lazy('login-user')
@@ -594,29 +624,46 @@ class ContactDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 # =======================================================================================
 # ===================================  SEARCH JURNEY =====================================
+"""
+SEARCH VIEW base on selected options from html FORM
+shows via GET method projects which meets selected requirements
 
-class Search(View):
+:parameters
+------------
+DATE:
+PROJECT NAME:
+PRODUCTION HOUSES:
+CONTACTS:
+
+:return
+------------
+PROJECT WHICH MEETS SELECTED OPTIONS
+
+"""
+class SearchView(LoginRequiredMixin, View):
+    login_url = reverse_lazy('login-user')
+
     def get(self, request):
         global filtred_projects
         filtred_projects = None
+
         all_projects = Project.objects.filter(user=self.request.user)
         all_work_days = WorkDay.objects.filter(project__in=all_projects).order_by('date')
         all_production_houses = ProductionHouse.objects.filter(user=self.request.user)
         all_contacts = Contact.objects.filter(user=self.request.user)
-        print(all_work_days)
         date_start = request.GET.get('date_start')
         date_end = request.GET.get('date_end')
 
-        if request.GET.get('project') != None:
+        if request.GET.get('project') is not None:
             selected_project = request.GET.getlist('project')
             all_work_days = WorkDay.objects.filter(project__name__in=selected_project).order_by('date')
 
-        if request.GET.get('production') != None:
+        if request.GET.get('production') is not None:
             selected_production = request.GET.getlist('production')
             all_work_days = all_work_days.filter(
                 project__production_house__name__in=selected_production).order_by(
                 'date')
-        if request.GET.get('contacts') != None:
+        if request.GET.get('contacts') is not None:
             selected_contacts = request.GET.getlist('contacts')
             all_work_days = all_work_days.filter(
                 project__production_house__contact__first_name__in=selected_contacts).order_by(
@@ -638,26 +685,33 @@ class Search(View):
         return render(request, 'search.html', {'all_projects': all_projects, 'all_work_days': all_work_days,
                                                'filtred_projects': filtred_projects,
                                                'all_production_houses': all_production_houses,
-                                               'all_contacts' : all_contacts,})
+                                               'all_contacts': all_contacts, })
 
 
-# class SearchByDateView(View):
-#     def get(self, request):
-#
-#         form = SearchByDateForm()
-#         return render(request, 'search-by-DATE.html', {'form': form})
-#
-#     def post(self, request):
-#         form = SearchByDateForm(request.POST)
-#         if request.method == 'POST':
-#             if form.is_valid():
-#                 start_date = form.cleaned_data.get('start_date')
-#                 end_date = form.cleaned_data.get('end_date')
-#                 all_projects = Project.objects.filter(user=request.user)
-#                 all_work_days_for_user = WorkDay.objects.filter(project__in=all_projects)
-#                 search_dates = all_work_days_for_user.filter(date__range=[start_date, end_date]).order_by('date')
-#                 return render(request, 'search-by-DATE.html', {'form': form, 'search_dates': search_dates})
+# ============ GENERATE PDF ================
+
+"""
+VIEW for generating pdf for selected PROJECT, with all days of work
+
+:parameters
+--------------
+Project with at least one work day
+
+:returns
+--------------
+PDF DOWNLOADABLE file with project summary 
+"""
 
 
-class SearchByProjectView(View):
-    pass
+class CreatePdfView(View):
+    font_path = os.path.join(settings.BASE_DIR, 'film_lifeapp/static/fonts/bitter/Bitter-Regular.ttf')
+    pdfmetrics.registerFont(TTFont('Bitter', font_path))
+    font_path2 = os.path.join(settings.BASE_DIR, 'film_lifeapp/static/fonts/bitter/Bitter-Bold.ttf')
+    pdfmetrics.registerFont(TTFont('Bitter-Bold', font_path2))
+
+    def get(self, request, pk):
+        today = datetime.now().date()
+        project = Project.objects.get(pk=pk)
+        filename = f"{project.name}_date_of_create_{today}.pdf"
+        buffer = create_pdf(project)
+        return FileResponse(buffer, as_attachment=True, filename=filename)
