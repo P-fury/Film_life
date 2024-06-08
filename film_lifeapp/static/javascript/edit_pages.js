@@ -1,18 +1,34 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const typeOfWorkdaySelect = document.getElementById('id_type_of_workday');
-    const percentOfDailyInput = document.querySelector('#id_percent_of_daily').parentElement;
+    const typeOfWorkdaySelect = document.getElementById('type_of_day');
+    const percentOfDailyInput = document.getElementById('percent_of_daily');
+    const labelForPercent = document.querySelector('label[for="percent_of_daily"]')
 
-    typeOfWorkdaySelect.addEventListener('change', function () {
-        if (typeOfWorkdaySelect.value === 'other') {
-            percentOfDailyInput.style.display = 'block';
-        } else {
-            percentOfDailyInput.style.display = 'none';
+
+
+    function toggleLabelAndInputDisplay(display){
+        if (labelForPercent){
+            labelForPercent.style.display = display
         }
-    });
-    if (typeOfWorkdaySelect.value !== 'other') {
-        percentOfDailyInput.style.display = 'none';
-    } else if (typeOfWorkdaySelect.value === 'other') {
-        percentOfDailyInput.style.display = 'block';
+        if (percentOfDailyInput){
+            percentOfDailyInput.style.display = display;
+            if (display === 'block'){
+                percentOfDailyInput.setAttribute('required','required');
+            } else {
+                percentOfDailyInput.removeAttribute('required');
+            }
+        }
     }
 
+    typeOfWorkdaySelect.addEventListener('change', function () {
+        if (typeOfWorkdaySelect.value === 'other'){
+            toggleLabelAndInputDisplay('block');
+        } else {
+            toggleLabelAndInputDisplay('none');
+        }
+    });
+    if(typeOfWorkdaySelect.value === 'other'){
+        toggleLabelAndInputDisplay('block');
+    }else{
+        toggleLabelAndInputDisplay('none');
+    }
 });
