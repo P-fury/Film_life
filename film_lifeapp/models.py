@@ -5,7 +5,10 @@ from django.db.models import Sum
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from film_lifeapp.functions import progresive_hours_counter
+"""
+function progresive_hours_counter installed as a package delete from function file
+"""
+from overhourscounterpkg.overhourscounter import progresive_hours_counter
 
 
 # Create your models here.

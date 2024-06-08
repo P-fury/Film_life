@@ -152,6 +152,8 @@ class EditWorkDayForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['notes'].required = False
         self.fields['percent_of_daily'].required = False
+        self.fields['percent_of_daily'].widget.attrs['id'] = 'percent_of_daily'
+        self.fields['type_of_workday'].widget.attrs['id'] = 'type_of_day'
         if 'type_of_workday' in self.initial and '% of daily rate' in self.initial['type_of_workday']:
             percent = ProductionHouse.just_numb(self.initial['type_of_workday'])
             self.initial['type_of_workday'] = 'other'
