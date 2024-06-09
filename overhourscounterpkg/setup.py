@@ -9,4 +9,5 @@ setup(
     author_email="plutocamera@gmail.com",
     description="Small package for counting over hours",
     url="https://film-pskate.uk1.pitunnel.com/",
+    python_requires=">=3.6"
 )
