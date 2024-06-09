@@ -1,6 +1,6 @@
 from . import overhourscounter
 """
-overhourscounter
+over hours counter
 ================
-Count salary for a day with progresive overhours
+Count salary for a day with progressive over hours
 """
