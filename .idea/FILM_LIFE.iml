@@ -18,6 +18,7 @@
       <sourceFolder url="file://$MODULE_DIR$/film_lifeapp/static/list-style" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/film_lifeapp/static/navbar" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/film_lifeapp/static/style" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/overhourscounterpkg" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.11" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

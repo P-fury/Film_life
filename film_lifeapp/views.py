@@ -1,11 +1,15 @@
 import math
 import os
+import tempfile
+import uuid
 from datetime import datetime, timezone
+
+import pytz
 from django.contrib.auth import logout
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -15,7 +19,7 @@ from ip2geotools.databases.noncommercial import DbIpCity
 
 from film_lifeapp.forms import RegisterUserForm, LoginForm, EditProductionForm, ProjectDeleteForm, DaysDeleteForm, \
     ProductionHouseDeleteForm, ContactAddForm, ContactDeleteForm, EditProjectForm, EditWorkDayForm, \
-    AddProductionHouseForm, AddProjectForm
+    AddProductionHouseForm, AddProjectForm, PDFUploadForm
 from film_lifeapp.models import *
 from django.db.models import Sum
 from django.contrib import messages
@@ -26,6 +30,15 @@ from django.http import FileResponse
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from film_lifeapp.utils import get_piechart
+
+# ========= PDF -> iCalendar ====================
+import locale
+from pdfminer.high_level import extract_text
+from PyPDF2 import PdfFileReader
+import pytesseract
+from pdf2image import convert_from_path
+from ics import Calendar, Event
+import io
 
 # Create your views here.
 # ===================================== HOME JOURNEY ================================
@@ -210,6 +223,8 @@ class EditUserView(UpdateView):
 """
 PROJECT LIST VIEW list of all created PROJECT for logged USER
 """
+
+
 class ProjectListView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -233,6 +248,8 @@ at least project name
 add PROJECT to database for logged USER
 
 """
+
+
 class ProjectAddView(LoginRequiredMixin, View):
     redirect_unauthenticated_users_to = 'register'
 
@@ -272,6 +289,7 @@ selected PROJECT
 edited PROJECT details
 
 """
+
 
 class ProjectEditView(UserPassesTestMixin, View):
     def test_func(self):
@@ -317,6 +335,8 @@ LOGGED USER
 deleted PROJECT object from database
 
 """
+
+
 class ProjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     login_url = reverse_lazy('login-user')
 
@@ -346,6 +366,8 @@ class ProjectDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 """
 WORK DAY LIST VIEW for selected PROJECT for logged USER 
 """
+
+
 class WorkDaysListView(LoginRequiredMixin, UserPassesTestMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -380,6 +402,8 @@ WORK DAY date and details
 add WORK DAY to selected PROJECT and save to DATABASE
 
 """
+
+
 class WorkDaysAddView(UserPassesTestMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -433,6 +457,7 @@ edited WORK DAY details
 
 """
 
+
 class WorkDaysEditView(LoginRequiredMixin, UserPassesTestMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -483,6 +508,7 @@ choose PROJECT
 deleted WORK DAY object from database
 
 """
+
 
 class WorkDaysDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     login_url = reverse_lazy('login-user')
@@ -540,6 +566,8 @@ at least production house name
 add production house to database
 
 """
+
+
 class ProductionAddView(LoginRequiredMixin, View):
     login_url = reverse_lazy('login-user')
 
@@ -907,3 +935,81 @@ class CreatePdfView(View):
         filename = f"{project.name}_date_of_create_{today}.pdf"
         buffer = create_pdf(project)
         return FileResponse(buffer, as_attachment=True, filename=filename)
+
+
+# ============ SHOOTING SCHEDULE TO ICALENDAR ================
+# Wyrażenie regularne do dopasowania dat
+
+daysearchpl = re.compile(
+    r'(?:(?:KONIEC DNIA|End Day|Koniec dnia zdjęciowego|END OF DAY|PODSUMOWANIE DNIA|End of Shooting Day)[^0-9]*?(?:nr|#|NR)?\s?(\d+)[^0-9]*?(\b(?:poniedziałek|wtorek|środa|czwartek|piątek|sobota|niedziela)\b)[^0-9]*(\d{1,2} \w+ \d{4}))|(\b(?:poniedziałek|wtorek|środa|czwartek|piątek|sobota|niedziela)\b, \d{1,2} \w+ \d{4})',
+    re.IGNORECASE
+)
+
+
+def convert_date(date_str):
+    return datetime.strptime(date_str, '%d %B %Y')
+
+
+def process_pdf(file, project_name):
+    locale.setlocale(locale.LC_TIME, 'pl_PL.UTF-8')
+
+    # Save the uploaded PDF to a temporary file
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf:
+        temp_pdf.write(file.read())
+        temp_pdf_path = temp_pdf.name
+
+    try:
+        # Extract text from the PDF
+        pdf_text = extract_text(temp_pdf_path)
+
+        events = []
+        matches = list(daysearchpl.finditer(pdf_text))
+        for match in matches:
+            day_number = match.group(1)
+            day_of_week = match.group(2)
+            date_str = match.group(3)
+
+            date = convert_date(date_str)
+            event_name = f"{project_name} dzien: {day_number}"
+            event = {
+                "date": date,
+                "description": event_name,
+                "location": ""
+            }
+            events.append(event)
+
+        cal = Calendar()
+        for event in events:
+            cal_event = Event()
+            cal_event.name = event['description']
+            cal_event.begin = event['date'].replace(tzinfo=pytz.utc)
+            cal_event.end = event['date'].replace(tzinfo=pytz.utc)
+            cal_event.description = event['description']
+            cal_event.location = event['location']
+            cal_event.uid = str(uuid.uuid4())
+            cal.events.add(cal_event)
+
+        return cal.serialize()
+
+    finally:
+        # Remove the temporary file
+        os.remove(temp_pdf_path)
+
+
+class CreateICalendar(LoginRequiredMixin, View):
+    def get(self, request):
+        form = PDFUploadForm()
+        return render(request, 'pdftoicalendar.html', {'form': form})
+
+    def post(self, request):
+        form = PDFUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            project_name = form.cleaned_data['project_name']
+            pdf_file = request.FILES.get('pdf_file')
+            ical_content = process_pdf(pdf_file, project_name)
+            response = HttpResponse(ical_content, content_type='text/calendar')
+            response['Content-Disposition'] = f'attachment; filename="{project_name}_calendar.ics"'
+            return response
+        else:
+            form = PDFUploadForm()
+        return render(request, 'pdftoicalendar.html', {'form': form})
