@@ -240,3 +240,10 @@ class ContactAddForm(forms.ModelForm):
 class SearchByDateForm(forms.Form):
     start_date = forms.DateField(label='Start Date', widget=forms.DateInput(attrs={'type': 'date'}))
     end_date = forms.DateField(label='End Date', widget=forms.DateInput(attrs={'type': 'date'}))
+
+
+# ==================== FILE UPLOAD ===================
+
+class PDFUploadForm(forms.Form):
+    project_name = forms.CharField(label='Nazwa Projektu', max_length=100)
+    pdf_file = forms.FileField(label='Choose PDF file')

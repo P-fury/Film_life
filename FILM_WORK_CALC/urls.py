@@ -57,5 +57,6 @@ urlpatterns = [
 
     path('project_pdf/<int:pk>', views.CreatePdfView.as_view(), name='create-pdf'),
 
+    path('pdftoicalendar', views.CreateICalendar.as_view(), name='icalendar'),
 
 ]
