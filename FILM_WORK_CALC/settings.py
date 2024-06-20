@@ -163,3 +163,20 @@ LOGIN_URL = 'register_user/'
 
 #
 SELENIUM_LOGIN_START_PAGE = ''
+
+#=============== potrzebne do konwertowania pdf na obraz ===========================
+
+
+# Ensure the poppler path and tesseract path are included in the system PATH
+poppler_path = '/usr/local/bin'  # Adjust as necessary for your system
+tesseract_path = '/usr/local/bin'  # Adjust as necessary for your system
+existing_path = os.environ.get('PATH', '')
+
+# Update the PATH environment variable
+os.environ['PATH'] = f"{poppler_path}:{tesseract_path}:{existing_path}"
+
+# Set the TESSDATA_PREFIX environment variable
+os.environ['TESSDATA_PREFIX'] = '/usr/local/share/tessdata'  # Adjust as necessary for your system
+f"{poppler_path}:{tesseract_path}:{existing_path}"
+
+# DOGRAC pol.traineddata  !!!!

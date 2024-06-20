@@ -36,7 +36,7 @@ import locale
 from pdfminer.high_level import extract_text
 from PyPDF2 import PdfFileReader
 import pytesseract
-from pdf2image import convert_from_path
+from pdf2image import convert_from_path , exceptions
 from ics import Calendar, Event
 import io
 
@@ -940,6 +940,7 @@ class CreatePdfView(View):
 # ============ SHOOTING SCHEDULE TO ICALENDAR ================
 # Wyrażenie regularne do dopasowania dat
 
+
 daysearchpl = re.compile(
     r'(?:(?:KONIEC DNIA|End Day|Koniec dnia zdjęciowego|END OF DAY|PODSUMOWANIE DNIA|End of Shooting Day)[^0-9]*?(?:nr|#|NR)?\s?(\d+)[^0-9]*?(\b(?:poniedziałek|wtorek|środa|czwartek|piątek|sobota|niedziela)\b)[^0-9]*(\d{1,2} \w+ \d{4}))|(\b(?:poniedziałek|wtorek|środa|czwartek|piątek|sobota|niedziela)\b, \d{1,2} \w+ \d{4})',
     re.IGNORECASE
@@ -950,53 +951,81 @@ def convert_date(date_str):
     return datetime.strptime(date_str, '%d %B %Y')
 
 
+def extract_text_from_images(file_path):
+    try:
+        images = convert_from_path(file_path, dpi=300)
+    except exceptions.PDFPageCountError as e:
+        raise Exception(f"Failed to convert PDF to images: {e}")
+
+    text = ""
+    for image in images:
+        text += pytesseract.image_to_string(image, lang='pol')
+    return text
+
+
 def process_pdf(file, project_name):
     locale.setlocale(locale.LC_TIME, 'pl_PL.UTF-8')
-
-    # Save the uploaded PDF to a temporary file
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf:
-        temp_pdf.write(file.read())
-        temp_pdf_path = temp_pdf.name
-
+    pdf_content = None
     try:
-        # Extract text from the PDF
-        pdf_text = extract_text(temp_pdf_path)
+        file.seek(0)
+        pdf_content = file.read()
+        if not pdf_content:
+            raise Exception("PDF file is empty or could not be read.")
 
-        events = []
-        matches = list(daysearchpl.finditer(pdf_text))
-        for match in matches:
-            day_number = match.group(1)
-            day_of_week = match.group(2)
-            date_str = match.group(3)
+        pdf_text = extract_text(io.BytesIO(pdf_content))
+    except Exception as e:
+        print(f"Failed to extract text from PDF: {e}")
+        pdf_text = ""
 
-            date = convert_date(date_str)
-            event_name = f"{project_name} dzien: {day_number}"
-            event = {
-                "date": date,
-                "description": event_name,
-                "location": ""
-            }
-            events.append(event)
+    matches = list(daysearchpl.finditer(pdf_text))
+    if not matches and pdf_content:
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf:
+            temp_pdf.write(pdf_content)
+            temp_pdf_path = temp_pdf.name
 
-        cal = Calendar()
-        for event in events:
-            cal_event = Event()
-            cal_event.name = event['description']
-            cal_event.begin = event['date'].replace(tzinfo=pytz.utc)
-            cal_event.end = event['date'].replace(tzinfo=pytz.utc)
-            cal_event.description = event['description']
-            cal_event.location = event['location']
-            cal_event.uid = str(uuid.uuid4())
-            cal.events.add(cal_event)
 
-        return cal.serialize()
+        try:
+            pdf_text = extract_text_from_images(temp_pdf_path)
+            print(pdf_text,'obraz na tekst')
+            matches = list(daysearchpl.finditer(pdf_text))
+        except Exception as e:
+            print(f"Failed to convert PDF to images or extract text from images: {e}")
+            raise Exception(f"Nie można odczytać pliku PDF: {e}")
+        finally:
+            os.remove(temp_pdf_path)
 
-    finally:
-        # Remove the temporary file
-        os.remove(temp_pdf_path)
+    events = []
+    for match in matches:
+        day_number = match.group(1)
+        day_of_week = match.group(2)
+        date_str = match.group(3)
+
+        if not day_number or not day_of_week or not date_str:
+            continue
+
+        date = convert_date(date_str)
+        event_name = f"{project_name} dzien: {day_number}"
+        event = {
+            "date": date,
+            "description": event_name,
+            "location": ""
+        }
+        events.append(event)
+
+    cal = Calendar()
+    for event in events:
+        cal_event = Event()
+        cal_event.name = event['description']
+        cal_event.begin = event['date'].replace(tzinfo=None)
+        cal_event.end = event['date'].replace(tzinfo=None)
+        cal_event.description = event['description']
+        cal_event.location = event['location']
+        cal.events.add(cal_event)
+    return cal
 
 
 class CreateICalendar(LoginRequiredMixin, View):
+
     def get(self, request):
         form = PDFUploadForm()
         return render(request, 'pdftoicalendar.html', {'form': form})
@@ -1006,10 +1035,12 @@ class CreateICalendar(LoginRequiredMixin, View):
         if form.is_valid():
             project_name = form.cleaned_data['project_name']
             pdf_file = request.FILES.get('pdf_file')
-            ical_content = process_pdf(pdf_file, project_name)
-            response = HttpResponse(ical_content, content_type='text/calendar')
-            response['Content-Disposition'] = f'attachment; filename="{project_name}_calendar.ics"'
-            return response
-        else:
-            form = PDFUploadForm()
+            try:
+                calendar = process_pdf(pdf_file, project_name)
+                ical_content = calendar.serialize()
+                response = HttpResponse(ical_content, content_type='text/calendar')
+                response['Content-Disposition'] = f'attachment; filename="{project_name}_calendar.ics"'
+                return response
+            except Exception as e:
+                form.add_error(None, str(e))
         return render(request, 'pdftoicalendar.html', {'form': form})
