@@ -934,7 +934,7 @@ class CreateICalendar(LoginRequiredMixin, View):
 
     def get(self, request):
         form = PDFUploadForm()
-        return render(request, 'pdftoicalendar.html', {'form': form})
+        return render(request, 'pdf_to_icalendar.html', {'form': form})
 
     def post(self, request):
         form = PDFUploadForm(request.POST, request.FILES)
@@ -949,4 +949,4 @@ class CreateICalendar(LoginRequiredMixin, View):
                 return response
             except Exception as e:
                 form.add_error(None, str(e))
-        return render(request, 'pdftoicalendar.html', {'form': form})
+        return render(request, 'pdf_to_icalendar.html', {'form': form})
