@@ -67,10 +67,10 @@ class AddProjectForm(forms.ModelForm):
     ]
 
     type_of_overhours = forms.ChoiceField(choices=CHOICES, required=False)
+
     class Meta:
         model = Project
-        fields = ['name', 'daily_rate', 'type_of_overhours', 'occupation','production_house', 'notes']
-
+        fields = ['name', 'daily_rate', 'type_of_overhours', 'occupation', 'production_house', 'notes']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -245,5 +245,6 @@ class SearchByDateForm(forms.Form):
 # ==================== FILE UPLOAD ===================
 
 class PDFUploadForm(forms.Form):
-    project_name = forms.CharField(label='Nazwa Projektu', max_length=100)
-    pdf_file = forms.FileField(label='Choose PDF file')
+    project_name = forms.CharField(label='Project Name', max_length=100)
+    pdf_file = forms.FileField(label='Choose PDF file',
+                               widget=forms.ClearableFileInput(attrs={'class': 'upload'}))

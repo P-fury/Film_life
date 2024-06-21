@@ -128,3 +128,46 @@ form input[type='number'] {
     padding: 12px;
     width: 326px;
 }
+
+/*====================================================*/
+
+.project-name-input {
+    border: 1px solid #000;
+    padding: 5px;
+}
+
+.file-input {
+    display: none; /* Ukryj domyślny input */
+}
+
+.file-label.darkbig {
+    background-color: #4f9dee;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bolder;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.file-label.darkbig:hover {
+    background-color: #3b7bbb;
+}
+
+.upload-button {
+    background-color: #4f9dee;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.upload-button:hover {
+    background-color: #3b7bbb;
+}

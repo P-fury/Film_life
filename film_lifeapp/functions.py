@@ -1,5 +1,6 @@
 import os
 
+
 import pytz
 # ========= PDF DOCU ====================
 from django.http import FileResponse
@@ -14,6 +15,17 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from timezonefinder import TimezoneFinder
 
 from FILM_WORK_CALC import settings
+# ========= PDF -> iCalendar ====================
+import locale
+from pdfminer.high_level import extract_text
+import pytesseract
+from pdf2image import convert_from_path, exceptions
+from ics import Calendar, Event
+import io
+import re
+import tempfile
+from datetime import datetime
+
 
 
 def create_pdf(project):
@@ -117,3 +129,93 @@ def find_timezone(city):
     else:
         selected_timezone = pytz.timezone('UTC')
         return selected_timezone
+
+
+#================== CONVERT PDF TO ICALENDAR ============
+daysearchpl = re.compile(
+    r'(?:(?:KONIEC DNIA|End Day|Koniec dnia zdjęciowego|END OF DAY|PODSUMOWANIE DNIA|End of Shooting Day)'
+    r'[^0-9]*?(?:nr|#|NR)?\s?(\d+)[^0-9]*?'
+    r'(\b(?:poniedziałek|wtorek|środa|czwartek|piątek|sobota|niedziela)\b)[^0-9]*'
+    r'(\d{1,2} \w+ \d{4}))|'
+    r'(\b(?:poniedziałek|wtorek|środa|czwartek|piątek|sobota|niedziela)\b, (\d{1,2} \w+ \d{4})) --- '
+    r'PODSUMOWANIE DNIA (?:nr|#|NR)?\s?(\d+) ---',
+    re.IGNORECASE
+)
+
+
+def convert_date(date_str):
+    return datetime.strptime(date_str, '%d %B %Y')
+
+
+def extract_text_from_images(file_path):
+    try:
+        images = convert_from_path(file_path, dpi=300)
+    except exceptions.PDFPageCountError as e:
+        raise Exception(f"Failed to convert PDF to images: {e}")
+
+    text = ""
+    for image in images:
+        text += pytesseract.image_to_string(image, lang='pol')
+    return text
+
+
+def process_pdf(file, project_name):
+    locale.setlocale(locale.LC_TIME, 'pl_PL.UTF-8')
+    pdf_content = None
+    try:
+        file.seek(0)
+        pdf_content = file.read()
+        if not pdf_content:
+            raise Exception("PDF file is empty or could not be read.")
+
+        pdf_text = extract_text(io.BytesIO(pdf_content))
+    except Exception as e:
+        print(f"Failed to extract text from PDF: {e}")
+        pdf_text = ""
+
+    matches = list(daysearchpl.finditer(pdf_text))
+    if not matches and pdf_content:
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf:
+            temp_pdf.write(pdf_content)
+            temp_pdf_path = temp_pdf.name
+        try:
+            pdf_text = extract_text_from_images(temp_pdf_path)
+            matches = list(daysearchpl.finditer(pdf_text))
+        except Exception as e:
+            print(f"Failed to convert PDF to images or extract text from images: {e}")
+            raise Exception(f"Cannot read PDF file: {e}")
+        finally:
+            os.remove(temp_pdf_path)
+
+    events = []
+    for match in matches:
+        if match.group(1) and match.group(2) and match.group(3):
+            day_number = match.group(1)
+            day_of_week = match.group(2)
+            date_str = match.group(3)
+        elif match.group(5) and match.group(6):
+            day_of_week = match.group(4)
+            date_str = match.group(5)
+            day_number = match.group(6)
+        else:
+            continue
+
+        date = convert_date(date_str)
+        event_name = f"{project_name} dzien: {day_number}"
+        event = {
+            "date": date,
+            "description": event_name,
+            "location": ""
+        }
+        events.append(event)
+
+    cal = Calendar()
+    for event in events:
+        cal_event = Event()
+        cal_event.name = event['description']
+        cal_event.begin = event['date'].replace(tzinfo=None)
+        cal_event.end = event['date'].replace(tzinfo=None)
+        cal_event.description = event['description']
+        cal_event.location = event['location']
+        cal.events.add(cal_event)
+    return cal
