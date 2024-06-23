@@ -151,7 +151,6 @@ form input[type='number'] {
     font-weight: bolder;
     border-radius: 5px;
     cursor: pointer;
-    display: inline-block;
 }
 
 .file-label.darkbig:hover {

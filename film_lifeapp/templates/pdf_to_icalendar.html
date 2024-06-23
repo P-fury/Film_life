@@ -12,7 +12,7 @@
 
 
         <input type="file" name="pdf_file" id="pdf_file" class="file-input" style="visibility: hidden">
-        {{ form.pdf_file.label_tag }}<br>
+        <br>
         <label id="custom-button" for="pdf_file" class="file-label darkbig center">Choose PDF file</label>
         <span id="custom-text" class="center"> No file chosen, yet.</span><br>
 
@@ -21,32 +21,7 @@
 
     {% load static %}
     <link rel="stylesheet" href="{% static 'style/edit.css' %}">
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const realFileBtn = document.getElementById('pdf_file');
-            const customBtn = document.getElementById('custom-button');
-            const customText = document.getElementById('custom-text');
 
-            if (realFileBtn && customBtn && customText) {
-                customBtn.addEventListener("click", function () {
-                    event.preventDefault();
-                    realFileBtn.click();
-                });
-
-                realFileBtn.addEventListener("change", function () {
-                    if (realFileBtn.files.length > 0) {
-                        customText.innerHTML = realFileBtn.files[0].name;
-                    } else {
-                        customText.innerHTML = 'No file chosen.';
-                    }
-                });
-            } else {
-                console.error("Elements with the specified IDs were not found in the DOM.");
-            }
-        });
-
-    </script>
-
-
+    <script src="{% static 'pfd_to_icalendar/pdf_to_icalendar.js' %}"></script>
 
 {% endblock %}

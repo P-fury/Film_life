@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
     (function ($) {
-
         $(function () {
 
             //  open and close nav
