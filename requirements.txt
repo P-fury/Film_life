@@ -44,6 +44,13 @@ future~=1.0.0
 freezegun~=1.4.0
 matplotlib~=3.8.3
 ip2geotools~=0.1.6
-pdfminer~=20191125
+pdfminer
 pytz~=2023.3.post1
 timezonefinder~=6.5.0
+django-compressor
+django-widget-tweaks
+pdfminer.six
+pytesseract
+pdf2image
+ics
+psycopg2-binary

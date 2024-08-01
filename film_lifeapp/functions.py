@@ -132,6 +132,13 @@ def find_timezone(city):
 
 
 #================== CONVERT PDF TO ICALENDAR ============
+"""
+Converting pdf to iCalendar
+Downloadable attachment with iCalendar file created form work schedule PDF
+"""
+
+
+
 daysearchpl = re.compile(
     r'(?:(?:KONIEC DNIA|End Day|Koniec dnia zdjęciowego|END OF DAY|PODSUMOWANIE DNIA|End of Shooting Day)'
     r'[^0-9]*?(?:nr|#|NR)?\s?(\d+)[^0-9]*?'
@@ -141,7 +148,17 @@ daysearchpl = re.compile(
     r'PODSUMOWANIE DNIA (?:nr|#|NR)?\s?(\d+) ---',
     re.IGNORECASE
 )
+"""
+convert_date
 
+:parameters
+--------------
+date_str - date pattern from pdf file ex. '5 czerwiec 2023' get from third group from regex 
+
+:returns
+--------------
+Datetime formatted string
+"""
 
 def convert_date(date_str):
     return datetime.strptime(date_str, '%d %B %Y')
